@@ -1,0 +1,11 @@
+.board-wrapper {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    grid-column-gap: 1px;
+    grid-row-gap: 1px;
+    width: 800px;
+    height: 800px;
+    border: black 4px solid;
+    background-color: black;
+}
