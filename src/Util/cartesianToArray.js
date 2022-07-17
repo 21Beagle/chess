@@ -1,11 +1,11 @@
 export function coordinates(arrayIndex) {
-    let row = arrayIndex % 8;
-    let column = parseInt(arrayIndex / 8);
-    return [row, column];
+    let file = arrayIndex % 8;
+    let rank = parseInt(arrayIndex / 8);
+    return [rank, file];
 }
 
 export function toIndex(coordinates) {
-    let row = coordinates[0];
-    let column = coordinates[1];
-    return row + column * 8;
+    let rank = coordinates[0];
+    let file = coordinates[1];
+    return rank + file * 8;
 }

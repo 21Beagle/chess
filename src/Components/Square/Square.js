@@ -27,11 +27,7 @@ function Square({ id, piece, pieceColor, availableMove, handleClick }) {
             break;
         case "P":
             Component = (
-                <Pawn
-                    color={pieceColor}
-                    id={id}
-                    handleClick={() => handleClick}
-                />
+                <Pawn color={pieceColor} id={id} handleClick={handleClick} />
             );
             break;
         case "K":

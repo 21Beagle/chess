@@ -10,6 +10,7 @@ import {
     availableKnightMoves,
     availableQueenMoves,
     availableRookMoves,
+    availblePawnMoves,
 } from "../../Util/AvailableMoves";
 
 function Board() {
@@ -24,11 +25,9 @@ function Board() {
     }, []);
 
     function showAvailableMoves(position) {
-        console.log(position);
         let piece = squares[position];
-        console.log(piece);
         let availableMoves = [];
-
+        console.log(piece);
         switch (piece.piece) {
             case "R":
                 availableMoves = availableRookMoves(position);
@@ -45,13 +44,13 @@ function Board() {
             case "K":
                 availableMoves = availableKingMoves(position);
                 break;
+            case "P":
+                availableMoves = availblePawnMoves(position, piece.color);
             default:
                 break;
         }
         pushAvailableMovesToSquares(availableMoves);
     }
-
-    console.log(squares);
 
     function pushAvailableMovesToSquares(availableMoves) {
         let newSquares = [];
