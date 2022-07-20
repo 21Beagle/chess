@@ -16,6 +16,7 @@ function Square({
     availableMove,
     handleClick,
     selected,
+    enPassantAvailable,
 }) {
     let className;
     if (id % 16 < 8) {
@@ -23,6 +24,10 @@ function Square({
     } else {
         className = id % 2 === 0 ? "white-tile" : "black-tile";
     }
+
+    // if (enPassantAvailable) {
+    //     className = "en-passant";
+    // }
     if (availableMove) {
         className = "available-move";
     }
@@ -56,7 +61,7 @@ function Square({
     }
 
     return (
-        <div onClick={() => handleClick(id)} className={className}>
+        <div onClick={() => handleClick(id)} className={className + " tile"}>
             {Component}
         </div>
     );

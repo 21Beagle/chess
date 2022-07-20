@@ -1,13 +1,18 @@
+.tile {
+    width: 80px;
+    height: 80px;
+}
+
+.en-passant {
+    background-color: rgb(0, 26, 255);
+}
+
 .black-tile {
-    background-color: rgb(93, 135, 141);
-    width: 100px;
-    height: 100px;
+    background-color: #535a79;
 }
 
 .white-tile {
-    background-color: rgb(199, 244, 247);
-    width: 100px;
-    height: 100px;
+    background-color: #bfc0c0;
 }
 
 .available-move {

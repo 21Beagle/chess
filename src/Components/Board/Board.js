@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Board.css";
 import Square from "../Square/Square";
 import FENToBoard from "../../Util/FEN";
@@ -18,6 +18,7 @@ function Board() {
     const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [selectedSquare, setSelectedSquare] = useState(-1);
+    const [enPassant, setEnPassant] = useState(-1);
 
     function handleClick(squareIndex) {
         if (board[squareIndex].selected === true) {
@@ -25,6 +26,7 @@ function Board() {
             hideAvailableMovesAll();
             return;
         } else if (board[squareIndex].availableMove === true) {
+            checkEnPassant(selectedSquare, squareIndex);
             handleMove(selectedSquare, squareIndex);
             unselectAll();
             togglePlayerTurn();
@@ -52,16 +54,49 @@ function Board() {
     }
 
     function handleMove(oldPosition, newPosition) {
-        let newSquares = board;
-        newSquares[newPosition] = { ...board[oldPosition] };
-        newSquares[oldPosition] = { ...EMPTY_SQUARE };
-        setBoard([...newSquares]);
+        let newBoard = board;
+        checkEnPassant(oldPosition, newPosition);
+
+        newBoard[newPosition] = { ...board[oldPosition] };
+        newBoard[oldPosition] = { ...EMPTY_SQUARE };
+
+        setBoard([...newBoard]);
+    }
+
+    function removeEnPassant() {
+        let newBoard = [];
+
+        for (let i in board) {
+            newBoard[i] = board[i];
+            newBoard[i].enPassantAvailable = false;
+        }
+
+        setBoard([...newBoard]);
+        return;
+    }
+
+    function checkEnPassant(oldPosition, newPosition) {
+        removeEnPassant();
+        let newBoard = board;
+        let oldPiece = board[oldPosition].piece;
+        let enPassant = -1;
+        if (oldPiece === PIECES.PAWN && oldPosition - newPosition === 16) {
+            enPassant = oldPosition - 8;
+        }
+        if (oldPiece === PIECES.PAWN && oldPosition - newPosition === -16) {
+            enPassant = oldPosition + 8;
+        }
+        if (enPassant !== -1) {
+            newBoard[enPassant].enPassantAvailable = true;
+        }
+        setBoard([...newBoard]);
+        setEnPassant(enPassant);
     }
 
     function selectSquare(square) {
-        let newSquares = [];
-        newSquares = board;
-        newSquares[square] = { ...board[square], selected: true };
+        let newBoard = [];
+        newBoard = board;
+        newBoard[square] = { ...board[square], selected: true };
         return;
     }
 
@@ -98,24 +133,26 @@ function Board() {
                 availableMoves = availableKingMoves(position);
                 break;
             case PIECES.PAWN:
-                availableMoves = availablePawnMoves(position, square.color);
+                availableMoves = availablePawnMoves(position, board, enPassant);
                 break;
             default:
                 break;
         }
+        availableMoves = availableMoves.filter((value) => {
+            return value < 64 && value > 0;
+        });
         pushAvailableMovesToSquares(availableMoves);
     }
 
     function pushAvailableMovesToSquares(availableMoves) {
         let newSquares = board;
+
         for (let i in availableMoves) {
-            let index = availableMoves[i];
-            if (index >= 0 && index <= 63) {
-                newSquares[index] = {
-                    ...board[index],
-                    availableMove: true,
-                };
-            }
+            let availableMoveIndex = availableMoves[i];
+            newSquares[availableMoveIndex] = {
+                ...board[availableMoveIndex],
+                availableMove: true,
+            };
         }
         setBoard([...newSquares]);
     }
@@ -139,6 +176,7 @@ function Board() {
                         id={value}
                         handleClick={(square) => handleClick(square)}
                         availableMove={square.availableMove}
+                        enPassantAvailable={square.enPassantAvailable}
                         selected={square.selected}
                     />
                 ))}

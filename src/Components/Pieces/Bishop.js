@@ -13,7 +13,15 @@ function Bishop({ color }) {
         iconSrc = black;
         alt = "Black Bishop";
     }
-    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
+    return (
+        <img
+            className="piece-icon"
+            src={iconSrc}
+            alt={alt}
+            width="auto"
+            height="auto"
+        ></img>
+    );
 }
 
 export default Bishop;

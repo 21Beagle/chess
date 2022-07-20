@@ -3,7 +3,7 @@ export const EMPTY_SQUARE = {
     piece: "",
     availableMove: false,
     selected: false,
-    hasPiece: false,
+    enPassantAvailable: false,
 };
 
 export const PIECES = {
