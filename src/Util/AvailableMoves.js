@@ -3,7 +3,6 @@ import { coordinates } from "./cartesianToArray";
 export function availableRookMoves(position) {
     let availableMoves = [];
     let [rank, file] = coordinates(position);
-    console.log(rank, file);
     for (let i = 0; i < 8; i++) {
         if (i === rank) continue;
         availableMoves.push(i * 8 + file);
@@ -11,7 +10,6 @@ export function availableRookMoves(position) {
     for (let i = 0; i < 8; i++) {
         if (i === file) continue;
         let start = 8 * rank;
-        console.log(start + i);
         availableMoves.push(start + i);
     }
     return availableMoves;
@@ -72,7 +70,7 @@ export function availableQueenMoves(position) {
 
 export function availableKingMoves(position) {
     let availableMoves = [];
-    let [rank, file] = coordinates(position);
+    let rank = coordinates(position)[0];
     let kingMoves = [-9, -8, -7, -1, 1, 7, 8, 9];
     availableMoves = kingMoves.map((value) => {
         let newPosition = position + value;
@@ -84,18 +82,16 @@ export function availableKingMoves(position) {
     return availableMoves;
 }
 
-export function availblePawnMoves(position, color) {
+export function availablePawnMoves(position, color) {
     let availableMoves = [];
     let pawnMoves = [];
-    let [rank, file] = coordinates(position);
-    console.log(color);
-    console.log(rank, file);
+    let rank = coordinates(position)[0];
+
     if (color == "B") {
         rank == 1 ? (pawnMoves = [8, 16]) : (pawnMoves = [8]);
     } else {
         rank == 6 ? (pawnMoves = [-8, -16]) : (pawnMoves = [-8]);
     }
-    console.log(pawnMoves);
     availableMoves = pawnMoves.map((value) => {
         return position + value;
     });

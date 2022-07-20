@@ -1,3 +1,5 @@
+import { EMPTY_SQUARE } from "../Consts/Consts";
+
 export default function FENToBoard(FEN_string) {
     if (typeof FEN_string !== "string") return;
 
@@ -10,20 +12,16 @@ export default function FENToBoard(FEN_string) {
 
     for (let i in boardString) {
         if (boardString[i] === "/") continue;
-        let piece = {};
+        let piece = { ...EMPTY_SQUARE };
         if (isNumeric(boardString[i])) {
             let number = parseFloat(boardString[i]);
             for (let i = 0; i < number; i++) {
-                piece.color = "";
-                piece.piece = "";
                 board.push(piece);
             }
             continue;
         }
         isCapital(boardString[i]) ? (piece.color = "W") : (piece.color = "B");
         piece.piece = boardString[i].toUpperCase();
-        piece.availableMove = false;
-
         board.push(piece);
     }
     gameState.board = board;

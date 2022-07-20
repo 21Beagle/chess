@@ -1,21 +1,19 @@
 import React from "react";
 import white from "../../Media/StandardPieces/whiteRook.png";
 import black from "../../Media/StandardPieces/blackRook.png";
+import { COLOR } from "../../Consts/Consts";
 
-function Rook({ color, id, handleClick }) {
+function Rook({ color }) {
     let iconSrc;
-    if (color === "W") {
+    let alt;
+    if (color === COLOR.WHITE) {
         iconSrc = white;
+        alt = "White Rook";
     } else {
         iconSrc = black;
+        alt = "Black Rook";
     }
-    return (
-        <img
-            onClick={() => handleClick(id)}
-            className="piece-icon"
-            src={iconSrc}
-        ></img>
-    );
+    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
 }
 
 export default Rook;

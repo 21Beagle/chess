@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Board.css";
 import Square from "../Square/Square";
-
 import FENToBoard from "../../Util/FEN";
 // import { coordinates } from "../../Util/cartesianToArray";
 import {
@@ -10,42 +9,97 @@ import {
     availableKnightMoves,
     availableQueenMoves,
     availableRookMoves,
-    availblePawnMoves,
+    availablePawnMoves,
 } from "../../Util/AvailableMoves";
+import { COLOR, EMPTY_SQUARE, PIECES } from "../../Consts/Consts";
 
 function Board() {
-    const defaultPiece = { piece: "", color: "" };
-    const FENstart =
-        "rnbqkbnr/pppppppp/8/3B4/K2K4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const [board, setBoard] = useState(FENToBoard(FENstart).board);
+    const [turnColor, setTurnColor] = useState(COLOR.WHITE);
+    const [selectedSquare, setSelectedSquare] = useState(-1);
 
-    const [squares, setSquares] = useState(Array(64).fill(defaultPiece));
+    function handleClick(squareIndex) {
+        if (board[squareIndex].selected === true) {
+            unselectAll();
+            hideAvailableMovesAll();
+            return;
+        } else if (board[squareIndex].availableMove === true) {
+            handleMove(selectedSquare, squareIndex);
+            unselectAll();
+            togglePlayerTurn();
+            hideAvailableMovesAll();
+            return;
+        }
+        if (board[squareIndex].color === turnColor) {
+            unselectAll();
+            selectSquare(squareIndex);
+            setSelectedSquare(squareIndex);
+            hideAvailableMovesAll();
+            showAvailableMoves(squareIndex);
+            return;
+        } else {
+            unselectAll();
+            hideAvailableMovesAll();
+            return;
+        }
+    }
 
-    useEffect(() => {
-        setSquares(FENToBoard(FENstart).board);
-    }, []);
+    function togglePlayerTurn() {
+        turnColor === COLOR.WHITE
+            ? setTurnColor(COLOR.BLACK)
+            : setTurnColor(COLOR.WHITE);
+    }
+
+    function handleMove(oldPosition, newPosition) {
+        let newSquares = board;
+        newSquares[newPosition] = { ...board[oldPosition] };
+        newSquares[oldPosition] = { ...EMPTY_SQUARE };
+        setBoard([...newSquares]);
+    }
+
+    function selectSquare(square) {
+        let newSquares = [];
+        newSquares = board;
+        newSquares[square] = { ...board[square], selected: true };
+        return;
+    }
+
+    function unselectAll() {
+        let newSquares = [];
+
+        for (let i in board) {
+            newSquares[i] = board[i];
+            newSquares[i].selected = false;
+        }
+        setSelectedSquare(-1);
+
+        setBoard([...newSquares]);
+        return;
+    }
 
     function showAvailableMoves(position) {
-        let piece = squares[position];
+        let square = board[position];
         let availableMoves = [];
-        console.log(piece);
-        switch (piece.piece) {
-            case "R":
+        switch (square.piece) {
+            case PIECES.ROOK:
                 availableMoves = availableRookMoves(position);
                 break;
-            case "N":
+            case PIECES.KNIGHT:
                 availableMoves = availableKnightMoves(position);
                 break;
-            case "B":
+            case PIECES.BISHOP:
                 availableMoves = availableBishopMoves(position);
                 break;
-            case "Q":
+            case PIECES.QUEEN:
                 availableMoves = availableQueenMoves(position);
                 break;
-            case "K":
+            case PIECES.KING:
                 availableMoves = availableKingMoves(position);
                 break;
-            case "P":
-                availableMoves = availblePawnMoves(position, piece.color);
+            case PIECES.PAWN:
+                availableMoves = availablePawnMoves(position, square.color);
+                break;
             default:
                 break;
         }
@@ -53,33 +107,39 @@ function Board() {
     }
 
     function pushAvailableMovesToSquares(availableMoves) {
-        let newSquares = [];
-        for (let i in squares) {
-            newSquares[i] = { ...squares[i], availableMove: false };
-        }
+        let newSquares = board;
         for (let i in availableMoves) {
             let index = availableMoves[i];
             if (index >= 0 && index <= 63) {
                 newSquares[index] = {
-                    ...squares[index],
+                    ...board[index],
                     availableMove: true,
                 };
             }
         }
-        setSquares(newSquares);
+        setBoard([...newSquares]);
+    }
+
+    function hideAvailableMovesAll() {
+        let newSquares = board;
+        for (let i in board) {
+            newSquares[i].availableMove = false;
+        }
+        setBoard([...newSquares]);
     }
 
     return (
         <div className="center">
             <div className="board-wrapper center">
-                {squares.map((square, value) => (
+                {board.map((square, value) => (
                     <Square
                         key={value}
                         piece={square.piece}
                         pieceColor={square.color}
                         id={value}
-                        handleClick={(moves) => showAvailableMoves(moves)}
+                        handleClick={(square) => handleClick(square)}
                         availableMove={square.availableMove}
+                        selected={square.selected}
                     />
                 ))}
             </div>
