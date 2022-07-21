@@ -192,7 +192,11 @@ export function availablePawnMoves(position, board, enPassant) {
     let color = board[position].color;
 
     if (color === COLOR.BLACK) {
-        if (!board[position + 16].piece && rank === 1) {
+        if (
+            !board[position + 16].piece &&
+            !board[position + 8].piece &&
+            rank === 1
+        ) {
             pawnMoves.push(16);
         }
         if (!board[position + 8].piece) {
@@ -213,7 +217,11 @@ export function availablePawnMoves(position, board, enPassant) {
             pawnMoves.push(7);
         }
     } else {
-        if (!board[position - 16].piece && rank === 6) {
+        if (
+            !board[position - 16].piece &&
+            !board[position - 8].piece &&
+            rank === 6
+        ) {
             pawnMoves.push(-16);
         }
         if (!board[position - 8].piece) {
