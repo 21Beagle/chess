@@ -1,7 +1,7 @@
 export function coordinates(arrayIndex) {
     let file = arrayIndex % 8;
     let rank = parseInt(arrayIndex / 8);
-    return [rank, file];
+    return [file, rank];
 }
 
 export function toIndex(coordinates) {

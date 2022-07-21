@@ -15,6 +15,8 @@ import { COLOR, EMPTY_SQUARE, PIECES } from "../../Consts/Consts";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const FENTest = "B6b/8/8/8/8/8/8/b6B w KQkq - 0 1";
+
     const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [selectedSquare, setSelectedSquare] = useState(-1);
@@ -38,13 +40,48 @@ function Board() {
             selectSquare(squareIndex);
             setSelectedSquare(squareIndex);
             hideAvailableMovesAll();
-            showAvailableMoves(squareIndex);
+
+            let availableMoves = showAvailableMoves(squareIndex);
+            pushAvailableMovesToSquares(availableMoves);
+
             return;
         } else {
             unselectAll();
             hideAvailableMovesAll();
             return;
         }
+    }
+
+    function playerColorOpposite(playerColor = turnColor) {
+        return playerColor === COLOR.WHITE ? COLOR.BLACK : COLOR.WHITE;
+    }
+
+    function showAllAvailableMovesForTurnColor(playerColor = turnColor) {
+        let availableMoves = [];
+        for (let i = 0; i < board.length; i++) {
+            if (board[i].color === playerColor) {
+                let squareAvailableMoves = showAvailableMoves(i, false);
+                squareAvailableMoves.map((value) => {
+                    availableMoves.push(value);
+                });
+            }
+        }
+        return availableMoves;
+    }
+
+    function checkForChecks(playerColor = turnColor) {
+        let availableMoves = showAllAvailableMovesForTurnColor(playerColor);
+        let checks = availableMoves.map((value) => {
+            return (
+                board[value].piece === PIECES.KING &&
+                playerColor !== board[value].color
+            );
+        });
+        let anyChecks = checks.some((value) => {
+            return value === true;
+        });
+        console.log(anyChecks);
+        return anyChecks;
     }
 
     function togglePlayerTurn() {
@@ -55,7 +92,6 @@ function Board() {
 
     function handleMove(oldPosition, newPosition) {
         let newBoard = board;
-        checkEnPassant(oldPosition, newPosition);
 
         newBoard[newPosition] = { ...board[oldPosition] };
         newBoard[oldPosition] = { ...EMPTY_SQUARE };
@@ -63,6 +99,14 @@ function Board() {
         setBoard([...newBoard]);
     }
 
+    function tryMove(oldPosition, newPosition, board = board) {
+        let newBoard = board;
+
+        newBoard[newPosition] = { ...board[oldPosition] };
+        newBoard[oldPosition] = { ...EMPTY_SQUARE };
+
+        return newBoard;
+    }
     function removeEnPassant() {
         let newBoard = [];
 
@@ -75,22 +119,35 @@ function Board() {
         return;
     }
 
+    function clearSquare(position) {
+        let newBoard = board;
+        console.log(position);
+
+        newBoard[position] = { ...EMPTY_SQUARE };
+
+        setBoard([...newBoard]);
+    }
+
     function checkEnPassant(oldPosition, newPosition) {
+        if (newPosition === enPassant) {
+            clearSquare(newPosition + 8);
+            clearSquare(newPosition - 8);
+        }
         removeEnPassant();
         let newBoard = board;
         let oldPiece = board[oldPosition].piece;
-        let enPassant = -1;
+        let newEnPassant = -1;
         if (oldPiece === PIECES.PAWN && oldPosition - newPosition === 16) {
-            enPassant = oldPosition - 8;
+            newEnPassant = oldPosition - 8;
         }
         if (oldPiece === PIECES.PAWN && oldPosition - newPosition === -16) {
-            enPassant = oldPosition + 8;
+            newEnPassant = oldPosition + 8;
         }
-        if (enPassant !== -1) {
-            newBoard[enPassant].enPassantAvailable = true;
+        if (newEnPassant !== -1) {
+            newBoard[newEnPassant].enPassantAvailable = true;
         }
         setBoard([...newBoard]);
-        setEnPassant(enPassant);
+        setEnPassant(newEnPassant);
     }
 
     function selectSquare(square) {
@@ -113,24 +170,24 @@ function Board() {
         return;
     }
 
-    function showAvailableMoves(position) {
+    function showAvailableMoves(position, oneLevel = false) {
         let square = board[position];
         let availableMoves = [];
         switch (square.piece) {
             case PIECES.ROOK:
-                availableMoves = availableRookMoves(position);
+                availableMoves = availableRookMoves(position, board);
                 break;
             case PIECES.KNIGHT:
-                availableMoves = availableKnightMoves(position);
+                availableMoves = availableKnightMoves(position, board);
                 break;
             case PIECES.BISHOP:
-                availableMoves = availableBishopMoves(position);
+                availableMoves = availableBishopMoves(position, board);
                 break;
             case PIECES.QUEEN:
-                availableMoves = availableQueenMoves(position);
+                availableMoves = availableQueenMoves(position, board);
                 break;
             case PIECES.KING:
-                availableMoves = availableKingMoves(position);
+                availableMoves = availableKingMoves(position, board);
                 break;
             case PIECES.PAWN:
                 availableMoves = availablePawnMoves(position, board, enPassant);
@@ -138,10 +195,24 @@ function Board() {
             default:
                 break;
         }
+
         availableMoves = availableMoves.filter((value) => {
-            return value < 64 && value > 0;
+            return value < 64 && value >= 0;
         });
-        pushAvailableMovesToSquares(availableMoves);
+        console.log(oneLevel);
+        // if (oneLevel) {
+        //     availableMoves = availableMoves.filter((value) => {
+        //         let testBoard = tryMove(position, value, board);
+        //         console.log(testBoard);
+        //         console.log(value);
+        //         if (checkForChecks(turnColor, testBoard)) {
+        //             return value;
+        //         }
+        //         return -1;
+        //     });
+        // }
+
+        return availableMoves;
     }
 
     function pushAvailableMovesToSquares(availableMoves) {
@@ -167,6 +238,11 @@ function Board() {
 
     return (
         <div className="center">
+            <button
+                onClick={() => checkForChecks(playerColorOpposite(turnColor))}
+            >
+                {"Is " + turnColor + " in check?"}
+            </button>
             <div className="board-wrapper center">
                 {board.map((square, value) => (
                     <Square
