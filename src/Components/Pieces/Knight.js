@@ -1,21 +1,19 @@
 import React from "react";
 import white from "../../Media/StandardPieces/whiteKnight.png";
 import black from "../../Media/StandardPieces/blackKnight.png";
+import { COLOR } from "../../Consts/Consts";
 
-function Knight({ color, id, handleClick }) {
+function Knight({ color }) {
     let iconSrc;
-    if (color === "W") {
+    let alt;
+    if (color === COLOR.WHITE) {
         iconSrc = white;
+        alt = "White Kinght";
     } else {
         iconSrc = black;
+        alt = "Black Knight";
     }
-    return (
-        <img
-            onClick={() => handleClick(id)}
-            className="piece-icon"
-            src={iconSrc}
-        ></img>
-    );
+    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
 }
 
 export default Knight;

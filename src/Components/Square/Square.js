@@ -7,59 +7,64 @@ import Rook from "../Pieces/Rook";
 import Bishop from "../Pieces/Bishop";
 import Knight from "../Pieces/Knight";
 import Pawn from "../Pieces/Pawn";
+import { PIECES } from "../../Consts/Consts";
 
-function Square({ id, piece, pieceColor, availableMove, handleClick }) {
+function Square({
+    id,
+    piece,
+    pieceColor,
+    availableMove,
+    handleClick,
+    selected,
+    enPassantAvailable,
+}) {
     let className;
     if (id % 16 < 8) {
         className = id % 2 !== 0 ? "white-tile" : "black-tile";
     } else {
         className = id % 2 === 0 ? "white-tile" : "black-tile";
     }
+
+    // if (enPassantAvailable) {
+    //     className = "en-passant";
+    // }
     if (availableMove) {
         className = "available-move";
     }
 
+    if (selected) {
+        className = "selected";
+    }
+
     switch (piece) {
-        case "R":
-            Component = (
-                <Rook color={pieceColor} id={id} handleClick={handleClick} />
-            );
+        case PIECES.ROOK:
+            Component = <Rook color={pieceColor} id={id} />;
             break;
-        case "P":
-            Component = (
-                <Pawn
-                    color={pieceColor}
-                    id={id}
-                    handleClick={() => handleClick}
-                />
-            );
+        case PIECES.PAWN:
+            Component = <Pawn color={pieceColor} id={id} />;
             break;
-        case "K":
-            Component = (
-                <King color={pieceColor} id={id} handleClick={handleClick} />
-            );
+        case PIECES.KING:
+            Component = <King color={pieceColor} id={id} />;
             break;
-        case "Q":
-            Component = (
-                <Queen color={pieceColor} id={id} handleClick={handleClick} />
-            );
+        case PIECES.QUEEN:
+            Component = <Queen color={pieceColor} id={id} />;
             break;
-        case "N":
-            Component = (
-                <Knight color={pieceColor} id={id} handleClick={handleClick} />
-            );
+        case PIECES.KNIGHT:
+            Component = <Knight color={pieceColor} id={id} />;
             break;
-        case "B":
-            Component = (
-                <Bishop color={pieceColor} id={id} handleClick={handleClick} />
-            );
+        case PIECES.BISHOP:
+            Component = <Bishop color={pieceColor} id={id} />;
             break;
         default:
             Component = <></>;
             break;
     }
 
-    return <div className={className}>{Component}</div>;
+    return (
+        <div onClick={() => handleClick(id)} className={className + " tile"}>
+            {Component}
+        </div>
+    );
 }
 
 export default Square;

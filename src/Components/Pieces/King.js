@@ -1,21 +1,19 @@
 import React from "react";
 import white from "../../Media/StandardPieces/whiteKing.png";
 import black from "../../Media/StandardPieces/blackKing.png";
+import { COLOR } from "../../Consts/Consts";
 
-function King({ color, id, handleClick }) {
+function King({ color }) {
     let iconSrc;
-    if (color === "W") {
+    let alt;
+    if (color === COLOR.WHITE) {
         iconSrc = white;
+        alt = "White King";
     } else {
         iconSrc = black;
+        alt = "Black King";
     }
-    return (
-        <img
-            onClick={() => handleClick(id)}
-            className="piece-icon"
-            src={iconSrc}
-        ></img>
-    );
+    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
 }
 
 export default King;
