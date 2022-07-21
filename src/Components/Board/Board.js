@@ -239,22 +239,17 @@ function Board() {
         availableMoves = availableMoves.filter((value) => {
             return value < 64 && value >= 0;
         });
-        if (checkForChecks(board, playerColorOpposite(turnColor))) {
-            availableMoves = availableMoves.filter((value) => {
-                let testBoard = tryMove(position, value, board);
+        availableMoves = availableMoves.filter((value) => {
+            let testBoard = tryMove(position, value, board);
 
-                console.log(
-                    value,
-                    !checkForChecks(testBoard, playerColorOpposite(turnColor)),
-                    testBoard
-                );
+            console.log(
+                value,
+                !checkForChecks(testBoard, playerColorOpposite(turnColor)),
+                testBoard
+            );
 
-                return !checkForChecks(
-                    testBoard,
-                    playerColorOpposite(turnColor)
-                );
-            });
-        }
+            return !checkForChecks(testBoard, playerColorOpposite(turnColor));
+        });
 
         return availableMoves;
     }
