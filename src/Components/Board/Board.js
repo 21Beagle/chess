@@ -23,9 +23,6 @@ function Board() {
     const [enPassant, setEnPassant] = useState(-1);
 
     function handleClick(squareIndex) {
-        console.log(squareIndex);
-        console.log(board[squareIndex]);
-
         if (board[squareIndex].selected === true) {
             unselectAll();
             hideAvailableMovesAll();
@@ -59,11 +56,12 @@ function Board() {
         return playerColor === COLOR.WHITE ? COLOR.BLACK : COLOR.WHITE;
     }
 
-    function showScopeOfAllMoves(playerColor = turnColor) {
+    function showScopeOfAllMoves(board, playerColor = turnColor) {
         let availableMoves = [];
+        let newBoard = [...board];
         for (let i = 0; i < board.length; i++) {
-            if (board[i].color === playerColor) {
-                let squareAvailableMoves = showScopeForPiece(i);
+            if (newBoard[i].color === playerColor) {
+                let squareAvailableMoves = showScopeForPiece(board, i);
                 squareAvailableMoves.map((value) => {
                     availableMoves.push(value);
                 });
@@ -72,17 +70,19 @@ function Board() {
         return availableMoves;
     }
 
-    function checkForChecks(playerColor = turnColor) {
-        let availableMoves = showScopeOfAllMoves(playerColor);
+    function checkForChecks(board, playerColor = turnColor) {
+        let newBoard = [...board];
+        let availableMoves = showScopeOfAllMoves(board, playerColor);
         let checks = availableMoves.map((value) => {
             return (
-                board[value].piece === PIECES.KING &&
-                playerColor !== board[value].color
+                newBoard[value].piece === PIECES.KING &&
+                playerColor !== newBoard[value].color
             );
         });
         let anyChecks = checks.some((value) => {
             return value === true;
         });
+        console.log(anyChecks);
         return anyChecks;
     }
 
@@ -101,8 +101,8 @@ function Board() {
         setBoard([...newBoard]);
     }
 
-    function tryMove(oldPosition, newPosition, board = board) {
-        let newBoard = board;
+    function tryMove(oldPosition, newPosition, board) {
+        let newBoard = [...board];
 
         newBoard[newPosition] = { ...board[oldPosition] };
         newBoard[oldPosition] = { ...EMPTY_SQUARE };
@@ -172,27 +172,32 @@ function Board() {
         return;
     }
 
-    function showScopeForPiece(position) {
-        let square = board[position];
+    function showScopeForPiece(board, position) {
+        let newBoard = [...board];
+        let square = newBoard[position];
         let availableMoves = [];
         switch (square.piece) {
             case PIECES.ROOK:
-                availableMoves = availableRookMoves(position, board);
+                availableMoves = availableRookMoves(position, newBoard);
                 break;
             case PIECES.KNIGHT:
-                availableMoves = availableKnightMoves(position, board);
+                availableMoves = availableKnightMoves(position, newBoard);
                 break;
             case PIECES.BISHOP:
-                availableMoves = availableBishopMoves(position, board);
+                availableMoves = availableBishopMoves(position, newBoard);
                 break;
             case PIECES.QUEEN:
-                availableMoves = availableQueenMoves(position, board);
+                availableMoves = availableQueenMoves(position, newBoard);
                 break;
             case PIECES.KING:
-                availableMoves = availableKingMoves(position, board);
+                availableMoves = availableKingMoves(position, newBoard);
                 break;
             case PIECES.PAWN:
-                availableMoves = availablePawnMoves(position, board, enPassant);
+                availableMoves = availablePawnMoves(
+                    position,
+                    newBoard,
+                    enPassant
+                );
                 break;
             default:
                 break;
@@ -234,13 +239,22 @@ function Board() {
         availableMoves = availableMoves.filter((value) => {
             return value < 64 && value >= 0;
         });
-        // availableMoves = availableMoves.filter((value) => {
-        //     let testBoard = tryMove(position, value, board);
-        //     if (checkForChecks(turnColor, testBoard)) {
-        //         return value;
-        //     }
-        //     return -1;
-        // });
+        if (checkForChecks(board, playerColorOpposite(turnColor))) {
+            availableMoves = availableMoves.filter((value) => {
+                let testBoard = tryMove(position, value, board);
+
+                console.log(
+                    value,
+                    !checkForChecks(testBoard, playerColorOpposite(turnColor)),
+                    testBoard
+                );
+
+                return !checkForChecks(
+                    testBoard,
+                    playerColorOpposite(turnColor)
+                );
+            });
+        }
 
         return availableMoves;
     }
@@ -269,7 +283,9 @@ function Board() {
     return (
         <div className="center">
             <button
-                onClick={() => checkForChecks(playerColorOpposite(turnColor))}
+                onClick={() =>
+                    checkForChecks(board, playerColorOpposite(turnColor))
+                }
             >
                 {"Is " + turnColor + " in check?"}
             </button>
