@@ -1,6 +1,15 @@
 .tile {
+    position: relative;
     width: 80px;
     height: 80px;
+}
+
+.id-no {
+    color: green;
+    font-weight: bold;
+    text-align: left;
+    position: absolute;
+    width: 100%;
 }
 
 .en-passant {

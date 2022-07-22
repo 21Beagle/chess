@@ -62,6 +62,7 @@ function Square({
 
     return (
         <div onClick={() => handleClick(id)} className={className + " tile"}>
+            <p className="id-no">{id}</p>
             {Component}
         </div>
     );
