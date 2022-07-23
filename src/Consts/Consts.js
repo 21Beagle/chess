@@ -1,10 +1,8 @@
 export const EMPTY_SQUARE = {
     color: "",
     piece: "",
-    availableMove: false,
     selected: false,
     enPassantAvailable: false,
-    availableMoves: [],
 };
 
 export const CASTLE_PERMA = {

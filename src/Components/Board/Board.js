@@ -33,28 +33,32 @@ function Board() {
     const [blackMoveScope, setBlackMoveScopes] = useState([]);
     const [castle, setCastle] = useState(checkForCastle(board));
     const [check, setCheck] = useState(CHECK);
+    const [availableMoves, setAvailableMoves] = useState([]);
+    const [isSquareAvailable, setIsSquareAvailable] = useState(
+        initIsSquareAvailable()
+    );
     const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
     const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
 
     useEffect(() => {
-        setScopeAll(board);
-        updateCastle(board);
-
-        populateAllMovesForPlayer(board, turnColor);
-        isPlayerInCheck(board, playerColorOpposite(turnColor), true);
-        // eslint-disable-next-line
-    }, [turnColor]);
-
-    useEffect(() => {}, [whiteAvailableMoves, blackAvailableMoves, turnColor]);
+        async function boardChangeLoop() {
+            setScopeAll(board);
+            await updateCastle(board);
+            console.log(board);
+            console.log(isSquareAvailable);
+            populateAllMoves(board);
+        }
+        boardChangeLoop();
+    }, [board]);
 
     function handleClick(squareIndex) {
         if (board[squareIndex].selected === true) {
             unselectAll();
             hideAvailableMovesAll();
             return;
-        } else if (board[squareIndex].availableMove === true) {
+        } else if (isSquareAvailable[squareIndex] === true) {
             checkEnPassant(selectedSquare, squareIndex);
             handleMove(selectedSquare, squareIndex);
             togglePlayerTurn();
@@ -68,12 +72,10 @@ function Board() {
             setSelectedSquare(squareIndex);
             hideAvailableMovesAll();
 
-            let availableMoves = board[squareIndex].availableMoves;
-            pushAvailableMovesToSquares(availableMoves);
+            let moves = availableMoves[squareIndex];
+            pushAvailableMovesToSquares(moves);
             return;
         } else {
-            unselectAll();
-            hideAvailableMovesAll();
             return;
         }
     }
@@ -154,6 +156,7 @@ function Board() {
     }
 
     function updateCastle() {
+        console.log("updateCastle");
         let newCastle = checkForCastle(board);
         setCastle({ ...newCastle });
     }
@@ -176,7 +179,7 @@ function Board() {
         console.log(turnColor + " won");
     }
 
-    function populateAllMovesForPlayer(board) {
+    function populateAllMoves(board) {
         let availableMoves = [];
         let whiteAvailableMoves = [];
         let blackAvailableMoves = [];
@@ -188,7 +191,7 @@ function Board() {
             if (newBoard[i].piece === "") continue;
 
             let squareAvailableMoves = getAvailableMoves(board, i);
-            newBoard[i].availableMoves = [...squareAvailableMoves];
+            availableMoves[i] = [...squareAvailableMoves];
 
             squareAvailableMoves.map((value) => {
                 return availableMoves.push(value);
@@ -208,7 +211,7 @@ function Board() {
 
         setWhiteAvailableMoves([...whiteAvailableMoves]);
         setBlackAvailableMoves([...blackAvailableMoves]);
-        setBoard([...newBoard]);
+        setAvailableMoves([...availableMoves]);
         return availableMoves;
     }
 
@@ -252,6 +255,9 @@ function Board() {
     }
 
     function setScopeAll(board, fakeBoard) {
+        if (!fakeBoard) {
+            console.log("setScopeAll");
+        }
         let blackScope = [];
         let whiteScope = [];
         for (let i in board) {
@@ -308,30 +314,21 @@ function Board() {
 
     function handleCastleMove(oldPosition, newPosition, newBoard) {
         if (newBoard[newPosition].piece === PIECES.KING) {
-            console.log("1 layer");
             console.log(oldPosition, newPosition);
             if (oldPosition === 60 && newPosition === 58) {
-                console.log("castle white short");
                 newBoard[59] = { ...newBoard[56] };
-
                 newBoard[56] = { ...EMPTY_SQUARE };
             }
             if (oldPosition === 60 && newPosition === 62) {
-                console.log("castle white long");
-
                 newBoard[61] = { ...newBoard[63] };
                 newBoard[63] = { ...EMPTY_SQUARE };
             }
             if (oldPosition === 4 && newPosition === 2) {
-                console.log("castle black long");
                 newBoard[3] = { ...newBoard[0] };
-
                 newBoard[0] = { ...EMPTY_SQUARE };
             }
             if (oldPosition === 4 && newPosition === 6) {
-                console.log("castle black short");
                 newBoard[5] = { ...newBoard[7] };
-
                 newBoard[7] = { ...EMPTY_SQUARE };
             }
         }
@@ -457,29 +454,33 @@ function Board() {
             );
             return check;
         });
-        console.log("                  ");
         return availableMoves;
     }
 
     function pushAvailableMovesToSquares(availableMoves) {
-        let newSquares = board;
+        let newSquares = isSquareAvailable;
 
         for (let i in availableMoves) {
             let availableMoveIndex = availableMoves[i];
-            newSquares[availableMoveIndex] = {
-                ...board[availableMoveIndex],
-                availableMove: true,
-            };
+            newSquares[availableMoveIndex] = true;
         }
-        setBoard([...newSquares]);
+        setIsSquareAvailable([...newSquares]);
     }
 
     function hideAvailableMovesAll() {
         let newSquares = board;
         for (let i in board) {
-            newSquares[i].availableMove = false;
+            newSquares[i] = false;
         }
-        setBoard([...newSquares]);
+        setIsSquareAvailable([...newSquares]);
+    }
+
+    function initIsSquareAvailable() {
+        let isSquareAvailable = [];
+        for (let i = 0; i < 64; i++) {
+            isSquareAvailable.push(false);
+        }
+        return isSquareAvailable;
     }
 
     return (
@@ -503,7 +504,7 @@ function Board() {
                         pieceColor={square.color}
                         id={value}
                         handleClick={(square) => handleClick(square)}
-                        availableMove={square.availableMove}
+                        availableMove={isSquareAvailable[value]}
                         enPassantAvailable={square.enPassantAvailable}
                         selected={square.selected}
                     />
