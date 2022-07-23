@@ -17,11 +17,11 @@
 }
 
 .black-tile {
-    background-color: #535a79;
+    background-color: #5a7a5f;
 }
 
 .white-tile {
-    background-color: #84acce;
+    background-color: #b4cebc;
 }
 
 .available-move {
@@ -29,11 +29,11 @@
 }
 
 .white-tile.available-move {
-    background-color: rgb(255, 248, 157);
+    background-color: rgb(255, 251, 194);
 }
 
 .black-tile.available-move {
-    background-color: rgb(235, 228, 139);
+    background-color: rgb(245, 239, 165);
 }
 
 .piece-icon {

@@ -143,7 +143,7 @@ function Board() {
         let newCastle = CASTLE_AVAILABLE;
 
         let whiteLongCheck = blackMoveScope.map((value) => {
-            return value === 59 || value === 58 || value === 57;
+            return value === 59 || value === 58 || value === 57 || value === 60;
         });
         whiteLongCheck = whiteLongCheck.some((value) => {
             return value === true;
@@ -161,7 +161,7 @@ function Board() {
         // white short
         let whiteShortCheck = blackMoveScope
             .map((value) => {
-                return value === 61 || value === 62;
+                return value === 60 || value === 61 || value === 62;
             })
             .some((value) => {
                 return value === true;
@@ -178,7 +178,7 @@ function Board() {
         // black long
         let blackLongCheck = whiteMoveScope
             .map((value) => {
-                return value === 1 || value === 2 || value === 3;
+                return value === 1 || value === 2 || value === 3 || value === 4;
             })
             .some((value) => {
                 return value === true;
@@ -196,7 +196,7 @@ function Board() {
         // black short
         let blackShortCheck = whiteMoveScope
             .map((value) => {
-                return value === 5 || value === 6;
+                return value === 4 || value === 5 || value === 6;
             })
             .some((value) => {
                 return value === true;
