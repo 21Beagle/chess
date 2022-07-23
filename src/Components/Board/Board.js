@@ -24,7 +24,7 @@ import {
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const FENTest = "k7/8/8/1P6/1p6/8/8/K7 w KQkq - 0 1";
-    const FENTestWhiteLong = "r3k2r/p3p2p/8/8/8/8/P3P2P/R3K2R w KQkq - 0 1";
+    const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
 
     const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
@@ -422,7 +422,11 @@ function Board() {
         let scopeMoves = showScopeForPiece(board, position);
         let availableMoves = scopeMoves.filter((value) => {
             let dummyBoard = tryMove(position, value, board);
-            let check = !isPlayerInCheck(dummyBoard, turnColor, true);
+            let check = !isPlayerInCheck(
+                dummyBoard,
+                board[position].color,
+                true
+            );
             console.log(
                 "trying",
                 turnColor,
