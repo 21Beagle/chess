@@ -1,6 +1,6 @@
 import React from "react";
-import white from "../../Media/StandardPieces/whitePawn.png";
-import black from "../../Media/StandardPieces/blackPawn.png";
+import white from "../../Media/StandardPieces/whitePawn.svg";
+import black from "../../Media/StandardPieces/blackPawn.svg";
 import { COLOR } from "../../Consts/Consts";
 
 function Pawn({ color }) {

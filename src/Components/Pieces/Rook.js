@@ -1,6 +1,6 @@
 import React from "react";
-import white from "../../Media/StandardPieces/whiteRook.png";
-import black from "../../Media/StandardPieces/blackRook.png";
+import white from "../../Media/StandardPieces/whiteRook.svg";
+import black from "../../Media/StandardPieces/blackRook.svg";
 import { COLOR } from "../../Consts/Consts";
 
 function Rook({ color }) {

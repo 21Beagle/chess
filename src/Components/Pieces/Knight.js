@@ -1,6 +1,6 @@
 import React from "react";
-import white from "../../Media/StandardPieces/whiteKnight.png";
-import black from "../../Media/StandardPieces/blackKnight.png";
+import white from "../../Media/StandardPieces/whiteKnight.svg";
+import black from "../../Media/StandardPieces/blackKnight.svg";
 import { COLOR } from "../../Consts/Consts";
 
 function Knight({ color }) {

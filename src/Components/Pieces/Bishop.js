@@ -1,6 +1,6 @@
 import React from "react";
-import white from "../../Media/StandardPieces/whiteBishop.png";
-import black from "../../Media/StandardPieces/blackBishop.png";
+import white from "../../Media/StandardPieces/whiteBishop.svg";
+import black from "../../Media/StandardPieces/blackBishop.svg";
 import { COLOR } from "../../Consts/Consts";
 
 function Bishop({ color }) {
