@@ -29,11 +29,11 @@ function Square({
     //     className = "en-passant";
     // }
     if (availableMove) {
-        className = "available-move";
+        className += " available-move";
     }
 
     if (selected) {
-        className = "selected";
+        className += " selected";
     }
 
     switch (piece) {

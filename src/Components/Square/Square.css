@@ -13,7 +13,7 @@
 }
 
 .en-passant {
-    background-color: rgb(0, 26, 255);
+    background-color: #001aff;
 }
 
 .black-tile {
@@ -21,11 +21,19 @@
 }
 
 .white-tile {
-    background-color: #bfc0c0;
+    background-color: #84acce;
 }
 
 .available-move {
     background-color: rgb(255, 248, 157);
+}
+
+.white-tile.available-move {
+    background-color: rgb(255, 248, 157);
+}
+
+.black-tile.available-move {
+    background-color: rgb(235, 228, 139);
 }
 
 .piece-icon {
