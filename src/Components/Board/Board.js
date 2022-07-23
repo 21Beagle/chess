@@ -26,7 +26,7 @@ function Board() {
     const FENTest = "k7/8/8/1P6/1p6/8/8/K7 w KQkq - 0 1";
     const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENstart).board);
+    const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(
@@ -305,6 +305,25 @@ function Board() {
             setCastleUnavailable(newBoard[newPosition].color);
         }
 
+        if (newBoard[newPosition].piece === PIECES.ROOK) {
+            switch (oldPosition) {
+                case 56:
+                    setCastlePerma({ ...castlePerma, WHITE_LONG: false });
+                    break;
+                case 63:
+                    setCastlePerma({ ...castlePerma, WHITE_SHORT: false });
+                    break;
+                case 0:
+                    setCastlePerma({ ...castlePerma, BLACK_LONG: false });
+                    break;
+                case 7:
+                    setCastlePerma({ ...castlePerma, BLACK_SHORT: false });
+                    break;
+                default:
+                    break;
+            }
+        }
+
         handleCastleMove(oldPosition, newPosition, newBoard);
 
         setBoard([...newBoard]);
@@ -578,10 +597,8 @@ function Board() {
                     />
                 ))}
             </div>
-
-            <button onClick={() => console.log(availableRookMoves(36, board))}>
-                rook
-            </button>
+            <div>{JSON.stringify(castle)}</div>
+            <div>{JSON.stringify(castlePerma)}</div>
         </div>
     );
 }
