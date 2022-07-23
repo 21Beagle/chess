@@ -597,8 +597,6 @@ function Board() {
                     />
                 ))}
             </div>
-            <div>{JSON.stringify(castle)}</div>
-            <div>{JSON.stringify(castlePerma)}</div>
         </div>
     );
 }
