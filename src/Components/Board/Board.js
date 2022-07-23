@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Board.css";
 import Square from "../Square/Square";
+import WinScreen from "../WinScreen/WinScreen";
 import FENToBoard from "../../Util/FEN";
 // import { coordinates } from "../../Util/cartesianToArray";
 import { playerColorOpposite } from "../../Util/tools";
@@ -21,13 +22,14 @@ import {
     CASTLE_PERMA,
     TOP_RANK,
     BOTTOM_RANK,
+    STALEMATE,
 } from "../../Consts/Consts";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/2P5/8/8/1p6/8/8/K7 w KQkq - 0 1";
+    const FENTest = "k7/2P5/8/8/1Q6/8/8/K7 w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENstart).board);
+    const [board, setBoard] = useState(FENToBoard(FENTest).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(
@@ -41,12 +43,13 @@ function Board() {
     const [availableMoves, setAvailableMoves] = useState([]);
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([1]);
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState([1]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
     const [promotion, setPromotion] = useState(false);
     const [promotionTile, setPromotionTile] = useState(-1);
+    const [gameEnded, setGameEnded] = useState("");
 
     useEffect(() => {
         setScopeAll(board);
@@ -59,6 +62,33 @@ function Board() {
     useEffect(() => {
         updateCastle(board);
     }, [board, blackMoveScope, whiteMoveScope]);
+
+    useEffect(() => {
+        isPlayerInCheck(board, turnColor);
+    }, [board, whiteAvailableMoves, blackAvailableMoves]);
+
+    useEffect(() => {
+        if (
+            turnColor === COLOR.WHITE &&
+            whiteAvailableMoves.length == 0 &&
+            check.WHITE
+        ) {
+            setGameEnded(COLOR.BLACK);
+        }
+        if (
+            turnColor === COLOR.BLACK &&
+            blackAvailableMoves.length == 0 &&
+            check.BLACK
+        ) {
+            setGameEnded(COLOR.WHITE);
+        }
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length == 0) {
+            setGameEnded(STALEMATE);
+        }
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length == 0) {
+            setGameEnded(STALEMATE);
+        }
+    }, [check, whiteAvailableMoves, blackAvailableMoves]);
 
     function handleClick(squareIndex) {
         if (promotion) return;
@@ -652,6 +682,33 @@ function Board() {
             </>
         );
     }
+    let winnerComponent;
+    if (gameEnded !== "") {
+        winnerComponent = <WinScreen reset={reset} whoWon={gameEnded} />;
+    } else {
+        winnerComponent = <></>;
+    }
+
+    function reset() {
+        setBoard(FENToBoard(FENstart).board);
+        setTurnColor(COLOR.WHITE);
+        setCastlePerma(CASTLE_PERMA);
+        setWhiteMoveScopes(blackMovesScopeInit(board));
+        setBlackMoveScopes(whiteMovesScopeInit(board));
+        setCastle(checkForCastle(board));
+        setCastle(checkForCastle(board));
+        setCheck(CHECK);
+        setAvailableMoves([]);
+        setIsSquareAvailable(initIsSquare());
+        setIsSquareSelected(initIsSquare());
+        setWhiteAvailableMoves([1]);
+        setBlackAvailableMoves([1]);
+        setSelectedSquare(-1);
+        setEnPassant(-1);
+        setPromotion(false);
+        setPromotionTile(-1);
+        setGameEnded("");
+    }
 
     return (
         <div className="center">
@@ -670,6 +727,7 @@ function Board() {
                 ))}
             </div>
             {promotionComponent}
+            {winnerComponent}
         </div>
     );
 }

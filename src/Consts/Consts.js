@@ -39,3 +39,5 @@ export const COLOR = {
 
 export const TOP_RANK = [0, 1, 2, 3, 4, 5, 6, 7];
 export const BOTTOM_RANK = [56, 57, 58, 59, 60, 61, 62, 63];
+
+export const STALEMATE = "S";
