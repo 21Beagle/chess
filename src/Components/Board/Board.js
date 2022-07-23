@@ -19,14 +19,15 @@ import {
     PIECES,
     CHECK,
     CASTLE_PERMA,
+    TOP_RANK,
+    BOTTOM_RANK,
 } from "../../Consts/Consts";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/8/8/1P6/1p6/8/8/K7 w KQkq - 0 1";
-    const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
+    const FENTest = "k7/2P5/8/8/1p6/8/8/K7 w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
+    const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(
@@ -38,29 +39,36 @@ function Board() {
     const [castle, setCastle] = useState(checkForCastle(board));
     const [check, setCheck] = useState(CHECK);
     const [availableMoves, setAvailableMoves] = useState([]);
-    const [isSquareAvailable, setIsSquareAvailable] = useState(
-        initIsSquareAvailable()
-    );
+    const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
+    const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
     const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
     const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
+    const [promotion, setPromotion] = useState(false);
+    const [promotionTile, setPromotionTile] = useState(-1);
 
     useEffect(() => {
-        async function boardChangeLoop() {
-            setScopeAll(board);
-            await updateCastle(board);
-            populateAllMoves(board);
-        }
-        boardChangeLoop();
+        setScopeAll(board);
     }, [board]);
 
+    useEffect(() => {
+        populateAllMoves(board);
+    }, [board, blackMoveScope, whiteMoveScope, castle]);
+
+    useEffect(() => {
+        updateCastle(board);
+    }, [board, blackMoveScope, whiteMoveScope]);
+
     function handleClick(squareIndex) {
-        if (board[squareIndex].selected === true) {
+        if (promotion) return;
+
+        if (isSquareSelected[squareIndex] === true) {
             unselectAll();
             hideAvailableMovesAll();
             return;
-        } else if (isSquareAvailable[squareIndex] === true) {
+        }
+        if (isSquareAvailable[squareIndex] === true) {
             checkEnPassant(selectedSquare, squareIndex);
             handleMove(selectedSquare, squareIndex);
             togglePlayerTurn();
@@ -73,11 +81,12 @@ function Board() {
             selectSquare(squareIndex);
             setSelectedSquare(squareIndex);
             hideAvailableMovesAll();
-
             let moves = availableMoves[squareIndex];
             pushAvailableMovesToSquares(moves);
             return;
         } else {
+            unselectAll();
+            hideAvailableMovesAll();
             return;
         }
     }
@@ -145,6 +154,7 @@ function Board() {
             .some((value) => {
                 return value === true;
             });
+
         if (
             castlePerma.BLACK_SHORT &&
             !board[5].piece &&
@@ -301,10 +311,50 @@ function Board() {
         newBoard[newPosition] = { ...board[oldPosition] };
         newBoard[oldPosition] = { ...EMPTY_SQUARE };
         setCheck(CHECK);
+
+        isPawnPromotion(newBoard, newPosition);
+
+        ifKingMovesRemoveCastle(newBoard, newPosition);
+        ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard);
+
+        handleCastleMove(oldPosition, newPosition, newBoard);
+
+        setBoard([...newBoard]);
+    }
+
+    function isPawnPromotion(newBoard, newPosition) {
+        if (newBoard[newPosition].piece === PIECES.PAWN) {
+            if (
+                TOP_RANK.some((value) => {
+                    return value === newPosition;
+                }) ||
+                BOTTOM_RANK.some((value) => {
+                    return value === newPosition;
+                })
+            ) {
+                setPromotionTile(newPosition);
+                setPromotion(true);
+            }
+        }
+    }
+
+    function handlePawnPromotion(newPiece) {
+        let newBoard = board;
+        console.log(newPiece);
+
+        newBoard[promotionTile].piece = newPiece;
+        setPromotion(false);
+        setPromotionTile(-1);
+        setBoard([...newBoard]);
+    }
+
+    function ifKingMovesRemoveCastle(newBoard, newPosition) {
         if (newBoard[newPosition].piece === PIECES.KING) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
+    }
 
+    function ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard) {
         if (newBoard[newPosition].piece === PIECES.ROOK) {
             switch (oldPosition) {
                 case 56:
@@ -323,10 +373,6 @@ function Board() {
                     break;
             }
         }
-
-        handleCastleMove(oldPosition, newPosition, newBoard);
-
-        setBoard([...newBoard]);
     }
 
     function handleCastleMove(oldPosition, newPosition, newBoard) {
@@ -402,23 +448,22 @@ function Board() {
     }
 
     function selectSquare(square) {
-        let newBoard = [];
-        newBoard = board;
-        newBoard[square] = { ...board[square], selected: true };
+        let newBoard = isSquareSelected;
+        newBoard[square] = true;
+        setIsSquareSelected([...newBoard]);
         return;
     }
 
     function unselectAll() {
-        let newSquares = [];
+        let newSquares = isSquareSelected;
 
-        for (let i in board) {
-            newSquares[i] = board[i];
-            newSquares[i].selected = false;
+        for (let i in isSquareSelected) {
+            newSquares[i] = false;
         }
         setSelectedSquare(-1);
 
-        setBoard([...newSquares]);
-        return;
+        setIsSquareSelected([...newSquares]);
+        return newSquares;
     }
 
     function showScopeForPiece(board, position) {
@@ -528,7 +573,7 @@ function Board() {
         setIsSquareAvailable([...newSquares]);
     }
 
-    function initIsSquareAvailable() {
+    function initIsSquare() {
         let isSquareAvailable = [];
         for (let i = 0; i < 64; i++) {
             isSquareAvailable.push(false);
@@ -570,19 +615,46 @@ function Board() {
         return whiteScope;
     }
 
+    let promotionComponent = <></>;
+    if (promotion) {
+        promotionComponent = (
+            <>
+                <div className="promotion center">
+                    <Square
+                        piece={PIECES.QUEEN}
+                        pieceColor={playerColorOpposite(turnColor)}
+                        handleClick={() => {
+                            handlePawnPromotion(PIECES.QUEEN);
+                        }}
+                    />
+                    <Square
+                        piece={PIECES.ROOK}
+                        pieceColor={playerColorOpposite(turnColor)}
+                        handleClick={() => {
+                            handlePawnPromotion(PIECES.ROOK);
+                        }}
+                    />
+                    <Square
+                        piece={PIECES.BISHOP}
+                        pieceColor={playerColorOpposite(turnColor)}
+                        handleClick={() => {
+                            handlePawnPromotion(PIECES.BISHOP);
+                        }}
+                    />
+                    <Square
+                        piece={PIECES.KNIGHT}
+                        pieceColor={playerColorOpposite(turnColor)}
+                        handleClick={() => {
+                            handlePawnPromotion(PIECES.KNIGHT);
+                        }}
+                    />
+                </div>
+            </>
+        );
+    }
+
     return (
         <div className="center">
-            <button
-                onClick={() => pushAvailableMovesToSquares(blackAvailableMoves)}
-            >
-                black
-            </button>
-            <button
-                onClick={() => pushAvailableMovesToSquares(whiteAvailableMoves)}
-            >
-                white
-            </button>
-            <button onClick={() => hideAvailableMovesAll()}>hide</button>
             <div className="board-wrapper center">
                 {board.map((square, value) => (
                     <Square
@@ -593,10 +665,11 @@ function Board() {
                         handleClick={(square) => handleClick(square)}
                         availableMove={isSquareAvailable[value]}
                         enPassantAvailable={square.enPassantAvailable}
-                        selected={square.selected}
+                        selected={isSquareSelected[value]}
                     />
                 ))}
             </div>
+            {promotionComponent}
         </div>
     );
 }

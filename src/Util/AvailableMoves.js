@@ -216,7 +216,7 @@ export function availableKingMoves(position, board, castle) {
         if (castle.BLACK_LONG) {
             availableMoves.push(2);
         }
-        if (castle.BLACK_LONG) {
+        if (castle.BLACK_SHORT) {
             availableMoves.push(6);
         }
     }
@@ -245,13 +245,13 @@ export function availablePawnMoves(position, board, enPassant) {
 
         let [eastTake, westTake] = [board[position + 9], board[position + 7]];
         if (
-            (file !== 7 && eastTake.color === COLOR.WHITE) ||
+            (eastTake && file !== 7 && eastTake.color === COLOR.WHITE) ||
             position + 9 === enPassant
         ) {
             pawnMoves.push(9);
         }
         if (
-            (file !== 0 && westTake.color === COLOR.WHITE) ||
+            (westTake && file !== 0 && westTake.color === COLOR.WHITE) ||
             position + 7 === enPassant
         ) {
             pawnMoves.push(7);
@@ -271,13 +271,13 @@ export function availablePawnMoves(position, board, enPassant) {
 
         let [eastTake, westTake] = [board[position - 9], board[position - 7]];
         if (
-            (file !== 0 && eastTake.color === COLOR.BLACK) ||
+            (eastTake && file !== 0 && eastTake.color === COLOR.BLACK) ||
             position - 9 === enPassant
         ) {
             pawnMoves.push(-9);
         }
         if (
-            (file !== 7 && westTake.color === COLOR.BLACK) ||
+            (westTake && file !== 7 && westTake.color === COLOR.BLACK) ||
             position - 7 === enPassant
         ) {
             pawnMoves.push(-7);

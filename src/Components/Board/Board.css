@@ -7,3 +7,17 @@
     border: black 10px solid;
     background-color: black;
 }
+
+.promotion {
+    display: grid;
+    border: black 10px solid;
+    border-top: 0;
+    width: 320px;
+    height: 80px;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+}
+
+.hidden {
+    display: none;
+}

@@ -20,9 +20,9 @@ function Square({
 }) {
     let className;
     if (id % 16 < 8) {
-        className = id % 2 !== 0 ? "white-tile" : "black-tile";
+        className = id % 2 !== 0 ? "black-tile" : "white-tile";
     } else {
-        className = id % 2 === 0 ? "white-tile" : "black-tile";
+        className = id % 2 === 0 ? "black-tile" : "white-tile";
     }
 
     // if (enPassantAvailable) {
@@ -62,7 +62,7 @@ function Square({
 
     return (
         <div onClick={() => handleClick(id)} className={className + " tile"}>
-            <p className="id-no">{id}</p>
+            {/* <p className="id-no">{id}</p> */}
             {Component}
         </div>
     );
