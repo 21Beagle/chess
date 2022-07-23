@@ -26,11 +26,15 @@ function Board() {
     const FENTest = "k7/8/8/1P6/1p6/8/8/K7 w KQkq - 0 1";
     const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
+    const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
-    const [whiteMoveScope, setWhiteMoveScopes] = useState([]);
-    const [blackMoveScope, setBlackMoveScopes] = useState([]);
+    const [whiteMoveScope, setWhiteMoveScopes] = useState(
+        blackMovesScopeInit(board)
+    );
+    const [blackMoveScope, setBlackMoveScopes] = useState(
+        whiteMovesScopeInit(board)
+    );
     const [castle, setCastle] = useState(checkForCastle(board));
     const [check, setCheck] = useState(CHECK);
     const [availableMoves, setAvailableMoves] = useState([]);
@@ -83,7 +87,8 @@ function Board() {
     function checkForCastle(board) {
         // white long
         let newCastle = CASTLE_AVAILABLE;
-
+        console.log(whiteMoveScope);
+        console.log(blackMoveScope);
         let whiteLongCheck = blackMoveScope.map((value) => {
             return value === 59 || value === 58 || value === 57;
         });
@@ -443,6 +448,43 @@ function Board() {
         return availableMoves;
     }
 
+    function showScopeForPieceSimple(board, position) {
+        let newBoard = [...board];
+        let square = newBoard[position];
+        let availableMoves = [];
+        switch (square.piece) {
+            case PIECES.ROOK:
+                availableMoves = availableRookMoves(position, newBoard);
+                break;
+            case PIECES.KNIGHT:
+                availableMoves = availableKnightMoves(position, newBoard);
+                break;
+            case PIECES.BISHOP:
+                availableMoves = availableBishopMoves(position, newBoard);
+                break;
+            case PIECES.QUEEN:
+                availableMoves = availableQueenMoves(position, newBoard);
+                break;
+            case PIECES.KING:
+                availableMoves = availableKingMoves(
+                    position,
+                    newBoard,
+                    CASTLE_AVAILABLE
+                );
+                break;
+            case PIECES.PAWN:
+                availableMoves = availablePawnMoves(position, newBoard, -1);
+                break;
+            default:
+                break;
+        }
+
+        availableMoves = availableMoves.filter((value) => {
+            return value < 64 && value >= 0;
+        });
+        return availableMoves;
+    }
+
     function getAvailableMoves(board, position) {
         let scopeMoves = showScopeForPiece(board, position);
         let availableMoves = scopeMoves.filter((value) => {
@@ -468,7 +510,7 @@ function Board() {
     }
 
     function hideAvailableMovesAll() {
-        let newSquares = board;
+        let newSquares = isSquareAvailable;
         for (let i in board) {
             newSquares[i] = false;
         }
@@ -481,6 +523,40 @@ function Board() {
             isSquareAvailable.push(false);
         }
         return isSquareAvailable;
+    }
+
+    function blackMovesScopeInit(board) {
+        let blackScope = [];
+        for (let i in board) {
+            i = parseInt(i);
+            if (!board[i].piece) continue;
+            if (board[i].color === COLOR.BLACK) {
+                let moves = showScopeForPieceSimple(board, i);
+                moves.map((move) => {
+                    blackScope.push(move);
+                    return 0;
+                });
+            }
+        }
+
+        return blackScope;
+    }
+
+    function whiteMovesScopeInit(board) {
+        let whiteScope = [];
+        for (let i in board) {
+            i = parseInt(i);
+            if (!board[i].piece) continue;
+            if (board[i].color === COLOR.WHITE) {
+                let moves = showScopeForPieceSimple(board, i);
+                moves.map((move) => {
+                    whiteScope.push(move);
+                    return 0;
+                });
+            }
+        }
+
+        return whiteScope;
     }
 
     return (
@@ -510,8 +586,6 @@ function Board() {
                     />
                 ))}
             </div>
-            <div>{JSON.stringify(castlePerma)}</div>
-            <div>{JSON.stringify(castle)}</div>
 
             <button onClick={() => console.log(availableRookMoves(36, board))}>
                 rook
