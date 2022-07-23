@@ -29,49 +29,25 @@ function Board() {
     const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
-    const [castle, setCastle] = useState(CASTLE_AVAILABLE);
-    const [check, setCheck] = useState(CHECK);
-    const [totalMoves, setTotalMoves] = useState(20);
-    const [allAvailableMoves, setAllAvailableMoves] = useState([]);
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
     const [whiteMoveScope, setWhiteMoveScopes] = useState([]);
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
     const [blackMoveScope, setBlackMoveScopes] = useState([]);
-    const [notPlayerTurnMoves, setAllNotPlayerTurnMoves] = useState([]);
+    const [castle, setCastle] = useState(checkForCastle(board));
+    const [check, setCheck] = useState(CHECK);
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
 
     useEffect(() => {
-        console.log(
-            whiteMoveScope.map((value) => {
-                return [value];
-            }),
-            blackMoveScope.map((value) => {
-                return [value];
-            })
-        );
-    }, [whiteMoveScope, blackMoveScope]);
-
-    useEffect(() => {
         setScopeAll(board);
+        updateCastle(board);
 
         populateAllMovesForPlayer(board, turnColor);
-        // checkForChecks(board, playerColorOpposite(turnColor), true);
-        checkForCastle(board);
-
+        isPlayerInCheck(board, playerColorOpposite(turnColor), true);
         // eslint-disable-next-line
     }, [turnColor]);
 
-    useEffect(() => {
-        checkForCastle(board);
-    }, [whiteAvailableMoves, blackAvailableMoves, turnColor]);
-
-    useEffect(() => {
-        if (totalMoves === 0 && (check.BLACK || check.WHITE)) {
-            handleWin(playerColorOpposite(turnColor));
-        }
-        // eslint-disable-next-line
-    }, [totalMoves, check]);
+    useEffect(() => {}, [whiteAvailableMoves, blackAvailableMoves, turnColor]);
 
     function handleClick(squareIndex) {
         if (board[squareIndex].selected === true) {
@@ -119,7 +95,6 @@ function Board() {
             !board[59].piece &&
             !whiteLongCheck
         ) {
-            console.log("White long available");
             newCastle = { ...newCastle, WHITE_LONG: true };
         }
 
@@ -137,8 +112,6 @@ function Board() {
             !board[62].piece &&
             !whiteShortCheck
         ) {
-            console.log("White short available");
-
             newCastle = { ...newCastle, WHITE_SHORT: true };
         }
 
@@ -177,8 +150,12 @@ function Board() {
             newCastle = { ...newCastle, BLACK_SHORT: true };
         }
 
+        return newCastle;
+    }
+
+    function updateCastle() {
+        let newCastle = checkForCastle(board);
         setCastle({ ...newCastle });
-        return castle;
     }
 
     function setCastleUnavailable(playerColor) {
@@ -199,7 +176,7 @@ function Board() {
         console.log(turnColor + " won");
     }
 
-    function populateAllMovesForPlayer(board, playerColor) {
+    function populateAllMovesForPlayer(board) {
         let availableMoves = [];
         let whiteAvailableMoves = [];
         let blackAvailableMoves = [];
@@ -229,11 +206,9 @@ function Board() {
             }
         }
 
-        setBoard([...newBoard]);
-        setTotalMoves(availableMoves.length);
-        setAllAvailableMoves(availableMoves);
         setWhiteAvailableMoves([...whiteAvailableMoves]);
         setBlackAvailableMoves([...blackAvailableMoves]);
+        setBoard([...newBoard]);
         return availableMoves;
     }
 
@@ -286,13 +261,13 @@ function Board() {
                 let moves = showScopeForPiece(board, i);
                 moves.map((move) => {
                     blackScope.push(move);
-                    return;
+                    return 0;
                 });
             } else if (board[i].color === COLOR.WHITE) {
                 let moves = showScopeForPiece(board, i);
                 moves.map((move) => {
                     whiteScope.push(move);
-                    return;
+                    return 0;
                 });
             }
         }
@@ -325,12 +300,41 @@ function Board() {
         if (newBoard[newPosition].piece === PIECES.KING) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
-        if (newBoard[oldPosition].piece === PIECES.ROOK) {
-            if (oldPosition === 56) {
-            }
-        }
+
+        handleCastleMove(oldPosition, newPosition, newBoard);
 
         setBoard([...newBoard]);
+    }
+
+    function handleCastleMove(oldPosition, newPosition, newBoard) {
+        if (newBoard[newPosition].piece === PIECES.KING) {
+            console.log("1 layer");
+            console.log(oldPosition, newPosition);
+            if (oldPosition === 60 && newPosition === 58) {
+                console.log("castle white short");
+                newBoard[59] = { ...newBoard[56] };
+
+                newBoard[56] = { ...EMPTY_SQUARE };
+            }
+            if (oldPosition === 60 && newPosition === 62) {
+                console.log("castle white long");
+
+                newBoard[61] = { ...newBoard[63] };
+                newBoard[63] = { ...EMPTY_SQUARE };
+            }
+            if (oldPosition === 4 && newPosition === 2) {
+                console.log("castle black long");
+                newBoard[3] = { ...newBoard[0] };
+
+                newBoard[0] = { ...EMPTY_SQUARE };
+            }
+            if (oldPosition === 4 && newPosition === 6) {
+                console.log("castle black short");
+                newBoard[5] = { ...newBoard[7] };
+
+                newBoard[7] = { ...EMPTY_SQUARE };
+            }
+        }
     }
 
     function tryMove(oldPosition, newPosition, board) {

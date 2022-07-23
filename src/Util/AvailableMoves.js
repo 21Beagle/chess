@@ -205,7 +205,20 @@ export function availableKingMoves(position, board, castle) {
         });
 
     if (board[position].color === COLOR.WHITE && position === 60) {
-    } else if (board[position].color === COLOR.BLACK && position === 4) {
+        if (castle.WHITE_LONG) {
+            availableMoves.push(58);
+        }
+        if (castle.WHITE_SHORT) {
+            availableMoves.push(62);
+        }
+    }
+    if (board[position].color === COLOR.BLACK && position === 4) {
+        if (castle.BLACK_LONG) {
+            availableMoves.push(2);
+        }
+        if (castle.BLACK_LONG) {
+            availableMoves.push(6);
+        }
     }
 
     return availableMoves;
