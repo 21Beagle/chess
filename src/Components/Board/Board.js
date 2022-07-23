@@ -23,9 +23,8 @@ import {
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "r3k2r/p6p/1n4n1/r7/7R/1N4N1/P6P/R3K2R b KQkq - 0 1";
-    const FENTestWhiteLong =
-        "r3k2r/p3p2p/8/r1brrrrr/8/8/P3P2P/R3K2R w KQkq - 0 1";
+    const FENTest = "k7/8/8/1P6/1p6/8/8/K7 w KQkq - 0 1";
+    const FENTestWhiteLong = "r3k2r/p3p2p/8/8/8/8/P3P2P/R3K2R w KQkq - 0 1";
 
     const [board, setBoard] = useState(FENToBoard(FENTestWhiteLong).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
@@ -35,16 +34,29 @@ function Board() {
     const [totalMoves, setTotalMoves] = useState(20);
     const [allAvailableMoves, setAllAvailableMoves] = useState([]);
     const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([]);
+    const [whiteMoveScope, setWhiteMoveScopes] = useState([]);
     const [blackAvailableMoves, setBlackAvailableMoves] = useState([]);
+    const [blackMoveScope, setBlackMoveScopes] = useState([]);
     const [notPlayerTurnMoves, setAllNotPlayerTurnMoves] = useState([]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
 
-    console.log(board);
+    useEffect(() => {
+        console.log(
+            whiteMoveScope.map((value) => {
+                return board[value].piece;
+            }),
+            blackMoveScope.map((value) => {
+                return board[value].piece;
+            })
+        );
+    }, [whiteMoveScope, blackMoveScope]);
 
     useEffect(() => {
+        setScopeAll(board);
+
         populateAllMovesForPlayer(board, turnColor);
-        checkForChecks(board, playerColorOpposite(turnColor), true);
+        // checkForChecks(board, playerColorOpposite(turnColor), true);
         checkForCastle(board);
 
         // eslint-disable-next-line
@@ -174,8 +186,12 @@ function Board() {
 
         for (let i = 0; i < board.length; i++) {
             newBoard[i].availableMoves = [];
-            let squareAvailableMoves = showAvailableMoves(i);
+
+            if (newBoard[i].piece === "") continue;
+
+            let squareAvailableMoves = getAvailableMoves(board, i);
             newBoard[i].availableMoves = [...squareAvailableMoves];
+
             squareAvailableMoves.map((value) => {
                 return availableMoves.push(value);
             });
@@ -190,9 +206,6 @@ function Board() {
                     return blackAvailableMoves.push(value);
                 });
             }
-            if (i === 25) {
-                console.log(showAvailableMoves(i));
-            }
         }
 
         setBoard([...newBoard]);
@@ -203,38 +216,72 @@ function Board() {
         return availableMoves;
     }
 
-    function showScopeOfAllMoves(board, playerColor = turnColor) {
-        let availableMoves = [];
-        let newBoard = [...board];
-        for (let i = 0; i < board.length; i++) {
-            if (newBoard[i].color === playerColor) {
-                let squareAvailableMoves = showScopeForPiece(board, i);
-                squareAvailableMoves.map((value) => {
-                    return availableMoves.push(value);
-                });
-            }
+    function isPlayerInCheck(
+        board,
+        playerColor = turnColor,
+        fakeBoard = false
+    ) {
+        let whiteScope = [...whiteMoveScope];
+        let blackScope = [...blackMoveScope];
+        if (fakeBoard) {
+            [whiteScope, blackScope] = setScopeAll(board, true);
         }
-        return availableMoves;
-    }
-
-    function checkForChecks(board, playerColor = turnColor, realBoard = false) {
         let newBoard = [...board];
-        let availableMoves = showScopeOfAllMoves(board, playerColor);
-        let checks = availableMoves.map((value) => {
-            return (
-                newBoard[value].piece === PIECES.KING &&
-                playerColor !== newBoard[value].color
-            );
-        });
+        let checks = [];
+        if (playerColor === COLOR.BLACK) {
+            checks = whiteScope.map((value) => {
+                let piece = newBoard[value];
+                console.log(newBoard[value].piece);
+                return (
+                    piece.piece === PIECES.KING && piece.color === COLOR.BLACK
+                );
+            });
+        } else {
+            checks = blackScope.map((value) => {
+                let piece = newBoard[value];
+                return (
+                    piece.piece === PIECES.KING && piece.color === COLOR.WHITE
+                );
+            });
+        }
+        console.log(checks);
+
         let anyChecks = checks.some((value) => {
             return value === true;
         });
-        if (realBoard) {
+        if (!fakeBoard) {
             setCheck(CHECK);
             if (anyChecks) updateCheck(turnColor);
         }
 
         return anyChecks;
+    }
+
+    function setScopeAll(board, fakeBoard) {
+        let blackScope = [];
+        let whiteScope = [];
+        for (let i in board) {
+            i = parseInt(i);
+            if (!board[i].piece) continue;
+            if (board[i].color === COLOR.BLACK) {
+                let moves = showScopeForPiece(board, i);
+                moves.map((move) => {
+                    blackScope.push(move);
+                    return;
+                });
+            } else if (board[i].color === COLOR.WHITE) {
+                let moves = showScopeForPiece(board, i);
+                moves.map((move) => {
+                    whiteScope.push(move);
+                    return;
+                });
+            }
+        }
+        if (!fakeBoard) {
+            setWhiteMoveScopes([...whiteScope]);
+            setBlackMoveScopes([...blackScope]);
+        }
+        return [whiteScope, blackScope];
     }
 
     function updateCheck(playerColor) {
@@ -371,13 +418,22 @@ function Board() {
         return availableMoves;
     }
 
-    function showAvailableMoves(position) {
+    function getAvailableMoves(board, position) {
         let scopeMoves = showScopeForPiece(board, position);
         let availableMoves = scopeMoves.filter((value) => {
             let dummyBoard = tryMove(position, value, board);
+            let check = !isPlayerInCheck(dummyBoard, turnColor, true);
+            console.log(
+                "trying",
+                turnColor,
+                board[position].color,
+                board[position].piece,
+                value
+            );
 
-            return !checkForChecks(dummyBoard, playerColorOpposite(turnColor));
+            return check;
         });
+        console.log("                  ");
         return availableMoves;
     }
 
