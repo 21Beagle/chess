@@ -2,10 +2,11 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    width: 640px;
-    height: 640px;
+    width: 80%;
+    height: auto;
     border: black 10px solid;
     background-color: black;
+    max-width: 640px;
 }
 
 .promotion {
