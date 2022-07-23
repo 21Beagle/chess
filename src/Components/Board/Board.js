@@ -50,8 +50,6 @@ function Board() {
         async function boardChangeLoop() {
             setScopeAll(board);
             await updateCastle(board);
-            console.log(board);
-            console.log(isSquareAvailable);
             populateAllMoves(board);
         }
         boardChangeLoop();
@@ -87,8 +85,7 @@ function Board() {
     function checkForCastle(board) {
         // white long
         let newCastle = CASTLE_AVAILABLE;
-        console.log(whiteMoveScope);
-        console.log(blackMoveScope);
+
         let whiteLongCheck = blackMoveScope.map((value) => {
             return value === 59 || value === 58 || value === 57;
         });
@@ -161,7 +158,6 @@ function Board() {
     }
 
     function updateCastle() {
-        console.log("updateCastle");
         let newCastle = checkForCastle(board);
         setCastle({ ...newCastle });
     }
@@ -260,9 +256,6 @@ function Board() {
     }
 
     function setScopeAll(board, fakeBoard) {
-        if (!fakeBoard) {
-            console.log("setScopeAll");
-        }
         let blackScope = [];
         let whiteScope = [];
         for (let i in board) {
@@ -319,7 +312,6 @@ function Board() {
 
     function handleCastleMove(oldPosition, newPosition, newBoard) {
         if (newBoard[newPosition].piece === PIECES.KING) {
-            console.log(oldPosition, newPosition);
             if (oldPosition === 60 && newPosition === 58) {
                 newBoard[59] = { ...newBoard[56] };
                 newBoard[56] = { ...EMPTY_SQUARE };
