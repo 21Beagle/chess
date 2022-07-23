@@ -37,22 +37,22 @@ function Square({
     }
 
     switch (piece) {
-        case PIECES.ROOK:
+        case PIECES.ROOK.CODE:
             Component = <Rook color={pieceColor} id={id} />;
             break;
-        case PIECES.PAWN:
+        case PIECES.PAWN.CODE:
             Component = <Pawn color={pieceColor} id={id} />;
             break;
-        case PIECES.KING:
+        case PIECES.KING.CODE:
             Component = <King color={pieceColor} id={id} />;
             break;
-        case PIECES.QUEEN:
+        case PIECES.QUEEN.CODE:
             Component = <Queen color={pieceColor} id={id} />;
             break;
-        case PIECES.KNIGHT:
+        case PIECES.KNIGHT.CODE:
             Component = <Knight color={pieceColor} id={id} />;
             break;
-        case PIECES.BISHOP:
+        case PIECES.BISHOP.CODE:
             Component = <Bishop color={pieceColor} id={id} />;
             break;
         default:

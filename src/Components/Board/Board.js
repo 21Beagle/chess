@@ -24,6 +24,7 @@ import {
     BOTTOM_RANK,
     STALEMATE,
 } from "../../Consts/Consts";
+import value from "../../Util/value";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -50,6 +51,7 @@ function Board() {
     const [promotion, setPromotion] = useState(false);
     const [promotionTile, setPromotionTile] = useState(-1);
     const [gameEnded, setGameEnded] = useState("");
+    const [boardValue, setBoardValue] = useState(0);
 
     useEffect(() => {
         setScopeAll(board);
@@ -75,6 +77,11 @@ function Board() {
         handleWin();
         // eslint-disable-next-line
     }, [check, whiteAvailableMoves, blackAvailableMoves]);
+
+    useEffect(() => {
+        let val = value(board);
+        setBoardValue(val);
+    }, [board]);
 
     function handleClick(squareIndex) {
         if (promotion) return;
@@ -285,14 +292,16 @@ function Board() {
             checks = whiteScope.map((value) => {
                 let piece = newBoard[value];
                 return (
-                    piece.piece === PIECES.KING && piece.color === COLOR.BLACK
+                    piece.piece === PIECES.KING.CODE &&
+                    piece.color === COLOR.BLACK
                 );
             });
         } else {
             checks = blackScope.map((value) => {
                 let piece = newBoard[value];
                 return (
-                    piece.piece === PIECES.KING && piece.color === COLOR.WHITE
+                    piece.piece === PIECES.KING.CODE &&
+                    piece.color === COLOR.WHITE
                 );
             });
         }
@@ -366,7 +375,7 @@ function Board() {
     }
 
     function isPawnPromotion(newBoard, newPosition) {
-        if (newBoard[newPosition].piece === PIECES.PAWN) {
+        if (newBoard[newPosition].piece === PIECES.PAWN.CODE) {
             if (
                 TOP_RANK.some((value) => {
                     return value === newPosition;
@@ -392,13 +401,13 @@ function Board() {
     }
 
     function ifKingMovesRemoveCastle(newBoard, newPosition) {
-        if (newBoard[newPosition].piece === PIECES.KING) {
+        if (newBoard[newPosition].piece === PIECES.KING.CODE) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
     }
 
     function ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard) {
-        if (newBoard[newPosition].piece === PIECES.ROOK) {
+        if (newBoard[newPosition].piece === PIECES.ROOK.CODE) {
             switch (oldPosition) {
                 case 56:
                     setCastlePerma({ ...castlePerma, WHITE_LONG: false });
@@ -419,7 +428,7 @@ function Board() {
     }
 
     function handleCastleMove(oldPosition, newPosition, newBoard) {
-        if (newBoard[newPosition].piece === PIECES.KING) {
+        if (newBoard[newPosition].piece === PIECES.KING.CODE) {
             if (oldPosition === 60 && newPosition === 58) {
                 newBoard[59] = { ...newBoard[56] };
                 newBoard[56] = { ...EMPTY_SQUARE };
@@ -477,10 +486,13 @@ function Board() {
         let newBoard = board;
         let oldPiece = board[oldPosition].piece;
         let newEnPassant = -1;
-        if (oldPiece === PIECES.PAWN && oldPosition - newPosition === 16) {
+        if (oldPiece === PIECES.PAWN.CODE && oldPosition - newPosition === 16) {
             newEnPassant = oldPosition - 8;
         }
-        if (oldPiece === PIECES.PAWN && oldPosition - newPosition === -16) {
+        if (
+            oldPiece === PIECES.PAWN.CODE &&
+            oldPosition - newPosition === -16
+        ) {
             newEnPassant = oldPosition + 8;
         }
         if (newEnPassant !== -1) {
@@ -514,22 +526,22 @@ function Board() {
         let square = newBoard[position];
         let availableMoves = [];
         switch (square.piece) {
-            case PIECES.ROOK:
+            case PIECES.ROOK.CODE:
                 availableMoves = availableRookMoves(position, newBoard);
                 break;
-            case PIECES.KNIGHT:
+            case PIECES.KNIGHT.CODE:
                 availableMoves = availableKnightMoves(position, newBoard);
                 break;
-            case PIECES.BISHOP:
+            case PIECES.BISHOP.CODE:
                 availableMoves = availableBishopMoves(position, newBoard);
                 break;
-            case PIECES.QUEEN:
+            case PIECES.QUEEN.CODE:
                 availableMoves = availableQueenMoves(position, newBoard);
                 break;
-            case PIECES.KING:
+            case PIECES.KING.CODE:
                 availableMoves = availableKingMoves(position, newBoard, castle);
                 break;
-            case PIECES.PAWN:
+            case PIECES.PAWN.CODE:
                 availableMoves = availablePawnMoves(
                     position,
                     newBoard,
@@ -552,26 +564,26 @@ function Board() {
         let square = newBoard[position];
         let availableMoves = [];
         switch (square.piece) {
-            case PIECES.ROOK:
+            case PIECES.ROOK.CODE:
                 availableMoves = availableRookMoves(position, newBoard);
                 break;
-            case PIECES.KNIGHT:
+            case PIECES.KNIGHT.CODE:
                 availableMoves = availableKnightMoves(position, newBoard);
                 break;
-            case PIECES.BISHOP:
+            case PIECES.BISHOP.CODE:
                 availableMoves = availableBishopMoves(position, newBoard);
                 break;
-            case PIECES.QUEEN:
+            case PIECES.QUEEN.CODE:
                 availableMoves = availableQueenMoves(position, newBoard);
                 break;
-            case PIECES.KING:
+            case PIECES.KING.CODE:
                 availableMoves = availableKingMoves(
                     position,
                     newBoard,
                     CASTLE_AVAILABLE
                 );
                 break;
-            case PIECES.PAWN:
+            case PIECES.PAWN.CODE:
                 availableMoves = availablePawnMoves(position, newBoard, -1);
                 break;
             default:
@@ -664,31 +676,31 @@ function Board() {
             <>
                 <div className="promotion center">
                     <Square
-                        piece={PIECES.QUEEN}
+                        piece={PIECES.QUEEN.CODE}
                         pieceColor={playerColorOpposite(turnColor)}
                         handleClick={() => {
-                            handlePawnPromotion(PIECES.QUEEN);
+                            handlePawnPromotion(PIECES.QUEEN.CODE);
                         }}
                     />
                     <Square
-                        piece={PIECES.ROOK}
+                        piece={PIECES.ROOK.CODE}
                         pieceColor={playerColorOpposite(turnColor)}
                         handleClick={() => {
-                            handlePawnPromotion(PIECES.ROOK);
+                            handlePawnPromotion(PIECES.ROOK.CODE);
                         }}
                     />
                     <Square
-                        piece={PIECES.BISHOP}
+                        piece={PIECES.BISHOP.CODE}
                         pieceColor={playerColorOpposite(turnColor)}
                         handleClick={() => {
-                            handlePawnPromotion(PIECES.BISHOP);
+                            handlePawnPromotion(PIECES.BISHOP.CODE);
                         }}
                     />
                     <Square
-                        piece={PIECES.KNIGHT}
+                        piece={PIECES.KNIGHT.CODE}
                         pieceColor={playerColorOpposite(turnColor)}
                         handleClick={() => {
-                            handlePawnPromotion(PIECES.KNIGHT);
+                            handlePawnPromotion(PIECES.KNIGHT.CODE);
                         }}
                     />
                 </div>
@@ -726,21 +738,25 @@ function Board() {
     return (
         <div className="center">
             <div className="board-wrapper center">
-                {board.map((square, value) => (
-                    <Square
-                        key={value}
-                        piece={square.piece}
-                        pieceColor={square.color}
-                        id={value}
-                        handleClick={(square) => handleClick(square)}
-                        availableMove={isSquareAvailable[value]}
-                        enPassantAvailable={square.enPassantAvailable}
-                        selected={isSquareSelected[value]}
-                    />
-                ))}
+                {board
+                    .map((square, value) => (
+                        <Square
+                            key={value}
+                            piece={square.piece}
+                            pieceColor={square.color}
+                            id={value}
+                            handleClick={(square) => handleClick(square)}
+                            availableMove={isSquareAvailable[value]}
+                            enPassantAvailable={square.enPassantAvailable}
+                            selected={isSquareSelected[value]}
+                        />
+                    ))
+                    .reverse()}
             </div>
+
             {promotionComponent}
             {winnerComponent}
+            <div>{boardValue}</div>
         </div>
     );
 }

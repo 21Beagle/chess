@@ -24,12 +24,12 @@ export const CHECK = {
 };
 
 export const PIECES = {
-    PAWN: "P",
-    KNIGHT: "N",
-    KING: "K",
-    QUEEN: "Q",
-    ROOK: "R",
-    BISHOP: "B",
+    PAWN: { CODE: "P", VALUE: 1 },
+    KNIGHT: { CODE: "N", VALUE: 3 },
+    KING: { CODE: "K", VALUE: 2 },
+    QUEEN: { CODE: "Q", VALUE: 9 },
+    ROOK: { CODE: "R", VALUE: 5 },
+    BISHOP: { CODE: "B", VALUE: 3 },
 };
 
 export const COLOR = {
