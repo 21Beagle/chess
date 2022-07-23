@@ -8,8 +8,10 @@ export const EMPTY_SQUARE = {
 };
 
 export const CASTLE_PERMA = {
-    WHITE: true,
-    BLACK: true,
+    WHITE_SHORT: true,
+    WHITE_LONG: true,
+    BLACK_SHORT: true,
+    BLACK_LONG: true,
 };
 
 export const CASTLE_AVAILABLE = {

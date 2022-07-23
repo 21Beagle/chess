@@ -44,10 +44,10 @@ function Board() {
     useEffect(() => {
         console.log(
             whiteMoveScope.map((value) => {
-                return board[value].piece;
+                return [value];
             }),
             blackMoveScope.map((value) => {
-                return board[value].piece;
+                return [value];
             })
         );
     }, [whiteMoveScope, blackMoveScope]);
@@ -103,75 +103,96 @@ function Board() {
     }
 
     function checkForCastle(board) {
-        let newCastle = CASTLE_AVAILABLE;
-        if (castlePerma.WHITE === false) {
-            newCastle = { ...castle, WHITE_LONG: false, WHITE_SHORT: false };
-        }
-        if (castlePerma.BLACK === false) {
-            newCastle = { ...castle, BLACK_LONG: false, BLACK_SHORT: false };
-        }
-
         // white long
-        let whiteLongCheck = blackAvailableMoves.map((value) => {
+        let newCastle = CASTLE_AVAILABLE;
+
+        let whiteLongCheck = blackMoveScope.map((value) => {
             return value === 59 || value === 58 || value === 57;
         });
         whiteLongCheck = whiteLongCheck.some((value) => {
             return value === true;
         });
         if (
+            castlePerma.WHITE_LONG &&
             !board[57].piece &&
             !board[58].piece &&
             !board[59].piece &&
             !whiteLongCheck
         ) {
-            newCastle = { ...castle, WHITE_LONG: true };
+            console.log("White long available");
+            newCastle = { ...newCastle, WHITE_LONG: true };
         }
-        // // white short
-        // let whiteShortCheck = blackAvailableMoves
-        //     .map((value) => {
-        //         return value === 61 || value === 62;
-        //     })
-        //     .some((value) => {
-        //         return value === true;
-        //     });
-        // if (board[61].piece || board[62].piece || !whiteShortCheck) {
-        //     newCastle = { ...castle, WHITE_SHORT: true };
-        // }
-        // // black long
-        // let blackLongCheck = notPlayerTurnMoves
-        //     .map((value) => {
-        //         return value === 1 || value === 2 || value === 3;
-        //     })
-        //     .some((value) => {
-        //         return value === true;
-        //     });
-        // if (
-        //     board[1].piece ||
-        //     board[2].piece ||
-        //     board[3].piece ||
-        //     !blackLongCheck
-        // ) {
-        //     newCastle = { ...castle, BLACK_LONG: false };
-        // }
-        // // black short
-        // let blackShortCheck = notPlayerTurnMoves
-        //     .map((value) => {
-        //         return value === 5 || value === 6;
-        //     })
-        //     .some((value) => {
-        //         return value === true;
-        //     });
-        // if (board[5].piece || board[6].piece || !blackShortCheck) {
-        //     newCastle = { ...castle, BLACK_SHORT: false };
-        // }
+
+        // white short
+        let whiteShortCheck = blackMoveScope
+            .map((value) => {
+                return value === 61 || value === 62;
+            })
+            .some((value) => {
+                return value === true;
+            });
+        if (
+            castlePerma.WHITE_SHORT &&
+            !board[61].piece &&
+            !board[62].piece &&
+            !whiteShortCheck
+        ) {
+            console.log("White short available");
+
+            newCastle = { ...newCastle, WHITE_SHORT: true };
+        }
+
+        // black long
+        let blackLongCheck = whiteMoveScope
+            .map((value) => {
+                return value === 1 || value === 2 || value === 3;
+            })
+            .some((value) => {
+                return value === true;
+            });
+        if (
+            castlePerma.BLACK_LONG &&
+            !board[1].piece &&
+            !board[2].piece &&
+            !board[3].piece &&
+            !blackLongCheck
+        ) {
+            newCastle = { ...newCastle, BLACK_LONG: true };
+        }
+
+        // black short
+        let blackShortCheck = whiteMoveScope
+            .map((value) => {
+                return value === 5 || value === 6;
+            })
+            .some((value) => {
+                return value === true;
+            });
+        if (
+            castlePerma.BLACK_SHORT &&
+            !board[5].piece &&
+            !board[6].piece &&
+            !blackShortCheck
+        ) {
+            newCastle = { ...newCastle, BLACK_SHORT: true };
+        }
+
         setCastle({ ...newCastle });
         return castle;
     }
 
     function setCastleUnavailable(playerColor) {
         playerColor === COLOR.WHITE
-            ? setCastlePerma({ ...castlePerma, WHITE: false })
-            : setCastlePerma({ ...castlePerma, BLACK: false });
+            ? setCastlePerma({
+                  ...castlePerma,
+                  WHITE_LONG: false,
+                  WHITE_SHORT: false,
+              })
+            : setCastlePerma({
+                  ...castlePerma,
+                  BLACK_LONG: false,
+                  BLACK_SHORT: false,
+              });
     }
 
     function handleWin(turnColor) {
@@ -231,7 +252,6 @@ function Board() {
         if (playerColor === COLOR.BLACK) {
             checks = whiteScope.map((value) => {
                 let piece = newBoard[value];
-                console.log(newBoard[value].piece);
                 return (
                     piece.piece === PIECES.KING && piece.color === COLOR.BLACK
                 );
@@ -244,7 +264,6 @@ function Board() {
                 );
             });
         }
-        console.log(checks);
 
         let anyChecks = checks.some((value) => {
             return value === true;
@@ -306,6 +325,11 @@ function Board() {
         if (newBoard[newPosition].piece === PIECES.KING) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
+        if (newBoard[oldPosition].piece === PIECES.ROOK) {
+            if (oldPosition === 56) {
+            }
+        }
+
         setBoard([...newBoard]);
     }
 
@@ -427,14 +451,6 @@ function Board() {
                 board[position].color,
                 true
             );
-            console.log(
-                "trying",
-                turnColor,
-                board[position].color,
-                board[position].piece,
-                value
-            );
-
             return check;
         });
         console.log("                  ");
