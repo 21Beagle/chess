@@ -27,9 +27,9 @@ import {
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/2P5/8/8/1Q6/8/8/K7 w KQkq - 0 1";
+    // const FENTest = "k7/2p5/8/8/1q6/8/2p5/K7 w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENTest).board);
+    const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(
@@ -53,41 +53,27 @@ function Board() {
 
     useEffect(() => {
         setScopeAll(board);
+        // eslint-disable-next-line
     }, [board]);
 
     useEffect(() => {
         populateAllMoves(board);
+        // eslint-disable-next-line
     }, [board, blackMoveScope, whiteMoveScope, castle]);
 
     useEffect(() => {
         updateCastle(board);
+        // eslint-disable-next-line
     }, [board, blackMoveScope, whiteMoveScope]);
 
     useEffect(() => {
         isPlayerInCheck(board, turnColor);
+        // eslint-disable-next-line
     }, [board, whiteAvailableMoves, blackAvailableMoves]);
 
     useEffect(() => {
-        if (
-            turnColor === COLOR.WHITE &&
-            whiteAvailableMoves.length == 0 &&
-            check.WHITE
-        ) {
-            setGameEnded(COLOR.BLACK);
-        }
-        if (
-            turnColor === COLOR.BLACK &&
-            blackAvailableMoves.length == 0 &&
-            check.BLACK
-        ) {
-            setGameEnded(COLOR.WHITE);
-        }
-        if (turnColor === COLOR.BLACK && blackAvailableMoves.length == 0) {
-            setGameEnded(STALEMATE);
-        }
-        if (turnColor === COLOR.BLACK && blackAvailableMoves.length == 0) {
-            setGameEnded(STALEMATE);
-        }
+        handleWin();
+        // eslint-disable-next-line
     }, [check, whiteAvailableMoves, blackAvailableMoves]);
 
     function handleClick(squareIndex) {
@@ -118,6 +104,37 @@ function Board() {
             unselectAll();
             hideAvailableMovesAll();
             return;
+        }
+    }
+
+    function handleWin() {
+        if (
+            turnColor === COLOR.WHITE &&
+            whiteAvailableMoves.length === 0 &&
+            check.WHITE
+        ) {
+            setGameEnded(COLOR.BLACK);
+        }
+        if (
+            turnColor === COLOR.BLACK &&
+            blackAvailableMoves.length === 0 &&
+            check.BLACK
+        ) {
+            setGameEnded(COLOR.WHITE);
+        }
+        if (
+            turnColor === COLOR.BLACK &&
+            blackAvailableMoves.length === 0 &&
+            !check.BLACK
+        ) {
+            setGameEnded(STALEMATE);
+        }
+        if (
+            turnColor === COLOR.BLACK &&
+            blackAvailableMoves.length === 0 &&
+            !check.BLACK
+        ) {
+            setGameEnded(STALEMATE);
         }
     }
 
@@ -214,10 +231,6 @@ function Board() {
                   BLACK_LONG: false,
                   BLACK_SHORT: false,
               });
-    }
-
-    function handleWin(turnColor) {
-        console.log(turnColor + " won");
     }
 
     function populateAllMoves(board) {
