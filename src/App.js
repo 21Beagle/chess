@@ -1,3 +1,4 @@
+import logo from "./logo.svg";
 import Board from "./Components/Board/Board.js";
 import "./App.css";
 
