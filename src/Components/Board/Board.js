@@ -44,15 +44,15 @@ function Board() {
     const [availableMoves, setAvailableMoves] = useState([]);
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([[1, 1]]);
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState([[1, 1]]);
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([[52, 36]]);
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState([[12, 28]]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
     const [promotion, setPromotion] = useState(false);
     const [promotionTile, setPromotionTile] = useState(-1);
     const [gameEnded, setGameEnded] = useState("");
     const [boardValue, setBoardValue] = useState(0);
-    const [botColor, setColor] = useState(COLOR.BLACK);
+    const [botColor, setBotColor] = useState(COLOR.BLACK);
 
     useEffect(() => {
         setScopeAll(board);
@@ -107,6 +107,7 @@ function Board() {
 
         let move = findBestMoveForBlack(botMoveMultiverse, valueArray);
         let [oldPosition, newPosition] = move;
+        checkEnPassant(oldPosition, newPosition);
         handleMove(oldPosition, newPosition);
         togglePlayerTurn();
     }
@@ -776,35 +777,54 @@ function Board() {
         setAvailableMoves([]);
         setIsSquareAvailable(initIsSquare());
         setIsSquareSelected(initIsSquare());
-        setWhiteAvailableMoves([1]);
-        setBlackAvailableMoves([1]);
+        setWhiteAvailableMoves([[52, 36]]);
+        setBlackAvailableMoves([[12, 28]]);
         setSelectedSquare(-1);
         setEnPassant(-1);
         setPromotion(false);
         setPromotionTile(-1);
         setGameEnded("");
+        setBotColor(playerColorOpposite(botColor));
+    }
+
+    let boardComponent = <></>;
+    if (botColor === COLOR.BLACK) {
+        boardComponent = board.map((square, value) => (
+            <Square
+                key={value}
+                piece={square.piece}
+                pieceColor={square.color}
+                id={value}
+                handleClick={(square) => handleClick(square)}
+                availableMove={isSquareAvailable[value]}
+                enPassantAvailable={square.enPassantAvailable}
+                selected={isSquareSelected[value]}
+            />
+        ));
+    } else {
+        boardComponent = board
+            .map((square, value) => (
+                <Square
+                    key={value}
+                    piece={square.piece}
+                    pieceColor={square.color}
+                    id={value}
+                    handleClick={(square) => handleClick(square)}
+                    availableMove={isSquareAvailable[value]}
+                    enPassantAvailable={square.enPassantAvailable}
+                    selected={isSquareSelected[value]}
+                />
+            ))
+            .reverse();
     }
 
     return (
         <div className="center">
-            <div className="board-wrapper center">
-                {board.map((square, value) => (
-                    <Square
-                        key={value}
-                        piece={square.piece}
-                        pieceColor={square.color}
-                        id={value}
-                        handleClick={(square) => handleClick(square)}
-                        availableMove={isSquareAvailable[value]}
-                        enPassantAvailable={square.enPassantAvailable}
-                        selected={isSquareSelected[value]}
-                    />
-                ))}
-            </div>
-
+            <div className="board-wrapper center">{boardComponent}</div>
             {promotionComponent}
             {winnerComponent}
             <div>{boardValue}</div>
+            <button onClick={() => reset()}>reset</button>
         </div>
     );
 }
