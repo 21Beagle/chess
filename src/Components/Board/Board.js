@@ -44,8 +44,12 @@ function Board() {
     const [availableMoves, setAvailableMoves] = useState([]);
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([[52, 36]]);
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState([[12, 28]]);
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState(
+        whiteMovesScopeInit(board)
+    );
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState(
+        blackMovesScopeInit(board)
+    );
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
     const [promotion, setPromotion] = useState(false);
@@ -640,6 +644,9 @@ function Board() {
             default:
                 break;
         }
+        availableMoves = availableMoves.map((value) => {
+            return [position, value];
+        });
 
         availableMoves = availableMoves.filter((value) => {
             return value < 64 && value >= 0;
@@ -777,8 +784,8 @@ function Board() {
         setAvailableMoves([]);
         setIsSquareAvailable(initIsSquare());
         setIsSquareSelected(initIsSquare());
-        setWhiteAvailableMoves([[52, 36]]);
-        setBlackAvailableMoves([[12, 28]]);
+        setWhiteAvailableMoves(whiteMovesScopeInit(board));
+        setBlackAvailableMoves(blackMovesScopeInit(board));
         setSelectedSquare(-1);
         setEnPassant(-1);
         setPromotion(false);
