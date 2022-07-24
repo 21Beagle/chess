@@ -188,8 +188,8 @@ export function tryMove(board, move, enPassant, castlePerma) {
     return newBoard;
 }
 
-function isPawnPromotion(newBoard, newPosition) {
-    if (newBoard[newPosition].piece !== PIECES.PAWN.CODE) return false;
+export function isPawnPromotion(board, newPosition) {
+    if (board[newPosition].piece !== PIECES.PAWN.CODE) return false;
     if (
         TOP_RANK.some((value) => {
             return value === newPosition;

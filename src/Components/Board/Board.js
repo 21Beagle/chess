@@ -10,6 +10,7 @@ import {
     findAllMovesWithEqualEvaluation,
     getEnPassant,
     tryMove,
+    isPawnPromotion,
 } from "../../Util/tools";
 import {
     availableBishopMoves,
@@ -35,9 +36,9 @@ import { Move } from "../../Models/Move";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    //const FENTest = "8/8/8/8/1p6/8/2P5/8 w KQkq - 0 1";
+    const FENTest = "k7/3P4/8/8/1p6/8/8/7K w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENstart).board);
+    const [board, setBoard] = useState(FENToBoard(FENTest).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(
@@ -133,8 +134,13 @@ function Board() {
         newBoard[newPosition] = { ...board[oldPosition] };
         newBoard[oldPosition] = { ...EMPTY_SQUARE };
 
-        isPawnPromotion(newBoard, newPosition);
-
+        if (isPawnPromotion(newBoard, newPosition) === true) {
+            console.log("promotion");
+            setPromotion(true);
+            setPromotionTile(newPosition);
+            setBoard([...newBoard]);
+            return;
+        }
         ifKingMovesRemoveCastle(newBoard, move);
         ifRookMovesRemoveCastle(newBoard, move);
 
@@ -448,22 +454,6 @@ function Board() {
             : setTurnColor(COLOR.WHITE);
     }
 
-    function isPawnPromotion(newBoard, newPosition) {
-        if (newBoard[newPosition].piece === PIECES.PAWN.CODE) {
-            if (
-                TOP_RANK.some((value) => {
-                    return value === newPosition;
-                }) ||
-                BOTTOM_RANK.some((value) => {
-                    return value === newPosition;
-                })
-            ) {
-                setPromotionTile(newPosition);
-                setPromotion(true);
-            }
-        }
-    }
-
     function handlePawnPromotion(newPiece) {
         let newBoard = board;
 
@@ -471,6 +461,7 @@ function Board() {
         setPromotion(false);
         setPromotionTile(-1);
         setBoard([...newBoard]);
+        togglePlayerTurn();
     }
 
     function ifKingMovesRemoveCastle(newBoard, move) {
@@ -569,7 +560,6 @@ function Board() {
         if (newEnPassant !== -1) {
             newBoard[newEnPassant].enPassantAvailable = true;
         }
-        console.log(enPassant);
         setBoard([...newBoard]);
         setEnPassant(newEnPassant);
     }
@@ -749,28 +739,28 @@ function Board() {
                 <div className="promotion center">
                     <Square
                         piece={PIECES.QUEEN.CODE}
-                        pieceColor={playerColorOpposite(turnColor)}
+                        pieceColor={turnColor}
                         handleClick={() => {
                             handlePawnPromotion(PIECES.QUEEN.CODE);
                         }}
                     />
                     <Square
                         piece={PIECES.ROOK.CODE}
-                        pieceColor={playerColorOpposite(turnColor)}
+                        pieceColor={turnColor}
                         handleClick={() => {
                             handlePawnPromotion(PIECES.ROOK.CODE);
                         }}
                     />
                     <Square
                         piece={PIECES.BISHOP.CODE}
-                        pieceColor={playerColorOpposite(turnColor)}
+                        pieceColor={turnColor}
                         handleClick={() => {
                             handlePawnPromotion(PIECES.BISHOP.CODE);
                         }}
                     />
                     <Square
                         piece={PIECES.KNIGHT.CODE}
-                        pieceColor={playerColorOpposite(turnColor)}
+                        pieceColor={turnColor}
                         handleClick={() => {
                             handlePawnPromotion(PIECES.KNIGHT.CODE);
                         }}

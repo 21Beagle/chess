@@ -1,4 +1,4 @@
-import { COLOR } from "../Consts/Consts";
+import { COLOR, PIECES } from "../Consts/Consts";
 import { coordinates } from "./cartesianToArray";
 import { playerColorOpposite } from "./tools";
 import { Move } from "../Models/Move";
@@ -185,7 +185,7 @@ export function availableQueenMoves(position, board) {
     let bishopMoves = availableBishopMoves(position, board);
     let rookMoves = availableRookMoves(position, board);
     let availableMoves = bishopMoves.concat(rookMoves);
-    return availableMovesToClassMove(availableMoves, position);
+    return availableMoves;
 }
 
 export function availableKingMoves(position, board, castle) {
@@ -291,9 +291,51 @@ export function availablePawnMoves(position, board, enPassant) {
             pawnMoves.push(-7);
         }
     }
+
+    availableMoves = availableMovesToClassMove(availableMoves, position);
+
+    // promotion moves for White
+    if (color === COLOR.WHITE && rank === 1) {
+        availableMoves = [];
+        availableMoves.push(
+            new Move([position, position - 8], PIECES.QUEEN.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position - 8], PIECES.KNIGHT.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position - 8], PIECES.ROOK.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position - 8], PIECES.BISHOP.CODE)
+        );
+
+        return availableMoves;
+    }
+    // promotion moves for Black
+    if (color === COLOR.BLACK && rank === 6) {
+        availableMoves = [];
+
+        availableMoves.push(
+            new Move([position, position + 8], PIECES.QUEEN.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position + 8], PIECES.KNIGHT.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position + 8], PIECES.ROOK.CODE)
+        );
+        availableMoves.push(
+            new Move([position, position + 8], PIECES.BISHOP.CODE)
+        );
+
+        return availableMoves;
+    }
+
     availableMoves = pawnMoves.map((value) => {
-        return position + value;
+        return parseInt(position + value);
     });
+
     return availableMovesToClassMove(availableMoves, position);
 }
 
