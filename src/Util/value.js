@@ -1,18 +1,47 @@
 import { COLOR, PIECES } from "../Consts/Consts";
+import { checkForCastle, getAvailableMoves, getScopeAll } from "./tools";
 
-export default function value(board) {
+export default function evaluate(board, enPassant, castlePerma) {
     let whiteValue = 0;
     let blackValue = 0;
 
     let blackPieces = [];
+    let blackAvailableMoves = [];
     let whitePieces = [];
+    let whiteAvailableMoves = [];
 
     let value = 0;
 
+    let { scopes, castle } = getBoardState(board, castlePerma, enPassant);
+
+    console.log(enPassant);
+
     for (let i in board) {
         let square = board[i];
-        if (square.color === COLOR.BLACK) blackPieces.push(square.piece);
-        if (square.color === COLOR.WHITE) whitePieces.push(square.piece);
+        if (square.piece === "") continue;
+
+        let squareAvailableMoves = getAvailableMoves(
+            board,
+            i,
+            scopes,
+            castle,
+            enPassant
+        );
+
+        if (square.color === COLOR.WHITE) {
+            whitePieces.push(square.piece);
+
+            squareAvailableMoves.map((value) => {
+                return whiteAvailableMoves.push([i, value]);
+            });
+        }
+        if (square.color === COLOR.BLACK) {
+            blackPieces.push(square.piece);
+
+            squareAvailableMoves.map((value) => {
+                return blackAvailableMoves.push([i, value]);
+            });
+        }
     }
 
     // Sum the value of the pieces according to their value is probably the most basic way to value a position
@@ -26,6 +55,13 @@ export default function value(board) {
 
     value = whiteValue - blackValue;
     return value;
+}
+
+export function getBoardState(board, castlePerma, enPassant) {
+    let scopes = getScopeAll(board, castlePerma, enPassant);
+
+    let castle = checkForCastle(board, castlePerma, scopes);
+    return { board, scopes, castle };
 }
 
 function sumValuePieces(pieces) {

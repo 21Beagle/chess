@@ -116,6 +116,7 @@ export function availableBishopMoves(position, board) {
 
     for (let i = 1; i <= boundSW; i++) {
         let newPosition = position + i * 7;
+        if (!board[newPosition]) continue;
         if (board[newPosition].color === board[position].color) {
             break;
         } else if (
@@ -130,6 +131,8 @@ export function availableBishopMoves(position, board) {
     }
     for (let i = 1; i <= boundNE; i++) {
         let newPosition = position - i * 7;
+        if (!board[newPosition]) continue;
+
         if (board[newPosition].color === board[position].color) {
             break;
         } else if (
@@ -144,6 +147,8 @@ export function availableBishopMoves(position, board) {
     }
     for (let i = 1; i <= boundSE; i++) {
         let newPosition = position + i * 9;
+        if (!board[newPosition]) continue;
+
         if (board[newPosition].color === board[position].color) {
             break;
         } else if (
@@ -158,6 +163,8 @@ export function availableBishopMoves(position, board) {
     }
     for (let i = 1; i <= boundNW; i++) {
         let newPosition = position - i * 9;
+        if (!board[newPosition]) continue;
+
         if (board[newPosition].color === board[position].color) {
             break;
         } else if (

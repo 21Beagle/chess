@@ -4,7 +4,13 @@ import Square from "../Square/Square";
 import WinScreen from "../WinScreen/WinScreen";
 import FENToBoard from "../../Util/FEN";
 // import { coordinates } from "../../Util/cartesianToArray";
-import { playerColorOpposite } from "../../Util/tools";
+import {
+    playerColorOpposite,
+    pickRandomFromArray,
+    findAllMovesWithEqualEvaluation,
+    getEnPassant,
+    tryMove,
+} from "../../Util/tools";
 import {
     availableBishopMoves,
     availableKingMoves,
@@ -24,11 +30,11 @@ import {
     BOTTOM_RANK,
     STALEMATE,
 } from "../../Consts/Consts";
-import value from "../../Util/value";
+import evaluate, { getBoardState } from "../../Util/value";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    // const FENTest = "k7/2p5/8/8/1q6/8/2p5/K7 w KQkq - 0 1";
+    //const FENTest = "8/8/8/8/1p6/8/2P5/8 w KQkq - 0 1";
 
     const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
@@ -80,7 +86,7 @@ function Board() {
     }, [whiteAvailableMoves, blackAvailableMoves]);
 
     useEffect(() => {
-        let val = value(board);
+        let val = evaluate(board, enPassant, castlePerma);
         setBoardValue(val);
     }, [whiteAvailableMoves, blackAvailableMoves]);
 
@@ -99,8 +105,15 @@ function Board() {
 
         let botMoveMultiverse = availableMoves.map((move) => {
             let [oldPosition, newPosition] = move;
+            let newBoard = tryMove(
+                board,
+                [oldPosition, newPosition],
+                enPassant
+            );
+            let newEnPassant = getEnPassant(newBoard, move);
+
             let moveAndMultiverse = {
-                value: value(tryMove(oldPosition, newPosition, board)),
+                value: evaluate(newBoard, newEnPassant, castlePerma),
                 move: move,
             };
 
@@ -110,27 +123,18 @@ function Board() {
         });
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
         let [oldPosition, newPosition] = move;
-        checkEnPassant(oldPosition, newPosition);
         handleMove(oldPosition, newPosition);
-        togglePlayerTurn();
     }
 
     function findBestMoveForBot(moveAndMultiverseArray, valueArray) {
-        let bestValue = 0;
-        if (botColor === COLOR.BLACK) {
-            bestValue = Math.min(...valueArray);
-        } else {
-            bestValue = Math.max(...valueArray);
-        }
-        let bestMoves = moveAndMultiverseArray.filter((universe) => {
-            return bestValue === universe.value;
-        });
+        let bestMoves = findAllMovesWithEqualEvaluation(
+            valueArray,
+            moveAndMultiverseArray,
+            botColor
+        );
 
-        console.log(bestMoves.length, bestMoves);
-        if (bestMoves.length !== 0) {
-            var bestMove =
-                bestMoves[Math.floor(Math.random() * bestMoves.length)].move;
-        }
+        console.log(bestMoves);
+        var bestMove = pickRandomFromArray(bestMoves).move;
 
         return bestMove;
     }
@@ -151,9 +155,7 @@ function Board() {
             return;
         }
         if (isSquareAvailable[squareIndex] === true) {
-            checkEnPassant(selectedSquare, squareIndex);
             handleMove(selectedSquare, squareIndex);
-            togglePlayerTurn();
             unselectAll();
             hideAvailableMovesAll();
             return;
@@ -173,7 +175,7 @@ function Board() {
         }
     }
 
-    async function handleWin() {
+    function handleWin() {
         if (
             turnColor === COLOR.WHITE &&
             whiteAvailableMoves.length === 0 &&
@@ -417,6 +419,8 @@ function Board() {
     }
 
     function handleMove(oldPosition, newPosition) {
+        checkEnPassant(oldPosition, newPosition);
+
         let newBoard = board;
 
         newBoard[newPosition] = { ...board[oldPosition] };
@@ -431,6 +435,7 @@ function Board() {
         handleCastleMove(oldPosition, newPosition, newBoard);
 
         setBoard([...newBoard]);
+        togglePlayerTurn();
     }
 
     function isPawnPromotion(newBoard, newPosition) {
@@ -451,7 +456,6 @@ function Board() {
 
     function handlePawnPromotion(newPiece) {
         let newBoard = board;
-        console.log(newPiece);
 
         newBoard[promotionTile].piece = newPiece;
         setPromotion(false);
@@ -505,15 +509,6 @@ function Board() {
                 newBoard[7] = { ...EMPTY_SQUARE };
             }
         }
-    }
-
-    function tryMove(oldPosition, newPosition, board) {
-        let newBoard = [...board];
-
-        newBoard[newPosition] = { ...board[oldPosition] };
-        newBoard[oldPosition] = { ...EMPTY_SQUARE };
-
-        return newBoard;
     }
 
     function removeEnPassant() {
@@ -660,8 +655,13 @@ function Board() {
 
     function getAvailableMoves(board, position) {
         let scopeMoves = showScopeForPiece(board, position);
-        let availableMoves = scopeMoves.filter((value) => {
-            let dummyBoard = tryMove(position, value, board);
+        let availableMoves = scopeMoves.filter((newPosition) => {
+            let dummyBoard = tryMove(
+                board,
+                [position, newPosition],
+                enPassant,
+                castlePerma
+            );
             let check = !isPlayerInCheck(
                 dummyBoard,
                 board[position].color,
