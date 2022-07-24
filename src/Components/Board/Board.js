@@ -81,17 +81,17 @@ function Board() {
     }, [whiteAvailableMoves, blackAvailableMoves]);
 
     useEffect(() => {
-        if (turnColor === botColor) {
-            botMove();
+        let moves = botAvailableMoves();
+        if (turnColor === botColor && moves.length !== 0) {
+            botMove(moves);
         }
-    }, [blackAvailableMoves]);
+    }, [whiteAvailableMoves, blackAvailableMoves]);
 
     let valueArray = [];
     let moveArray = [];
 
-    function botMove() {
-        let availableMoves = [];
-        availableMoves = botAvailableMoves();
+    function botMove(moves) {
+        let availableMoves = moves;
 
         let botMoveMultiverse = availableMoves.map((move) => {
             let [oldPosition, newPosition] = move;
@@ -105,14 +105,10 @@ function Board() {
             return moveAndMultiverse;
         });
 
-        console.log(valueArray);
-
-        if (botMoveMultiverse.length !== 0) {
-            let move = findBestMoveForBlack(botMoveMultiverse, valueArray);
-            let [oldPosition, newPosition] = move;
-            handleMove(oldPosition, newPosition);
-            togglePlayerTurn();
-        }
+        let move = findBestMoveForBlack(botMoveMultiverse, valueArray);
+        let [oldPosition, newPosition] = move;
+        handleMove(oldPosition, newPosition);
+        togglePlayerTurn();
     }
 
     function findBestMoveForBlack(moveAndMultiverseArray, valueArray) {
