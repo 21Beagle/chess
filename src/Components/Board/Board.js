@@ -122,11 +122,35 @@ function Board() {
         handleBotMove(board, move, enPassant);
     }
 
+    function handleMove(move) {
+        let oldPosition = move.oldPosition;
+        let newPosition = move.newPosition;
+
+        checkEnPassant(move);
+
+        let newBoard = board;
+
+        newBoard[newPosition] = { ...board[oldPosition] };
+        newBoard[oldPosition] = { ...EMPTY_SQUARE };
+
+        isPawnPromotion(newBoard, newPosition);
+
+        ifKingMovesRemoveCastle(newBoard, move);
+        ifRookMovesRemoveCastle(newBoard, move);
+
+        handleCastleMove(oldPosition, newPosition, newBoard);
+
+        setBoard([...newBoard]);
+        togglePlayerTurn();
+    }
+
     function handleBotMove(board, move, enPassant) {
         let newBoard = tryMove(board, move, enPassant);
 
         ifKingMovesRemoveCastle(newBoard, move);
         ifRookMovesRemoveCastle(newBoard, move);
+
+        checkEnPassant(move);
 
         setBoard([...newBoard]);
         togglePlayerTurn();
@@ -422,29 +446,6 @@ function Board() {
         turnColor === COLOR.WHITE
             ? setTurnColor(COLOR.BLACK)
             : setTurnColor(COLOR.WHITE);
-    }
-
-    function handleMove(move) {
-        let oldPosition = move.oldPosition;
-        let newPosition = move.newPosition;
-
-        checkEnPassant(move);
-
-        let newBoard = board;
-
-        newBoard[newPosition] = { ...board[oldPosition] };
-        newBoard[oldPosition] = { ...EMPTY_SQUARE };
-        setCheck(CHECK);
-
-        isPawnPromotion(newBoard, newPosition);
-
-        ifKingMovesRemoveCastle(newBoard, move);
-        ifRookMovesRemoveCastle(newBoard, move);
-
-        handleCastleMove(oldPosition, newPosition, newBoard);
-
-        setBoard([...newBoard]);
-        togglePlayerTurn();
     }
 
     function isPawnPromotion(newBoard, newPosition) {
@@ -817,7 +818,7 @@ function Board() {
                 id={value}
                 handleClick={(square) => handleClick(square)}
                 availableMove={isSquareAvailable[value]}
-                enPassantAvailable={square.enPassantAvailable}
+                enPassantAvailable={enPassant === value}
                 selected={isSquareSelected[value]}
             />
         ));
@@ -831,7 +832,7 @@ function Board() {
                     id={value}
                     handleClick={(square) => handleClick(square)}
                     availableMove={isSquareAvailable[value]}
-                    enPassantAvailable={square.enPassantAvailable}
+                    enPassantAvailable={enPassant === value}
                     selected={isSquareSelected[value]}
                 />
             ))
