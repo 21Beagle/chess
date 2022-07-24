@@ -1,4 +1,4 @@
-import { COLOR, PIECES } from "../Consts/Consts";
+import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
 import { checkForCastle, getAvailableMoves, getScopeAll } from "./tools";
 
 export default function evaluate(board, enPassant, castlePerma) {
@@ -14,11 +14,9 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     let { scopes, castle } = getBoardState(board, castlePerma, enPassant);
 
-    console.log(enPassant);
-
     for (let i in board) {
         let square = board[i];
-        if (square.piece === "") continue;
+        if (square.piece === EMPTY_SQUARE.piece) continue;
 
         let squareAvailableMoves = getAvailableMoves(
             board,

@@ -175,7 +175,6 @@ export function tryMove(
     }
 
     if (piece.piece === PIECES.PAWN.CODE && newPosition === enPassant) {
-        console.log("enPassant tried");
         newBoard[newPosition + 8] = { ...EMPTY_SQUARE };
         newBoard[newPosition - 8] = { ...EMPTY_SQUARE };
     }
@@ -297,7 +296,6 @@ export function findAllMovesWithEqualEvaluation(
     moveAndMultiverseArray,
     botColor
 ) {
-    console.log(moveAndMultiverseArray);
     let bestValue = 0;
     if (botColor === COLOR.BLACK) {
         bestValue = Math.min(...valueArray);

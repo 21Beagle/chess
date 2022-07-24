@@ -122,8 +122,17 @@ function Board() {
             return moveAndMultiverse;
         });
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
-        let [oldPosition, newPosition] = move;
-        handleMove(oldPosition, newPosition);
+        handleBotMove(board, move, enPassant);
+    }
+
+    function handleBotMove(board, move, enPassant) {
+        let newBoard = tryMove(board, move, enPassant);
+
+        ifKingMovesRemoveCastle(newBoard, move);
+        ifRookMovesRemoveCastle(newBoard, move);
+
+        setBoard([...newBoard]);
+        togglePlayerTurn();
     }
 
     function findBestMoveForBot(moveAndMultiverseArray, valueArray) {
@@ -133,7 +142,6 @@ function Board() {
             botColor
         );
 
-        console.log(bestMoves);
         var bestMove = pickRandomFromArray(bestMoves).move;
 
         return bestMove;
@@ -155,7 +163,8 @@ function Board() {
             return;
         }
         if (isSquareAvailable[squareIndex] === true) {
-            handleMove(selectedSquare, squareIndex);
+            let move = [selectedSquare, squareIndex];
+            handleMove(move);
             unselectAll();
             hideAvailableMovesAll();
             return;
@@ -418,7 +427,8 @@ function Board() {
             : setTurnColor(COLOR.WHITE);
     }
 
-    function handleMove(oldPosition, newPosition) {
+    function handleMove(move) {
+        let [oldPosition, newPosition] = move;
         checkEnPassant(oldPosition, newPosition);
 
         let newBoard = board;
@@ -429,8 +439,8 @@ function Board() {
 
         isPawnPromotion(newBoard, newPosition);
 
-        ifKingMovesRemoveCastle(newBoard, newPosition);
-        ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard);
+        ifKingMovesRemoveCastle(newBoard, move);
+        ifRookMovesRemoveCastle(newBoard, move);
 
         handleCastleMove(oldPosition, newPosition, newBoard);
 
@@ -463,13 +473,13 @@ function Board() {
         setBoard([...newBoard]);
     }
 
-    function ifKingMovesRemoveCastle(newBoard, newPosition) {
+    function ifKingMovesRemoveCastle(newBoard, [oldPosition, newPosition]) {
         if (newBoard[newPosition].piece === PIECES.KING.CODE) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
     }
 
-    function ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard) {
+    function ifRookMovesRemoveCastle(newBoard, [oldPosition, newPosition]) {
         if (newBoard[newPosition].piece === PIECES.ROOK.CODE) {
             switch (oldPosition) {
                 case 56:
