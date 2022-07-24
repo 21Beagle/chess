@@ -108,18 +108,22 @@ function Board() {
             moveArray.push(moveAndMultiverse.move);
             return moveAndMultiverse;
         });
-
-        let move = findBestMoveForBlack(botMoveMultiverse, valueArray);
+        let move = findBestMoveForBot(botMoveMultiverse, valueArray);
         let [oldPosition, newPosition] = move;
         checkEnPassant(oldPosition, newPosition);
         handleMove(oldPosition, newPosition);
         togglePlayerTurn();
     }
 
-    function findBestMoveForBlack(moveAndMultiverseArray, valueArray) {
-        let min = Math.min(...valueArray);
+    function findBestMoveForBot(moveAndMultiverseArray, valueArray) {
+        let bestValue = 0;
+        if (botColor === COLOR.BLACK) {
+            bestValue = Math.min(...valueArray);
+        } else {
+            bestValue = Math.max(...valueArray);
+        }
         let bestMoves = moveAndMultiverseArray.filter((universe) => {
-            return min === universe.value;
+            return bestValue === universe.value;
         });
 
         console.log(bestMoves.length, bestMoves);
