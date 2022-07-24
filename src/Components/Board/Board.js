@@ -44,14 +44,15 @@ function Board() {
     const [availableMoves, setAvailableMoves] = useState([]);
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([1]);
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState([1]);
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState([[1, 1]]);
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState([[1, 1]]);
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
     const [promotion, setPromotion] = useState(false);
     const [promotionTile, setPromotionTile] = useState(-1);
     const [gameEnded, setGameEnded] = useState("");
     const [boardValue, setBoardValue] = useState(0);
+    const [botColor, setColor] = useState(COLOR.BLACK);
 
     useEffect(() => {
         setScopeAll(board);
@@ -70,18 +71,71 @@ function Board() {
 
     useEffect(() => {
         isPlayerInCheck(board, turnColor);
-        // eslint-disable-next-line
-    }, [board, whiteAvailableMoves, blackAvailableMoves]);
-
-    useEffect(() => {
         handleWin();
         // eslint-disable-next-line
-    }, [check, whiteAvailableMoves, blackAvailableMoves]);
+    }, [whiteAvailableMoves, blackAvailableMoves]);
 
     useEffect(() => {
         let val = value(board);
         setBoardValue(val);
-    }, [board]);
+    }, [whiteAvailableMoves, blackAvailableMoves]);
+
+    useEffect(() => {
+        if (turnColor === botColor) {
+            botMove();
+        }
+    }, [blackAvailableMoves]);
+
+    let valueArray = [];
+    let moveArray = [];
+
+    function botMove() {
+        let availableMoves = [];
+        availableMoves = botAvailableMoves();
+
+        let botMoveMultiverse = availableMoves.map((move) => {
+            let [oldPosition, newPosition] = move;
+            let moveAndMultiverse = {
+                value: value(tryMove(oldPosition, newPosition, board)),
+                move: move,
+            };
+
+            valueArray.push(moveAndMultiverse.value);
+            moveArray.push(moveAndMultiverse.move);
+            return moveAndMultiverse;
+        });
+
+        console.log(valueArray);
+
+        if (botMoveMultiverse.length !== 0) {
+            let move = findBestMoveForBlack(botMoveMultiverse, valueArray);
+            let [oldPosition, newPosition] = move;
+            handleMove(oldPosition, newPosition);
+            togglePlayerTurn();
+        }
+    }
+
+    function findBestMoveForBlack(moveAndMultiverseArray, valueArray) {
+        let min = Math.min(...valueArray);
+        let bestMoves = moveAndMultiverseArray.filter((universe) => {
+            return min === universe.value;
+        });
+
+        console.log(bestMoves.length, bestMoves);
+        if (bestMoves.length !== 0) {
+            var bestMove =
+                bestMoves[Math.floor(Math.random() * bestMoves.length)].move;
+        }
+
+        return bestMove;
+    }
+
+    function botAvailableMoves(availableMoves) {
+        botColor === COLOR.BLACK
+            ? (availableMoves = blackAvailableMoves)
+            : (availableMoves = whiteAvailableMoves);
+        return availableMoves;
+    }
 
     function handleClick(squareIndex) {
         if (promotion) return;
@@ -114,7 +168,7 @@ function Board() {
         }
     }
 
-    function handleWin() {
+    async function handleWin() {
         if (
             turnColor === COLOR.WHITE &&
             whiteAvailableMoves.length === 0 &&
@@ -260,12 +314,12 @@ function Board() {
 
             if (newBoard[i].color === COLOR.WHITE) {
                 squareAvailableMoves.map((value) => {
-                    return whiteAvailableMoves.push(value);
+                    return whiteAvailableMoves.push([i, value]);
                 });
             }
             if (newBoard[i].color === COLOR.BLACK) {
                 squareAvailableMoves.map((value) => {
-                    return blackAvailableMoves.push(value);
+                    return blackAvailableMoves.push([i, value]);
                 });
             }
         }
@@ -738,20 +792,18 @@ function Board() {
     return (
         <div className="center">
             <div className="board-wrapper center">
-                {board
-                    .map((square, value) => (
-                        <Square
-                            key={value}
-                            piece={square.piece}
-                            pieceColor={square.color}
-                            id={value}
-                            handleClick={(square) => handleClick(square)}
-                            availableMove={isSquareAvailable[value]}
-                            enPassantAvailable={square.enPassantAvailable}
-                            selected={isSquareSelected[value]}
-                        />
-                    ))
-                    .reverse()}
+                {board.map((square, value) => (
+                    <Square
+                        key={value}
+                        piece={square.piece}
+                        pieceColor={square.color}
+                        id={value}
+                        handleClick={(square) => handleClick(square)}
+                        availableMove={isSquareAvailable[value]}
+                        enPassantAvailable={square.enPassantAvailable}
+                        selected={isSquareSelected[value]}
+                    />
+                ))}
             </div>
 
             {promotionComponent}
