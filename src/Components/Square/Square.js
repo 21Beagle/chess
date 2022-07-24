@@ -25,9 +25,9 @@ function Square({
         className = id % 2 === 0 ? "black-tile" : "white-tile";
     }
 
-    // if (enPassantAvailable) {
-    //     className = "en-passant";
-    // }
+    if (enPassantAvailable) {
+        className = "en-passant";
+    }
     if (availableMove) {
         className += " available-move";
     }

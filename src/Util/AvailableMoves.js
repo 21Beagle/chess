@@ -1,6 +1,7 @@
 import { COLOR } from "../Consts/Consts";
 import { coordinates } from "./cartesianToArray";
 import { playerColorOpposite } from "./tools";
+import { Move } from "../Models/Move";
 
 export function availableRookMoves(position, board) {
     let availableMoves = [];
@@ -75,7 +76,7 @@ export function availableRookMoves(position, board) {
         }
     }
 
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
 }
 
 export function availableKnightMoves(position, board) {
@@ -97,7 +98,7 @@ export function availableKnightMoves(position, board) {
         }
         return false;
     });
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
 }
 
 export function availableBishopMoves(position, board) {
@@ -177,14 +178,14 @@ export function availableBishopMoves(position, board) {
             availableMoves.push(newPosition);
         }
     }
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
 }
 
 export function availableQueenMoves(position, board) {
     let bishopMoves = availableBishopMoves(position, board);
     let rookMoves = availableRookMoves(position, board);
     let availableMoves = bishopMoves.concat(rookMoves);
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
 }
 
 export function availableKingMoves(position, board, castle) {
@@ -228,7 +229,7 @@ export function availableKingMoves(position, board, castle) {
         }
     }
 
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
 }
 
 export function availablePawnMoves(position, board, enPassant) {
@@ -293,5 +294,15 @@ export function availablePawnMoves(position, board, enPassant) {
     availableMoves = pawnMoves.map((value) => {
         return position + value;
     });
-    return availableMoves;
+    return availableMovesToClassMove(availableMoves, position);
+}
+
+function availableMovesToClassMove(
+    availableMoves,
+    oldPosition,
+    promotion = ""
+) {
+    return availableMoves.map((newPosition) => {
+        return new Move([oldPosition, newPosition], promotion);
+    });
 }

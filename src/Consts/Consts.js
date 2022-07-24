@@ -40,4 +40,8 @@ export const COLOR = {
 export const TOP_RANK = [0, 1, 2, 3, 4, 5, 6, 7];
 export const BOTTOM_RANK = [56, 57, 58, 59, 60, 61, 62, 63];
 
+export const ENPASSANT_SQUARES = [
+    16, 17, 18, 19, 20, 21, 22, 23, 40, 41, 42, 43, 44, 45, 46, 47,
+];
+
 export const STALEMATE = "S";

@@ -6,6 +6,7 @@ import {
     TOP_RANK,
     BOTTOM_RANK,
     CASTLE_AVAILABLE,
+    ENPASSANT_SQUARES,
 } from "../Consts/Consts";
 import {
     availableBishopMoves,
@@ -157,13 +158,11 @@ function showScopeForPiece(board, position, castle, enPassant) {
     return availableMoves;
 }
 
-export function tryMove(
-    board,
-    [oldPosition, newPosition],
-    enPassant,
-    castlePerma
-) {
+export function tryMove(board, move, enPassant, castlePerma) {
     let newBoard = [...board];
+    let oldPosition = move.oldPosition;
+    let newPosition = move.newPosition;
+    let promotion = move.promotion;
 
     newBoard[newPosition] = { ...board[oldPosition] };
     newBoard[oldPosition] = { ...EMPTY_SQUARE };
@@ -171,7 +170,10 @@ export function tryMove(
     let piece = newBoard[newPosition];
 
     if (isPawnPromotion(newBoard, newPosition)) {
-        newBoard[newPosition] = { ...board[oldPosition], piece: PIECES.QUEEN };
+        newBoard[newPosition] = {
+            ...newBoard[newPosition],
+            piece: promotion,
+        };
     }
 
     if (piece.piece === PIECES.PAWN.CODE && newPosition === enPassant) {
@@ -183,7 +185,6 @@ export function tryMove(
     // ifRookMovesRemoveCastle(newPosition, oldPosition, newBoard);
 
     handleCastleMove(oldPosition, newPosition, newBoard);
-
     return newBoard;
 }
 
@@ -200,8 +201,6 @@ function isPawnPromotion(newBoard, newPosition) {
         return true;
     } else return false;
 }
-
-function isEnPassant(board, move) {}
 
 function handleCastleMove(oldPosition, newPosition, newBoard) {
     if (newBoard[newPosition].piece !== PIECES.KING.CODE) return newBoard;
@@ -308,10 +307,13 @@ export function findAllMovesWithEqualEvaluation(
     return bestMoves;
 }
 
-export function getEnPassant(board, [oldPosition, newPosition]) {
+export function getEnPassant(board, move) {
+    let oldPosition = move.oldPosition;
+    let newPosition = move.newPosition;
     let newBoard = board;
     let oldPiece = board[oldPosition].piece;
     let newEnPassant = -1;
+
     if (oldPiece === PIECES.PAWN.CODE && oldPosition - newPosition === 16) {
         newEnPassant = oldPosition - 8;
     }

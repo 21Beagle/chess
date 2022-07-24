@@ -31,6 +31,7 @@ import {
     STALEMATE,
 } from "../../Consts/Consts";
 import evaluate, { getBoardState } from "../../Util/value";
+import { Move } from "../../Models/Move";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -66,6 +67,7 @@ function Board() {
 
     useEffect(() => {
         setScopeAll(board);
+
         // eslint-disable-next-line
     }, [board]);
 
@@ -104,12 +106,7 @@ function Board() {
         let availableMoves = moves;
 
         let botMoveMultiverse = availableMoves.map((move) => {
-            let [oldPosition, newPosition] = move;
-            let newBoard = tryMove(
-                board,
-                [oldPosition, newPosition],
-                enPassant
-            );
+            let newBoard = tryMove(board, move, enPassant);
             let newEnPassant = getEnPassant(newBoard, move);
 
             let moveAndMultiverse = {
@@ -163,7 +160,7 @@ function Board() {
             return;
         }
         if (isSquareAvailable[squareIndex] === true) {
-            let move = [selectedSquare, squareIndex];
+            let move = new Move([selectedSquare, squareIndex]);
             handleMove(move);
             unselectAll();
             hideAvailableMovesAll();
@@ -317,25 +314,23 @@ function Board() {
         let newBoard = [...board];
 
         for (let i = 0; i < board.length; i++) {
-            newBoard[i].availableMoves = [];
-
             if (newBoard[i].piece === "") continue;
 
             let squareAvailableMoves = getAvailableMoves(board, i);
             availableMoves[i] = [...squareAvailableMoves];
 
-            squareAvailableMoves.map((value) => {
-                return availableMoves.push(value);
+            squareAvailableMoves.map((move) => {
+                return availableMoves.push(move);
             });
 
             if (newBoard[i].color === COLOR.WHITE) {
-                squareAvailableMoves.map((value) => {
-                    return whiteAvailableMoves.push([i, value]);
+                squareAvailableMoves.map((move) => {
+                    return whiteAvailableMoves.push(move);
                 });
             }
             if (newBoard[i].color === COLOR.BLACK) {
-                squareAvailableMoves.map((value) => {
-                    return blackAvailableMoves.push([i, value]);
+                squareAvailableMoves.map((move) => {
+                    return blackAvailableMoves.push(move);
                 });
             }
         }
@@ -353,22 +348,23 @@ function Board() {
     ) {
         let whiteScope = [...whiteMoveScope];
         let blackScope = [...blackMoveScope];
+
         if (fakeBoard) {
             [whiteScope, blackScope] = setScopeAll(board, true);
         }
         let newBoard = [...board];
         let checks = [];
         if (playerColor === COLOR.BLACK) {
-            checks = whiteScope.map((value) => {
-                let piece = newBoard[value];
+            checks = whiteScope.map((move) => {
+                let piece = newBoard[move.newPosition];
                 return (
                     piece.piece === PIECES.KING.CODE &&
                     piece.color === COLOR.BLACK
                 );
             });
         } else {
-            checks = blackScope.map((value) => {
-                let piece = newBoard[value];
+            checks = blackScope.map((move) => {
+                let piece = newBoard[move.newPosition];
                 return (
                     piece.piece === PIECES.KING.CODE &&
                     piece.color === COLOR.WHITE
@@ -390,6 +386,7 @@ function Board() {
     function setScopeAll(board, fakeBoard) {
         let blackScope = [];
         let whiteScope = [];
+
         for (let i in board) {
             i = parseInt(i);
             if (!board[i].piece) continue;
@@ -428,8 +425,10 @@ function Board() {
     }
 
     function handleMove(move) {
-        let [oldPosition, newPosition] = move;
-        checkEnPassant(oldPosition, newPosition);
+        let oldPosition = move.oldPosition;
+        let newPosition = move.newPosition;
+
+        checkEnPassant(move);
 
         let newBoard = board;
 
@@ -473,13 +472,18 @@ function Board() {
         setBoard([...newBoard]);
     }
 
-    function ifKingMovesRemoveCastle(newBoard, [oldPosition, newPosition]) {
+    function ifKingMovesRemoveCastle(newBoard, move) {
+        let oldPosition = move.oldPosition;
+        let newPosition = move.newPosition;
+
         if (newBoard[newPosition].piece === PIECES.KING.CODE) {
             setCastleUnavailable(newBoard[newPosition].color);
         }
     }
 
-    function ifRookMovesRemoveCastle(newBoard, [oldPosition, newPosition]) {
+    function ifRookMovesRemoveCastle(newBoard, move) {
+        let oldPosition = move.oldPosition;
+        let newPosition = move.newPosition;
         if (newBoard[newPosition].piece === PIECES.ROOK.CODE) {
             switch (oldPosition) {
                 case 56:
@@ -541,7 +545,9 @@ function Board() {
         setBoard([...newBoard]);
     }
 
-    function checkEnPassant(oldPosition, newPosition) {
+    function checkEnPassant(move) {
+        let oldPosition = move.oldPosition;
+        let newPosition = move.newPosition;
         if (newPosition === enPassant) {
             clearSquare(newPosition + 8);
             clearSquare(newPosition - 8);
@@ -562,6 +568,7 @@ function Board() {
         if (newEnPassant !== -1) {
             newBoard[newEnPassant].enPassantAvailable = true;
         }
+        console.log(enPassant);
         setBoard([...newBoard]);
         setEnPassant(newEnPassant);
     }
@@ -616,8 +623,8 @@ function Board() {
                 break;
         }
 
-        availableMoves = availableMoves.filter((value) => {
-            return value < 64 && value >= 0;
+        availableMoves = availableMoves.filter((move) => {
+            return move.newPosition < 64 && move.newPosition >= 0;
         });
 
         return availableMoves;
@@ -653,25 +660,18 @@ function Board() {
             default:
                 break;
         }
-        availableMoves = availableMoves.map((value) => {
-            return [position, value];
-        });
 
         availableMoves = availableMoves.filter((value) => {
             return value < 64 && value >= 0;
         });
+
         return availableMoves;
     }
 
     function getAvailableMoves(board, position) {
         let scopeMoves = showScopeForPiece(board, position);
-        let availableMoves = scopeMoves.filter((newPosition) => {
-            let dummyBoard = tryMove(
-                board,
-                [position, newPosition],
-                enPassant,
-                castlePerma
-            );
+        let availableMoves = scopeMoves.filter((move) => {
+            let dummyBoard = tryMove(board, move, enPassant, castlePerma);
             let check = !isPlayerInCheck(
                 dummyBoard,
                 board[position].color,
@@ -684,9 +684,8 @@ function Board() {
 
     function pushAvailableMovesToSquares(availableMoves) {
         let newSquares = isSquareAvailable;
-
         for (let i in availableMoves) {
-            let availableMoveIndex = availableMoves[i];
+            let availableMoveIndex = availableMoves[i].newPosition;
             newSquares[availableMoveIndex] = true;
         }
         setIsSquareAvailable([...newSquares]);
