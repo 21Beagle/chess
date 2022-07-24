@@ -275,5 +275,5 @@ export function checkForCheck(kingPosition, scopeMoves) {
 }
 
 export function checkForCheckmate(kingPosition, scopeMoves, availableMoves) {
-    return checkForCheck(kingPosition, scopeMoves) && availableMoves.length !== 0;
+    return checkForCheck(kingPosition, scopeMoves) && availableMoves.length === 0;
 }

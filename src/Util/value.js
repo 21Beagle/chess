@@ -2,6 +2,7 @@ import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
 import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck } from "./tools";
 
 export default function evaluate(board, enPassant, castlePerma) {
+    console.log("evaluate");
     let whiteValue = 0;
     let blackValue = 0;
 
@@ -31,8 +32,8 @@ export default function evaluate(board, enPassant, castlePerma) {
             }
             whitePieces.push(square.piece);
 
-            squareAvailableMoves.map((value) => {
-                return whiteAvailableMoves.push([i, value]);
+            squareAvailableMoves.map((move) => {
+                return whiteAvailableMoves.push(move);
             });
         }
         if (square.color === COLOR.BLACK) {
@@ -41,14 +42,16 @@ export default function evaluate(board, enPassant, castlePerma) {
             }
             blackPieces.push(square.piece);
 
-            squareAvailableMoves.map((value) => {
-                return blackAvailableMoves.push([i, value]);
+            squareAvailableMoves.map((move) => {
+                return blackAvailableMoves.push(move);
             });
         }
     }
 
     if (checkForCheckmate(blackKingPosition, scopes[0], blackAvailableMoves)) return Infinity;
-    if (checkForCheckmate(whiteKingPosition, scopes[1], whiteAvailableMoves)) return Infinity;
+    if (checkForCheckmate(whiteKingPosition, scopes[1], whiteAvailableMoves)) return -Infinity;
+
+    console.log(whiteAvailableMoves, blackAvailableMoves);
 
     // Sum the value of the pieces according to their value is probably the most basic way to value a position
 

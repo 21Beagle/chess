@@ -4,14 +4,7 @@ import Square from "../Square/Square";
 import WinScreen from "../WinScreen/WinScreen";
 import FENToBoard from "../../Util/FEN";
 // import { coordinates } from "../../Util/cartesianToArray";
-import {
-    playerColorOpposite,
-    pickRandomFromArray,
-    findAllMovesWithEqualEvaluation,
-    getEnPassant,
-    tryMove,
-    isPawnPromotion,
-} from "../../Util/tools";
+import { playerColorOpposite, pickRandomFromArray, findAllMovesWithEqualEvaluation, getEnPassant, tryMove, isPawnPromotion } from "../../Util/tools";
 import {
     availableBishopMoves,
     availableKingMoves,
@@ -20,44 +13,26 @@ import {
     availableRookMoves,
     availablePawnMoves,
 } from "../../Util/AvailableMoves";
-import {
-    CASTLE_AVAILABLE,
-    COLOR,
-    EMPTY_SQUARE,
-    PIECES,
-    CHECK,
-    CASTLE_PERMA,
-    TOP_RANK,
-    BOTTOM_RANK,
-    STALEMATE,
-} from "../../Consts/Consts";
+import { CASTLE_AVAILABLE, COLOR, EMPTY_SQUARE, PIECES, CHECK, CASTLE_PERMA, TOP_RANK, BOTTOM_RANK, STALEMATE } from "../../Consts/Consts";
 import evaluate, { getBoardState } from "../../Util/value";
 import { Move } from "../../Models/Move";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/3P4/8/8/1p6/8/8/7K w KQkq - 0 1";
+    const FENTest = "k7/8/1Q6/8/8/8/rq6/7K w KQkq - 0 1";
 
     const [board, setBoard] = useState(FENToBoard(FENTest).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
-    const [whiteMoveScope, setWhiteMoveScopes] = useState(
-        blackMovesScopeInit(board)
-    );
-    const [blackMoveScope, setBlackMoveScopes] = useState(
-        whiteMovesScopeInit(board)
-    );
+    const [whiteMoveScope, setWhiteMoveScopes] = useState(blackMovesScopeInit(board));
+    const [blackMoveScope, setBlackMoveScopes] = useState(whiteMovesScopeInit(board));
     const [castle, setCastle] = useState(checkForCastle(board));
     const [check, setCheck] = useState(CHECK);
     const [availableMoves, setAvailableMoves] = useState([]);
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
-    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState(
-        whiteMovesScopeInit(board)
-    );
-    const [blackAvailableMoves, setBlackAvailableMoves] = useState(
-        blackMovesScopeInit(board)
-    );
+    const [whiteAvailableMoves, setWhiteAvailableMoves] = useState(whiteMovesScopeInit(board));
+    const [blackAvailableMoves, setBlackAvailableMoves] = useState(blackMovesScopeInit(board));
     const [selectedSquare, setSelectedSquare] = useState(-1);
     const [enPassant, setEnPassant] = useState(-1);
     const [promotion, setPromotion] = useState(false);
@@ -109,7 +84,8 @@ function Board() {
         let botMoveMultiverse = availableMoves.map((move) => {
             let newBoard = tryMove(board, move, enPassant);
             let newEnPassant = getEnPassant(newBoard, move);
-
+            console.log("");
+            console.log(move.oldPosition, move.newPosition);
             let moveAndMultiverse = {
                 value: evaluate(newBoard, newEnPassant, castlePerma),
                 move: move,
@@ -117,9 +93,12 @@ function Board() {
 
             valueArray.push(moveAndMultiverse.value);
             moveArray.push(moveAndMultiverse.move);
+
             return moveAndMultiverse;
         });
+        console.log(botMoveMultiverse);
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
+        move = new Move([49, 54]);
         handleBotMove(board, move, enPassant);
     }
 
@@ -163,11 +142,7 @@ function Board() {
     }
 
     function findBestMoveForBot(moveAndMultiverseArray, valueArray) {
-        let bestMoves = findAllMovesWithEqualEvaluation(
-            valueArray,
-            moveAndMultiverseArray,
-            botColor
-        );
+        let bestMoves = findAllMovesWithEqualEvaluation(valueArray, moveAndMultiverseArray, botColor);
 
         var bestMove = pickRandomFromArray(bestMoves).move;
 
@@ -175,9 +150,7 @@ function Board() {
     }
 
     function botAvailableMoves(availableMoves) {
-        botColor === COLOR.BLACK
-            ? (availableMoves = blackAvailableMoves)
-            : (availableMoves = whiteAvailableMoves);
+        botColor === COLOR.BLACK ? (availableMoves = blackAvailableMoves) : (availableMoves = whiteAvailableMoves);
         return availableMoves;
     }
 
@@ -212,32 +185,16 @@ function Board() {
     }
 
     function handleWin() {
-        if (
-            turnColor === COLOR.WHITE &&
-            whiteAvailableMoves.length === 0 &&
-            check.WHITE
-        ) {
+        if (turnColor === COLOR.WHITE && whiteAvailableMoves.length === 0 && check.WHITE) {
             setGameEnded(COLOR.BLACK);
         }
-        if (
-            turnColor === COLOR.BLACK &&
-            blackAvailableMoves.length === 0 &&
-            check.BLACK
-        ) {
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && check.BLACK) {
             setGameEnded(COLOR.WHITE);
         }
-        if (
-            turnColor === COLOR.BLACK &&
-            blackAvailableMoves.length === 0 &&
-            !check.BLACK
-        ) {
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && !check.BLACK) {
             setGameEnded(STALEMATE);
         }
-        if (
-            turnColor === COLOR.BLACK &&
-            blackAvailableMoves.length === 0 &&
-            !check.BLACK
-        ) {
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && !check.BLACK) {
             setGameEnded(STALEMATE);
         }
     }
@@ -252,13 +209,7 @@ function Board() {
         whiteLongCheck = whiteLongCheck.some((value) => {
             return value === true;
         });
-        if (
-            castlePerma.WHITE_LONG &&
-            !board[57].piece &&
-            !board[58].piece &&
-            !board[59].piece &&
-            !whiteLongCheck
-        ) {
+        if (castlePerma.WHITE_LONG && !board[57].piece && !board[58].piece && !board[59].piece && !whiteLongCheck) {
             newCastle = { ...newCastle, WHITE_LONG: true };
         }
 
@@ -270,12 +221,7 @@ function Board() {
             .some((value) => {
                 return value === true;
             });
-        if (
-            castlePerma.WHITE_SHORT &&
-            !board[61].piece &&
-            !board[62].piece &&
-            !whiteShortCheck
-        ) {
+        if (castlePerma.WHITE_SHORT && !board[61].piece && !board[62].piece && !whiteShortCheck) {
             newCastle = { ...newCastle, WHITE_SHORT: true };
         }
 
@@ -287,13 +233,7 @@ function Board() {
             .some((value) => {
                 return value === true;
             });
-        if (
-            castlePerma.BLACK_LONG &&
-            !board[1].piece &&
-            !board[2].piece &&
-            !board[3].piece &&
-            !blackLongCheck
-        ) {
+        if (castlePerma.BLACK_LONG && !board[1].piece && !board[2].piece && !board[3].piece && !blackLongCheck) {
             newCastle = { ...newCastle, BLACK_LONG: true };
         }
 
@@ -306,12 +246,7 @@ function Board() {
                 return value === true;
             });
 
-        if (
-            castlePerma.BLACK_SHORT &&
-            !board[5].piece &&
-            !board[6].piece &&
-            !blackShortCheck
-        ) {
+        if (castlePerma.BLACK_SHORT && !board[5].piece && !board[6].piece && !blackShortCheck) {
             newCastle = { ...newCastle, BLACK_SHORT: true };
         }
 
@@ -371,11 +306,7 @@ function Board() {
         return availableMoves;
     }
 
-    function isPlayerInCheck(
-        board,
-        playerColor = turnColor,
-        fakeBoard = false
-    ) {
+    function isPlayerInCheck(board, playerColor = turnColor, fakeBoard = false) {
         let whiteScope = [...whiteMoveScope];
         let blackScope = [...blackMoveScope];
 
@@ -387,18 +318,12 @@ function Board() {
         if (playerColor === COLOR.BLACK) {
             checks = whiteScope.map((move) => {
                 let piece = newBoard[move.newPosition];
-                return (
-                    piece.piece === PIECES.KING.CODE &&
-                    piece.color === COLOR.BLACK
-                );
+                return piece.piece === PIECES.KING.CODE && piece.color === COLOR.BLACK;
             });
         } else {
             checks = blackScope.map((move) => {
                 let piece = newBoard[move.newPosition];
-                return (
-                    piece.piece === PIECES.KING.CODE &&
-                    piece.color === COLOR.WHITE
-                );
+                return piece.piece === PIECES.KING.CODE && piece.color === COLOR.WHITE;
             });
         }
 
@@ -442,16 +367,12 @@ function Board() {
     }
 
     function updateCheck(playerColor) {
-        playerColor === COLOR.WHITE
-            ? setCheck({ ...check, WHITE: true })
-            : setCheck({ ...check, BLACK: true });
+        playerColor === COLOR.WHITE ? setCheck({ ...check, WHITE: true }) : setCheck({ ...check, BLACK: true });
         return;
     }
 
     function togglePlayerTurn() {
-        turnColor === COLOR.WHITE
-            ? setTurnColor(COLOR.BLACK)
-            : setTurnColor(COLOR.WHITE);
+        turnColor === COLOR.WHITE ? setTurnColor(COLOR.BLACK) : setTurnColor(COLOR.WHITE);
     }
 
     function handlePawnPromotion(newPiece) {
@@ -551,10 +472,7 @@ function Board() {
         if (oldPiece === PIECES.PAWN.CODE && oldPosition - newPosition === 16) {
             newEnPassant = oldPosition - 8;
         }
-        if (
-            oldPiece === PIECES.PAWN.CODE &&
-            oldPosition - newPosition === -16
-        ) {
+        if (oldPiece === PIECES.PAWN.CODE && oldPosition - newPosition === -16) {
             newEnPassant = oldPosition + 8;
         }
         if (newEnPassant !== -1) {
@@ -604,11 +522,7 @@ function Board() {
                 availableMoves = availableKingMoves(position, newBoard, castle);
                 break;
             case PIECES.PAWN.CODE:
-                availableMoves = availablePawnMoves(
-                    position,
-                    newBoard,
-                    enPassant
-                );
+                availableMoves = availablePawnMoves(position, newBoard, enPassant);
                 break;
             default:
                 break;
@@ -639,11 +553,7 @@ function Board() {
                 availableMoves = availableQueenMoves(position, newBoard);
                 break;
             case PIECES.KING.CODE:
-                availableMoves = availableKingMoves(
-                    position,
-                    newBoard,
-                    CASTLE_AVAILABLE
-                );
+                availableMoves = availableKingMoves(position, newBoard, CASTLE_AVAILABLE);
                 break;
             case PIECES.PAWN.CODE:
                 availableMoves = availablePawnMoves(position, newBoard, -1);
@@ -663,11 +573,7 @@ function Board() {
         let scopeMoves = showScopeForPiece(board, position);
         let availableMoves = scopeMoves.filter((move) => {
             let dummyBoard = tryMove(board, move, enPassant, castlePerma);
-            let check = !isPlayerInCheck(
-                dummyBoard,
-                board[position].color,
-                true
-            );
+            let check = !isPlayerInCheck(dummyBoard, board[position].color, true);
             return check;
         });
         return availableMoves;
