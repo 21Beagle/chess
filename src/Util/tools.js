@@ -1,13 +1,4 @@
-import {
-    COLOR,
-    EMPTY_SQUARE,
-    PIECES,
-    CHECK,
-    TOP_RANK,
-    BOTTOM_RANK,
-    CASTLE_AVAILABLE,
-    ENPASSANT_SQUARES,
-} from "../Consts/Consts";
+import { COLOR, EMPTY_SQUARE, PIECES, CHECK, TOP_RANK, BOTTOM_RANK, CASTLE_AVAILABLE, ENPASSANT_SQUARES } from "../Consts/Consts";
 import {
     availableBishopMoves,
     availableKingMoves,
@@ -17,38 +8,18 @@ import {
     availablePawnMoves,
 } from "../Util/AvailableMoves";
 
-export function getAvailableMoves(
-    board,
-    position,
-    [whiteMovesScope, blackMovesScope],
-    castle,
-    enPassant
-) {
+export function getAvailableMoves(board, position, castle, enPassant) {
     let scopeMoves = showScopeForPiece(board, position, castle, enPassant);
-    let availableMoves = scopeMoves.filter((newPosition) => {
-        let dummyBoard = tryMove(
-            board,
-            [position, newPosition],
-            castle,
-            enPassant
-        );
+    let availableMoves = scopeMoves.filter((move) => {
+        let dummyBoard = tryMove(board, move, castle, enPassant);
         let scopes = getScopeAll(board, castle, enPassant);
-        let check = !isPlayerInCheck(
-            dummyBoard,
-            board[position].color,
-            scopes,
-            true
-        );
+        let check = !isPlayerInCheck(dummyBoard, board[position].color, scopes, true);
         return check;
     });
     return availableMoves;
 }
 
-export function checkForCastle(
-    board,
-    castlePerma,
-    [whiteMoveScope, blackMoveScope]
-) {
+export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveScope]) {
     // white long
     let newCastle = CASTLE_AVAILABLE;
 
@@ -58,13 +29,7 @@ export function checkForCastle(
     whiteLongCheck = whiteLongCheck.some((value) => {
         return value === true;
     });
-    if (
-        castlePerma.WHITE_LONG &&
-        !board[57].piece &&
-        !board[58].piece &&
-        !board[59].piece &&
-        !whiteLongCheck
-    ) {
+    if (castlePerma.WHITE_LONG && !board[57].piece && !board[58].piece && !board[59].piece && !whiteLongCheck) {
         newCastle = { ...newCastle, WHITE_LONG: true };
     }
 
@@ -76,12 +41,7 @@ export function checkForCastle(
         .some((value) => {
             return value === true;
         });
-    if (
-        castlePerma.WHITE_SHORT &&
-        !board[61].piece &&
-        !board[62].piece &&
-        !whiteShortCheck
-    ) {
+    if (castlePerma.WHITE_SHORT && !board[61].piece && !board[62].piece && !whiteShortCheck) {
         newCastle = { ...newCastle, WHITE_SHORT: true };
     }
 
@@ -93,13 +53,7 @@ export function checkForCastle(
         .some((value) => {
             return value === true;
         });
-    if (
-        castlePerma.BLACK_LONG &&
-        !board[1].piece &&
-        !board[2].piece &&
-        !board[3].piece &&
-        !blackLongCheck
-    ) {
+    if (castlePerma.BLACK_LONG && !board[1].piece && !board[2].piece && !board[3].piece && !blackLongCheck) {
         newCastle = { ...newCastle, BLACK_LONG: true };
     }
 
@@ -112,12 +66,7 @@ export function checkForCastle(
             return value === true;
         });
 
-    if (
-        castlePerma.BLACK_SHORT &&
-        !board[5].piece &&
-        !board[6].piece &&
-        !blackShortCheck
-    ) {
+    if (castlePerma.BLACK_SHORT && !board[5].piece && !board[6].piece && !blackShortCheck) {
         newCastle = { ...newCastle, BLACK_SHORT: true };
     }
 
@@ -151,8 +100,8 @@ function showScopeForPiece(board, position, castle, enPassant) {
             break;
     }
 
-    availableMoves = availableMoves.filter((value) => {
-        return value < 64 && value >= 0;
+    availableMoves = availableMoves.filter((move) => {
+        return move.newPosition < 64 && move.newPosition >= 0;
     });
 
     return availableMoves;
@@ -231,18 +180,15 @@ function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveScope]) {
     let newBoard = [...board];
     let checks = [];
     if (playerColor === COLOR.BLACK) {
-        checks = whiteScope.map((value) => {
-            let piece = newBoard[value];
-            return (
-                piece.piece === PIECES.KING.CODE && piece.color === COLOR.BLACK
-            );
+        checks = whiteScope.map((move) => {
+            let piece = newBoard[move.newPosition];
+
+            return piece.piece === PIECES.KING.CODE && piece.color === COLOR.BLACK;
         });
     } else {
-        checks = blackScope.map((value) => {
-            let piece = newBoard[value];
-            return (
-                piece.piece === PIECES.KING.CODE && piece.color === COLOR.WHITE
-            );
+        checks = blackScope.map((move) => {
+            let piece = newBoard[move.newPosition];
+            return piece.piece === PIECES.KING.CODE && piece.color === COLOR.WHITE;
         });
     }
 
@@ -290,11 +236,7 @@ export function pickRandomFromArray(array) {
     return element;
 }
 
-export function findAllMovesWithEqualEvaluation(
-    valueArray,
-    moveAndMultiverseArray,
-    botColor
-) {
+export function findAllMovesWithEqualEvaluation(valueArray, moveAndMultiverseArray, botColor) {
     let bestValue = 0;
     if (botColor === COLOR.BLACK) {
         bestValue = Math.min(...valueArray);
@@ -324,4 +266,14 @@ export function getEnPassant(board, move) {
         newBoard[newEnPassant].enPassantAvailable = true;
     }
     return newEnPassant;
+}
+
+export function checkForCheck(kingPosition, scopeMoves) {
+    return scopeMoves.some((move) => {
+        return move.newPosition === kingPosition;
+    });
+}
+
+export function checkForCheckmate(kingPosition, scopeMoves, availableMoves) {
+    return checkForCheck(kingPosition, scopeMoves) && availableMoves.length !== 0;
 }

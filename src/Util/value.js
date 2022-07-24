@@ -1,32 +1,34 @@
 import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
-import { checkForCastle, getAvailableMoves, getScopeAll } from "./tools";
+import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck } from "./tools";
 
 export default function evaluate(board, enPassant, castlePerma) {
     let whiteValue = 0;
     let blackValue = 0;
 
+    let whitePieces = [];
+    let whiteKingPosition;
+    let whiteAvailableMoves = [];
+
     let blackPieces = [];
     let blackAvailableMoves = [];
-    let whitePieces = [];
-    let whiteAvailableMoves = [];
+    let blackKingPosition;
 
     let value = 0;
 
     let { scopes, castle } = getBoardState(board, castlePerma, enPassant);
 
+    // loop through board once to get to the correct details we need
+
     for (let i in board) {
+        i = parseInt(i);
         let square = board[i];
         if (square.piece === EMPTY_SQUARE.piece) continue;
 
-        let squareAvailableMoves = getAvailableMoves(
-            board,
-            i,
-            scopes,
-            castle,
-            enPassant
-        );
-
+        let squareAvailableMoves = getAvailableMoves(board, i, castle, enPassant);
         if (square.color === COLOR.WHITE) {
+            if (square.piece === PIECES.KING.CODE) {
+                whiteKingPosition = i;
+            }
             whitePieces.push(square.piece);
 
             squareAvailableMoves.map((value) => {
@@ -34,6 +36,9 @@ export default function evaluate(board, enPassant, castlePerma) {
             });
         }
         if (square.color === COLOR.BLACK) {
+            if (square.piece === PIECES.KING.CODE) {
+                blackKingPosition = i;
+            }
             blackPieces.push(square.piece);
 
             squareAvailableMoves.map((value) => {
@@ -41,6 +46,9 @@ export default function evaluate(board, enPassant, castlePerma) {
             });
         }
     }
+
+    if (checkForCheckmate(blackKingPosition, scopes[0], blackAvailableMoves)) return Infinity;
+    if (checkForCheckmate(whiteKingPosition, scopes[1], whiteAvailableMoves)) return Infinity;
 
     // Sum the value of the pieces according to their value is probably the most basic way to value a position
 
