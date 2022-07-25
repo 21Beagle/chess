@@ -54,28 +54,28 @@ function Board() {
     const [boardValue, setBoardValue] = useState(0);
     const [botColor, setBotColor] = useState(COLOR.BLACK);
     const [lastMove, setLastMove] = useState(new Move([-1, -1]));
+    const [gameLoaded, setGameLoaded] = useState(false);
 
     useEffect(() => {
-        // eslint-disable-next-line
-    }, [board]);
+        console.log(whiteAvailableMoves, blackAvailableMoves);
+        if (whiteAvailableMoves !== []) {
+            setGameLoaded(true);
+        }
+        console.log(gameLoaded);
 
-    useEffect(() => {
-        isPlayerInCheck(board, turnColor, [whiteMoveScope, blackMoveScope]);
-
-        handleWin();
         // eslint-disable-next-line
-    }, [whiteMoveScope, blackMoveScope, board, turnColor]);
+    }, [whiteAvailableMoves, blackAvailableMoves]);
 
     useEffect(() => {
         let scopes = getScopeAll(board, castle, enPassant);
         let castleTemp = checkForCastleTemp(board, castle, scopes);
         populateAllMoves(board, castleTemp, enPassant);
-        // eslint-disable-next-line
-    }, [board, castle, enPassant]);
+        if (gameLoaded) {
+            handleWin(board, castleTemp, enPassant, scopes, turnColor);
+        }
 
-    useEffect(() => {
-        handleWin();
-    }, [boardValue]);
+        // eslint-disable-next-line
+    }, [board, castle, enPassant, gameLoaded]);
 
     useEffect(() => {
         let val = evaluate(board, enPassant, castle);
@@ -200,17 +200,17 @@ function Board() {
         }
     }
 
-    function handleWin() {
-        if (boardValue === Infinity) {
+    function handleWin(board, castle, enPassant, scopes, turnColor) {
+        if (boardValue === -Infinity) {
             setGameEnded(COLOR.BLACK);
         }
-        if (boardValue === -Infinity) {
+        if (boardValue === Infinity) {
             setGameEnded(COLOR.WHITE);
         }
-        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && !check.BLACK) {
+        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && isPlayerInCheck(board, turnColor, scopes)) {
             setGameEnded(STALEMATE);
         }
-        if (turnColor === COLOR.BLACK && blackAvailableMoves.length === 0 && !check.BLACK) {
+        if (turnColor === COLOR.WHITE && whiteAvailableMoves.length === 0 && isPlayerInCheck(board, turnColor, scopes)) {
             setGameEnded(STALEMATE);
         }
     }
@@ -474,6 +474,7 @@ function Board() {
         setPromotionTile(-1);
         setGameEnded("");
         setBotColor(playerColorOpposite(botColor));
+        setGameLoaded(false);
     }
 
     let boardComponent = <></>;

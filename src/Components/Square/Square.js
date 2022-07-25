@@ -10,7 +10,6 @@ import Pawn from "../Pieces/Pawn";
 import { PIECES } from "../../Consts/Consts";
 
 function Square({ id, piece, pieceColor, availableMove, handleClick, selected, enPassantAvailable, lastMove }) {
-    console.log(lastMove);
     let className;
     if (id % 16 < 8) {
         className = id % 2 !== 0 ? "black-tile" : "white-tile";
