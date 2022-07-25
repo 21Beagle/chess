@@ -5,18 +5,18 @@ import {
     BISHOP_VALUE_GRID_WHITE,
     KNIGHT_VALUE_GRID_BLACK,
     KNIGHT_VALUE_GRID_WHITE,
-    PAWN_VALUE_GRID,
     PAWN_VALUE_GRID_BLACK,
     PAWN_VALUE_GRID_WHITE,
 } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
     let squareValueMultiplier = 1;
-    let pawnValueMultiplier = squareValueMultiplier * 0.3;
-    let knightValueMultiplier = squareValueMultiplier * 0.3;
-    let bishopValueMultiplier = squareValueMultiplier * 0.2;
-    let rookValueMultiplier = squareValueMultiplier * 1;
-    let queenValueMultiplier = squareValueMultiplier * 1;
+    let scopeValueMultiplier = 0.3;
+    let pawnValueMultiplier = squareValueMultiplier * 1;
+    let knightValueMultiplier = squareValueMultiplier * 1;
+    let bishopValueMultiplier = squareValueMultiplier * 1;
+    // let rookValueMultiplier = squareValueMultiplier * 1;
+    // let queenValueMultiplier = squareValueMultiplier * 1;
 
     let whiteValue = 0;
     let blackValue = 0;
@@ -126,8 +126,8 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     // add value for how many squares can be seen by other place
 
-    whiteValue += scopeValueCalculatorWhite(scopes[0]);
-    blackValue += scopeValueCalculatorBlack(scopes[1]);
+    whiteValue += scopeValueMultiplier * scopeValueCalculatorWhite(scopes[0]);
+    blackValue += scopeValueMultiplier * scopeValueCalculatorBlack(scopes[1]);
 
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
@@ -178,7 +178,7 @@ function scopeValueCalculatorWhite(whiteScope) {
     let value = 0;
     for (let position of whiteScope) {
         if (position.newPosition <= 31) {
-            value += 0.33;
+            value += 1;
         }
     }
     return value;
