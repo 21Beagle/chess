@@ -19,7 +19,7 @@ import { Move } from "../../Models/Move";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/8/1Q6/8/8/8/rq6/7K w KQkq - 0 1";
+    const FENTest = "k7/1p6/1P6/8/8/8/rq6/7K w KQkq - 0 1";
 
     const [board, setBoard] = useState(FENToBoard(FENTest).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
@@ -84,10 +84,11 @@ function Board() {
         let botMoveMultiverse = availableMoves.map((move) => {
             let newBoard = tryMove(board, move, enPassant);
             let newEnPassant = getEnPassant(newBoard, move);
-            console.log("");
-            console.log(move.oldPosition, move.newPosition);
+
             let moveAndMultiverse = {
                 value: evaluate(newBoard, newEnPassant, castlePerma),
+                board: newBoard,
+                end: move.newPosition,
                 move: move,
             };
 
@@ -98,7 +99,6 @@ function Board() {
         });
         console.log(botMoveMultiverse);
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
-        move = new Move([49, 54]);
         handleBotMove(board, move, enPassant);
     }
 
@@ -114,7 +114,6 @@ function Board() {
         newBoard[oldPosition] = { ...EMPTY_SQUARE };
 
         if (isPawnPromotion(newBoard, newPosition) === true) {
-            console.log("promotion");
             setPromotion(true);
             setPromotionTile(newPosition);
             setBoard([...newBoard]);
@@ -572,6 +571,7 @@ function Board() {
     function getAvailableMoves(board, position) {
         let scopeMoves = showScopeForPiece(board, position);
         let availableMoves = scopeMoves.filter((move) => {
+            if (board[move.oldPosition].color === board[move.newPosition].color) return false;
             let dummyBoard = tryMove(board, move, enPassant, castlePerma);
             let check = !isPlayerInCheck(dummyBoard, board[position].color, true);
             return check;

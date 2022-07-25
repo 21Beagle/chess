@@ -2,7 +2,6 @@ import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
 import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck } from "./tools";
 
 export default function evaluate(board, enPassant, castlePerma) {
-    console.log("evaluate");
     let whiteValue = 0;
     let blackValue = 0;
 
@@ -51,8 +50,6 @@ export default function evaluate(board, enPassant, castlePerma) {
     if (checkForCheckmate(blackKingPosition, scopes[0], blackAvailableMoves)) return Infinity;
     if (checkForCheckmate(whiteKingPosition, scopes[1], whiteAvailableMoves)) return -Infinity;
 
-    console.log(whiteAvailableMoves, blackAvailableMoves);
-
     // Sum the value of the pieces according to their value is probably the most basic way to value a position
 
     let sumValueWhitePieces = sumValuePieces(whitePieces);
@@ -63,6 +60,7 @@ export default function evaluate(board, enPassant, castlePerma) {
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
     value = whiteValue - blackValue;
+
     return value;
 }
 

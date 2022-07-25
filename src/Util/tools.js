@@ -12,8 +12,8 @@ export function getAvailableMoves(board, position, castle, enPassant) {
     let scopeMoves = showScopeForPiece(board, position, castle, enPassant);
     let availableMoves = scopeMoves.filter((move) => {
         let dummyBoard = tryMove(board, move, castle, enPassant);
-        let scopes = getScopeAll(board, castle, enPassant);
-        let check = !isPlayerInCheck(dummyBoard, board[position].color, scopes, true);
+        let scopes = getScopeAll(dummyBoard, castle, enPassant);
+        let check = isPlayerInCheck(dummyBoard, board[position].color, scopes, true);
         return check;
     });
     return availableMoves;
@@ -182,12 +182,12 @@ function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveScope]) {
     if (playerColor === COLOR.BLACK) {
         checks = whiteScope.map((move) => {
             let piece = newBoard[move.newPosition];
-
             return piece.piece === PIECES.KING.CODE && piece.color === COLOR.BLACK;
         });
     } else {
         checks = blackScope.map((move) => {
             let piece = newBoard[move.newPosition];
+
             return piece.piece === PIECES.KING.CODE && piece.color === COLOR.WHITE;
         });
     }
@@ -196,7 +196,7 @@ function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveScope]) {
         return value === true;
     });
 
-    return anyChecks;
+    return !anyChecks;
 }
 
 export function getScopeAll(board, castle, enPassant) {
