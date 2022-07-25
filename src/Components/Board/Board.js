@@ -16,6 +16,7 @@ import {
     checkForCastle,
     showScopeForPiece,
     getScopeAll,
+    checkForCastleTemp,
 } from "../../Util/tools";
 
 import { CASTLE_AVAILABLE, COLOR, EMPTY_SQUARE, PIECES, CHECK, CASTLE_PERMA, STALEMATE } from "../../Consts/Consts";
@@ -27,13 +28,12 @@ function Board() {
     const FENTest = "r3qb1k/1b4p1/p2pr2p/3n4/Pnp1N1N1/6RP/1B3PP1/1B1QR1K1 w - - bm Nxh6";
     const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
 
-    let init = FENToBoard(FENTestWhiteLong);
+    let init = FENToBoard(FENstart);
 
     let initBoard = init.board;
     let initTurnColor = init.turn;
     let initCastle = init.castle;
     let initEnPassant = init.enPassant;
-    console.log(initCastle);
 
     const [board, setBoard] = useState(initBoard);
     const [turnColor, setTurnColor] = useState(initTurnColor);
@@ -54,18 +54,9 @@ function Board() {
     const [boardValue, setBoardValue] = useState(0);
     const [botColor, setBotColor] = useState(COLOR.BLACK);
 
-    console.log(castle);
-
     useEffect(() => {
-        getScopeAll(board, castle, enPassant);
-
         // eslint-disable-next-line
     }, [board]);
-
-    useEffect(() => {
-        populateAllMoves(board, castle, enPassant);
-        // eslint-disable-next-line
-    }, [board, castle, enPassant]);
 
     useEffect(() => {
         isPlayerInCheck(board, turnColor, [whiteMoveScope, blackMoveScope]);
@@ -73,6 +64,13 @@ function Board() {
         handleWin();
         // eslint-disable-next-line
     }, [whiteMoveScope, blackMoveScope, board, turnColor]);
+
+    useEffect(() => {
+        let scopes = getScopeAll(board, castle, enPassant);
+        let castleTemp = checkForCastleTemp(board, castle, scopes);
+        populateAllMoves(board, castleTemp, enPassant);
+        // eslint-disable-next-line
+    }, [board, castle, enPassant]);
 
     useEffect(() => {
         handleWin();
@@ -263,11 +261,6 @@ function Board() {
         setWhiteAvailableMoves([...whiteAvailableMoves]);
         setBlackAvailableMoves([...blackAvailableMoves]);
         setAvailableMoves([...availableMoves]);
-    }
-
-    function updateCheck(playerColor) {
-        playerColor === COLOR.WHITE ? setCheck({ ...check, WHITE: true }) : setCheck({ ...check, BLACK: true });
-        return;
     }
 
     function togglePlayerTurn() {
@@ -512,11 +505,12 @@ function Board() {
 
     return (
         <div className="center">
+            <button onClick={() => reset()}>Reset and change teams</button>
+
             <div className="board-wrapper center">{boardComponent}</div>
             {promotionComponent}
             {winnerComponent}
             <div>{boardValue}</div>
-            <button onClick={() => reset()}>reset</button>
         </div>
     );
 }

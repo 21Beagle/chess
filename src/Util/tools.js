@@ -46,12 +46,12 @@ export function getAvailableMoves(board, position, castle, enPassant) {
     return availableMoves;
 }
 
-export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveScope]) {
+export function checkForCastleTemp(board, castlePerma, [whiteMoveScope, blackMoveScope]) {
     // white long
     let newCastle = CASTLE_AVAILABLE;
 
-    let whiteLongCheck = blackMoveScope.map((value) => {
-        return value === 59 || value === 58 || value === 57 || value === 60;
+    let whiteLongCheck = blackMoveScope.map((move) => {
+        return move.newPosition === 59 || move.newPosition === 58 || move.newPosition === 57 || move.newPosition === 60;
     });
     whiteLongCheck = whiteLongCheck.some((value) => {
         return value === true;
@@ -62,8 +62,8 @@ export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveSco
 
     // white short
     let whiteShortCheck = blackMoveScope
-        .map((value) => {
-            return value === 60 || value === 61 || value === 62;
+        .map((move) => {
+            return move.newPosition === 60 || move.newPosition === 61 || move.newPosition === 62;
         })
         .some((value) => {
             return value === true;
@@ -74,8 +74,8 @@ export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveSco
 
     // black long
     let blackLongCheck = whiteMoveScope
-        .map((value) => {
-            return value === 1 || value === 2 || value === 3 || value === 4;
+        .map((move) => {
+            return move.newPosition === 1 || move.newPosition === 2 || move.newPosition === 3 || move.newPosition === 4;
         })
         .some((value) => {
             return value === true;
@@ -86,8 +86,8 @@ export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveSco
 
     // black short
     let blackShortCheck = whiteMoveScope
-        .map((value) => {
-            return value === 4 || value === 5 || value === 6;
+        .map((move) => {
+            return move.newPosition === 4 || move.newPosition === 5 || move.newPosition === 6;
         })
         .some((value) => {
             return value === true;
@@ -118,7 +118,6 @@ export function showScopeForPiece(board, position, castle, enPassant) {
             availableMoves = availableQueenMoves(position, newBoard);
             break;
         case PIECES.KING.CODE:
-            console.log(castle);
             availableMoves = availableKingMoves(position, newBoard, castle);
             break;
         case PIECES.PAWN.CODE:
@@ -313,6 +312,6 @@ export function sum(array) {
 export function getBoardState(board, castlePerma, enPassant) {
     let scopes = getScopeAll(board, castlePerma, enPassant);
 
-    let castle = checkForCastle(board, castlePerma, scopes);
+    let castle = checkForCastleTemp(board, castlePerma, scopes);
     return { board, scopes, castle };
 }
