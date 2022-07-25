@@ -19,9 +19,9 @@ import { Move } from "../../Models/Move";
 
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const FENTest = "k7/1p6/1P6/8/8/8/rq6/7K w KQkq - 0 1";
+    // const FENTest = "k7/1p6/1P6/8/8/8/rq6/7K w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENTest).board);
+    const [board, setBoard] = useState(FENToBoard(FENstart).board);
     const [turnColor, setTurnColor] = useState(COLOR.WHITE);
     const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(blackMovesScopeInit(board));
