@@ -10,8 +10,8 @@ import {
 } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
-    let squareValueMultiplier = 1;
-    let scopeValueMultiplier = 0.3;
+    let squareValueMultiplier = 0.1;
+    let scopeValueMultiplier = 0.05;
     let pawnValueMultiplier = squareValueMultiplier * 1;
     let knightValueMultiplier = squareValueMultiplier * 1;
     let bishopValueMultiplier = squareValueMultiplier * 1;
