@@ -53,6 +53,7 @@ function Board() {
     const [gameEnded, setGameEnded] = useState("");
     const [boardValue, setBoardValue] = useState(0);
     const [botColor, setBotColor] = useState(COLOR.BLACK);
+    const [lastMove, setLastMove] = useState(new Move([-1, -1]));
 
     useEffect(() => {
         // eslint-disable-next-line
@@ -112,6 +113,7 @@ function Board() {
         console.log(botMoveMultiverse);
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
         handleBotMove(board, move, enPassant);
+        setLastMove(move);
     }
 
     function handleMove(move) {
@@ -137,6 +139,8 @@ function Board() {
         handleCastleMove(oldPosition, newPosition, newBoard);
 
         setBoard([...newBoard]);
+        setLastMove(move);
+
         togglePlayerTurn();
     }
 
@@ -484,6 +488,7 @@ function Board() {
                 availableMove={isSquareAvailable[value]}
                 enPassantAvailable={enPassant === value}
                 selected={isSquareSelected[value]}
+                lastMove={value === lastMove.oldPosition || value === lastMove.newPosition}
             />
         ));
     } else {
@@ -498,6 +503,7 @@ function Board() {
                     availableMove={isSquareAvailable[value]}
                     enPassantAvailable={enPassant === value}
                     selected={isSquareSelected[value]}
+                    lastMove={value === lastMove.oldPosition || value === lastMove.newPosition}
                 />
             ))
             .reverse();

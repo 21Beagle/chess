@@ -36,6 +36,14 @@
     background-color: rgb(245, 239, 165);
 }
 
+.last-move {
+    background-color: rgb(236, 171, 185);
+}
+
+.last-move.available-move {
+    background-color: rgb(243, 197, 171);
+}
+
 .piece-icon {
     height: 100%;
     width: 100%;
