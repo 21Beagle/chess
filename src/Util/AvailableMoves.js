@@ -19,11 +19,7 @@ export function availableRookMoves(position, board) {
         if (northContinue) {
             availableMoves.push(north);
         }
-        if (
-            board[north] &&
-            board[north].color &&
-            board[north].color === playerColorOpposite(board[position].color)
-        ) {
+        if (board[north] && board[north].color && board[north].color === playerColorOpposite(board[position].color)) {
             northContinue = false;
         }
 
@@ -35,11 +31,7 @@ export function availableRookMoves(position, board) {
         if (southContinue) {
             availableMoves.push(south);
         }
-        if (
-            board[south] &&
-            board[south].color &&
-            board[south].color === playerColorOpposite(board[position].color)
-        ) {
+        if (board[south] && board[south].color && board[south].color === playerColorOpposite(board[position].color)) {
             southContinue = false;
         }
 
@@ -51,11 +43,7 @@ export function availableRookMoves(position, board) {
         if (eastContinue) {
             availableMoves.push(east);
         }
-        if (
-            board[east] &&
-            board[east].color &&
-            board[east].color === playerColorOpposite(board[position].color)
-        ) {
+        if (board[east] && board[east].color && board[east].color === playerColorOpposite(board[position].color)) {
             eastContinue = false;
         }
 
@@ -67,11 +55,7 @@ export function availableRookMoves(position, board) {
         if (westContinue) {
             availableMoves.push(west);
         }
-        if (
-            board[west] &&
-            board[west].color &&
-            board[west].color === playerColorOpposite(board[position].color)
-        ) {
+        if (board[west] && board[west].color && board[west].color === playerColorOpposite(board[position].color)) {
             westContinue = false;
         }
     }
@@ -120,10 +104,7 @@ export function availableBishopMoves(position, board) {
         if (!board[newPosition]) continue;
         if (board[newPosition].color === board[position].color) {
             break;
-        } else if (
-            board[newPosition].color &&
-            board[newPosition].color !== board[position].color
-        ) {
+        } else if (board[newPosition].color && board[newPosition].color !== board[position].color) {
             availableMoves.push(newPosition);
             break;
         } else {
@@ -136,10 +117,7 @@ export function availableBishopMoves(position, board) {
 
         if (board[newPosition].color === board[position].color) {
             break;
-        } else if (
-            board[newPosition].color &&
-            board[newPosition].color !== board[position].color
-        ) {
+        } else if (board[newPosition].color && board[newPosition].color !== board[position].color) {
             availableMoves.push(newPosition);
             break;
         } else {
@@ -152,10 +130,7 @@ export function availableBishopMoves(position, board) {
 
         if (board[newPosition].color === board[position].color) {
             break;
-        } else if (
-            board[newPosition].color &&
-            board[newPosition].color !== board[position].color
-        ) {
+        } else if (board[newPosition].color && board[newPosition].color !== board[position].color) {
             availableMoves.push(newPosition);
             break;
         } else {
@@ -168,10 +143,7 @@ export function availableBishopMoves(position, board) {
 
         if (board[newPosition].color === board[position].color) {
             break;
-        } else if (
-            board[newPosition].color &&
-            board[newPosition].color !== board[position].color
-        ) {
+        } else if (board[newPosition].color && board[newPosition].color !== board[position].color) {
             availableMoves.push(newPosition);
             break;
         } else {
@@ -188,7 +160,7 @@ export function availableQueenMoves(position, board) {
     return availableMoves;
 }
 
-export function availableKingMoves(position, board, castle) {
+export function availableKingMoves(position, board, castle, check) {
     let availableMoves = [];
     let [file, rank] = coordinates(position);
     let kingMoves = [-9, -8, -7, -1, 1, 7, 8, 9];
@@ -202,10 +174,7 @@ export function availableKingMoves(position, board, castle) {
             let [newFile, newRank] = coordinates(value);
             if (Math.abs(newFile - file) > 1 || Math.abs(newRank - rank) > 1) {
                 return false;
-            } else if (
-                board[value] &&
-                board[position].color !== board[value].color
-            ) {
+            } else if (board[value] && board[position].color !== board[value].color) {
                 return true;
             } else {
                 return false;
@@ -239,12 +208,7 @@ export function availablePawnMoves(position, board, enPassant) {
     let color = board[position].color;
 
     if (color === COLOR.BLACK) {
-        if (
-            board[position + 16] &&
-            !board[position + 16].piece &&
-            !board[position + 8].piece &&
-            rank === 1
-        ) {
+        if (board[position + 16] && !board[position + 16].piece && !board[position + 8].piece && rank === 1) {
             pawnMoves.push(16);
         }
         if (board[position + 8] && !board[position + 8].piece) {
@@ -252,25 +216,14 @@ export function availablePawnMoves(position, board, enPassant) {
         }
 
         let [eastTake, westTake] = [board[position + 9], board[position + 7]];
-        if (
-            (eastTake && file !== 7 && eastTake.color === COLOR.WHITE) ||
-            position + 9 === enPassant
-        ) {
+        if ((eastTake && file !== 7 && eastTake.color === COLOR.WHITE) || position + 9 === enPassant) {
             pawnMoves.push(9);
         }
-        if (
-            (westTake && file !== 0 && westTake.color === COLOR.WHITE) ||
-            position + 7 === enPassant
-        ) {
+        if ((westTake && file !== 0 && westTake.color === COLOR.WHITE) || position + 7 === enPassant) {
             pawnMoves.push(7);
         }
     } else {
-        if (
-            board[position - 16] &&
-            !board[position - 16].piece &&
-            !board[position - 8].piece &&
-            rank === 6
-        ) {
+        if (board[position - 16] && !board[position - 16].piece && !board[position - 8].piece && rank === 6) {
             pawnMoves.push(-16);
         }
         if (board[position - 8] && !board[position - 8].piece) {
@@ -278,16 +231,10 @@ export function availablePawnMoves(position, board, enPassant) {
         }
 
         let [eastTake, westTake] = [board[position - 9], board[position - 7]];
-        if (
-            (eastTake && file !== 0 && eastTake.color === COLOR.BLACK) ||
-            position - 9 === enPassant
-        ) {
+        if ((eastTake && file !== 0 && eastTake.color === COLOR.BLACK) || position - 9 === enPassant) {
             pawnMoves.push(-9);
         }
-        if (
-            (westTake && file !== 7 && westTake.color === COLOR.BLACK) ||
-            position - 7 === enPassant
-        ) {
+        if ((westTake && file !== 7 && westTake.color === COLOR.BLACK) || position - 7 === enPassant) {
             pawnMoves.push(-7);
         }
     }
@@ -297,18 +244,10 @@ export function availablePawnMoves(position, board, enPassant) {
     // promotion moves for White
     if (color === COLOR.WHITE && rank === 1) {
         availableMoves = [];
-        availableMoves.push(
-            new Move([position, position - 8], PIECES.QUEEN.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position - 8], PIECES.KNIGHT.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position - 8], PIECES.ROOK.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position - 8], PIECES.BISHOP.CODE)
-        );
+        availableMoves.push(new Move([position, position - 8], PIECES.QUEEN.CODE));
+        availableMoves.push(new Move([position, position - 8], PIECES.KNIGHT.CODE));
+        availableMoves.push(new Move([position, position - 8], PIECES.ROOK.CODE));
+        availableMoves.push(new Move([position, position - 8], PIECES.BISHOP.CODE));
 
         return availableMoves;
     }
@@ -316,18 +255,10 @@ export function availablePawnMoves(position, board, enPassant) {
     if (color === COLOR.BLACK && rank === 6) {
         availableMoves = [];
 
-        availableMoves.push(
-            new Move([position, position + 8], PIECES.QUEEN.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position + 8], PIECES.KNIGHT.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position + 8], PIECES.ROOK.CODE)
-        );
-        availableMoves.push(
-            new Move([position, position + 8], PIECES.BISHOP.CODE)
-        );
+        availableMoves.push(new Move([position, position + 8], PIECES.QUEEN.CODE));
+        availableMoves.push(new Move([position, position + 8], PIECES.KNIGHT.CODE));
+        availableMoves.push(new Move([position, position + 8], PIECES.ROOK.CODE));
+        availableMoves.push(new Move([position, position + 8], PIECES.BISHOP.CODE));
 
         return availableMoves;
     }
@@ -339,11 +270,7 @@ export function availablePawnMoves(position, board, enPassant) {
     return availableMovesToClassMove(availableMoves, position);
 }
 
-function availableMovesToClassMove(
-    availableMoves,
-    oldPosition,
-    promotion = ""
-) {
+function availableMovesToClassMove(availableMoves, oldPosition, promotion = "") {
     return availableMoves.map((newPosition) => {
         return new Move([oldPosition, newPosition], promotion);
     });

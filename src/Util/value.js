@@ -1,5 +1,6 @@
 import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
-import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck } from "./tools";
+import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck, sum } from "./tools";
+import { PAWN_VALUE_GRID, PAWN_VALUE_GRID_BLACK, PAWN_VALUE_GRID_WHITE } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
     let whiteValue = 0;
@@ -7,11 +8,13 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     let whitePieces = [];
     let whiteKingPosition;
+    let whitePawnPositions = [];
     let whiteAvailableMoves = [];
 
     let blackPieces = [];
-    let blackAvailableMoves = [];
     let blackKingPosition;
+    let blackPawnPositions = [];
+    let blackAvailableMoves = [];
 
     let value = 0;
 
@@ -26,18 +29,34 @@ export default function evaluate(board, enPassant, castlePerma) {
 
         let squareAvailableMoves = getAvailableMoves(board, i, castle, enPassant);
         if (square.color === COLOR.WHITE) {
-            if (square.piece === PIECES.KING.CODE) {
-                whiteKingPosition = i;
+            switch (square.piece) {
+                case PIECES.KING.CODE:
+                    whiteKingPosition = i;
+                    break;
+                case PIECES.PAWN.CODE:
+                    whitePawnPositions.push(i);
+                    break;
+                default:
+                    break;
             }
+
             whitePieces.push(square.piece);
 
             squareAvailableMoves.map((move) => {
                 return whiteAvailableMoves.push(move);
             });
         }
+
         if (square.color === COLOR.BLACK) {
-            if (square.piece === PIECES.KING.CODE) {
-                blackKingPosition = i;
+            switch (square.piece) {
+                case PIECES.KING.CODE:
+                    blackKingPosition = i;
+                    break;
+                case PIECES.PAWN.CODE:
+                    blackPawnPositions.push(i);
+                    break;
+                default:
+                    break;
             }
             blackPieces.push(square.piece);
 
@@ -56,6 +75,15 @@ export default function evaluate(board, enPassant, castlePerma) {
     whiteValue += sumValueWhitePieces;
     let sumValueBlackPieces = sumValuePieces(blackPieces);
     blackValue += sumValueBlackPieces;
+
+    // add value due to the pieces positions
+
+    console.log(blackPawnPositions);
+
+    // Pawn
+
+    whiteValue += pieceValuePosition(whitePawnPositions, PAWN_VALUE_GRID_WHITE);
+    blackValue += pieceValuePosition(blackPawnPositions, PAWN_VALUE_GRID_BLACK);
 
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
@@ -99,4 +127,14 @@ function sumValuePieces(pieces) {
         })
         .reduce((partialSum, a) => partialSum + a, 0);
     return sum;
+}
+
+function pieceValuePosition(positions, valueArray, reverse) {
+    let values = positions.map((position) => {
+        return valueArray[position];
+    });
+
+    console.log(values);
+
+    return sum(values);
 }

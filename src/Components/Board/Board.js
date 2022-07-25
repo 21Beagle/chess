@@ -75,11 +75,10 @@ function Board() {
         }
     }, [whiteAvailableMoves, blackAvailableMoves]);
 
-    let valueArray = [];
-    let moveArray = [];
-
     function botMove(moves) {
         let availableMoves = moves;
+        let valueArray = [];
+        let moveArray = [];
 
         let botMoveMultiverse = availableMoves.map((move) => {
             let newBoard = tryMove(board, move, enPassant);
@@ -248,7 +247,6 @@ function Board() {
         if (castlePerma.BLACK_SHORT && !board[5].piece && !board[6].piece && !blackShortCheck) {
             newCastle = { ...newCastle, BLACK_SHORT: true };
         }
-
         return newCastle;
     }
 

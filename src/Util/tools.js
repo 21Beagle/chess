@@ -277,3 +277,7 @@ export function checkForCheck(kingPosition, scopeMoves) {
 export function checkForCheckmate(kingPosition, scopeMoves, availableMoves) {
     return checkForCheck(kingPosition, scopeMoves) && availableMoves.length === 0;
 }
+
+export function sum(array) {
+    return array.reduce((partialSum, a) => partialSum + a, 0);
+}

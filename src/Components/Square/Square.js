@@ -9,15 +9,7 @@ import Knight from "../Pieces/Knight";
 import Pawn from "../Pieces/Pawn";
 import { PIECES } from "../../Consts/Consts";
 
-function Square({
-    id,
-    piece,
-    pieceColor,
-    availableMove,
-    handleClick,
-    selected,
-    enPassantAvailable,
-}) {
+function Square({ id, piece, pieceColor, availableMove, handleClick, selected, enPassantAvailable }) {
     let className;
     if (id % 16 < 8) {
         className = id % 2 !== 0 ? "black-tile" : "white-tile";
@@ -25,9 +17,9 @@ function Square({
         className = id % 2 === 0 ? "black-tile" : "white-tile";
     }
 
-    if (enPassantAvailable) {
-        className = "en-passant";
-    }
+    // if (enPassantAvailable) {
+    //     className = "en-passant";
+    // }
     if (availableMove) {
         className += " available-move";
     }
