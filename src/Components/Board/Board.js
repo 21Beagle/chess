@@ -54,11 +54,9 @@ function Board() {
     const [gameLoaded, setGameLoaded] = useState(false);
 
     useEffect(() => {
-        console.log(whiteAvailableMoves, blackAvailableMoves);
         if (whiteAvailableMoves !== []) {
             setGameLoaded(true);
         }
-        console.log(gameLoaded);
 
         // eslint-disable-next-line
     }, [whiteAvailableMoves, blackAvailableMoves]);
@@ -107,7 +105,6 @@ function Board() {
 
             return moveAndMultiverse;
         });
-        console.log(botMoveMultiverse);
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
         handleBotMove(board, move, enPassant);
         setLastMove(move);
