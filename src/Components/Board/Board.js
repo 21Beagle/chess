@@ -38,9 +38,6 @@ function Board() {
     const [board, setBoard] = useState(initBoard);
     const [turnColor, setTurnColor] = useState(initTurnColor);
     const [castle, setCastle] = useState(initCastle);
-    const [whiteMoveScope, setWhiteMoveScopes] = useState(blackMovesScopeInit(board));
-    const [blackMoveScope, setBlackMoveScopes] = useState(whiteMovesScopeInit(board));
-    const [check, setCheck] = useState(CHECK);
     const [availableMoves, setAvailableMoves] = useState();
     const [isSquareAvailable, setIsSquareAvailable] = useState(initIsSquare());
     const [isSquareSelected, setIsSquareSelected] = useState(initIsSquare());
@@ -457,23 +454,22 @@ function Board() {
     }
 
     function reset() {
-        setBoard(FENToBoard(FENstart).board);
-        setTurnColor(COLOR.WHITE);
-        setCastle(CASTLE_PERMA);
-        setWhiteMoveScopes(blackMovesScopeInit(board));
-        setBlackMoveScopes(whiteMovesScopeInit(board));
-        setCheck(CHECK);
-        setAvailableMoves([]);
+        setBoard(initBoard);
+        setTurnColor(initTurnColor);
+        setCastle(initCastle);
+        setAvailableMoves();
         setIsSquareAvailable(initIsSquare());
         setIsSquareSelected(initIsSquare());
         setWhiteAvailableMoves(whiteMovesScopeInit(board));
         setBlackAvailableMoves(blackMovesScopeInit(board));
         setSelectedSquare(-1);
-        setEnPassant(-1);
+        setEnPassant(initEnPassant);
         setPromotion(false);
         setPromotionTile(-1);
         setGameEnded("");
+        setBoardValue(0);
         setBotColor(playerColorOpposite(botColor));
+        setLastMove(new Move([-1, -1]));
         setGameLoaded(false);
     }
 
