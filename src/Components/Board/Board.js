@@ -71,11 +71,11 @@ function Board() {
         let castleTemp = checkForCastleTemp(board, castle, scopes);
         populateAllMoves(board, castleTemp, enPassant);
         if (gameLoaded) {
-            handleWin(board, castleTemp, enPassant, scopes, turnColor);
+            handleWin(board, turnColor, scopes);
         }
 
         // eslint-disable-next-line
-    }, [board, castle, enPassant, gameLoaded]);
+    }, [board, castle, boardValue, enPassant, gameLoaded]);
 
     useEffect(() => {
         let val = evaluate(board, enPassant, castle);
@@ -200,7 +200,7 @@ function Board() {
         }
     }
 
-    function handleWin(board, castle, enPassant, scopes, turnColor) {
+    function handleWin(board, turnColor, scopes) {
         if (boardValue === -Infinity) {
             setGameEnded(COLOR.BLACK);
         }
