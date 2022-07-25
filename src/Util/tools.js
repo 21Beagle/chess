@@ -100,7 +100,7 @@ export function checkForCastle(board, castlePerma, [whiteMoveScope, blackMoveSco
     return newCastle;
 }
 
-function showScopeForPiece(board, position, castle, enPassant) {
+export function showScopeForPiece(board, position, castle, enPassant) {
     let newBoard = [...board];
     let square = newBoard[position];
     let availableMoves = [];
@@ -118,6 +118,7 @@ function showScopeForPiece(board, position, castle, enPassant) {
             availableMoves = availableQueenMoves(position, newBoard);
             break;
         case PIECES.KING.CODE:
+            console.log(castle);
             availableMoves = availableKingMoves(position, newBoard, castle);
             break;
         case PIECES.PAWN.CODE:
@@ -200,7 +201,7 @@ function handleCastleMove(oldPosition, newPosition, newBoard) {
     return newBoard;
 }
 
-function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveScope]) {
+export function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveScope]) {
     let whiteScope = [...whiteMoveScope];
     let blackScope = [...blackMoveScope];
 

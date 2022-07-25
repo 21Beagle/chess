@@ -1,5 +1,5 @@
 import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
-import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck, sum, getBoardState } from "./tools";
+import { getAvailableMoves, checkForCheckmate, sum, getBoardState } from "./tools";
 import {
     BISHOP_VALUE_GRID_BLACK,
     BISHOP_VALUE_GRID_WHITE,
@@ -126,14 +126,14 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     // add value for how many squares can be seen by other place
 
-    // whiteValue += scopeValueCalculatorWhite(scopes[0]);
-    // blackValue += scopeValueCalculatorBlack(scopes[1]);
+    whiteValue += scopeValueCalculatorWhite(scopes[0]);
+    blackValue += scopeValueCalculatorBlack(scopes[1]);
 
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
     value = whiteValue - blackValue;
 
-    return value;
+    return Math.round(value * 100) / 100;
 }
 
 function sumValuePieces(pieces) {

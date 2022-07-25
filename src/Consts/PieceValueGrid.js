@@ -13,7 +13,7 @@ export const KNIGHT_VALUE_GRID_WHITE = [
 export const KNIGHT_VALUE_GRID_BLACK = KNIGHT_VALUE_GRID_WHITE.slice().reverse();
 
 export const BISHOP_VALUE_GRID_WHITE = [
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 0, 0, 0, 5, 4, 1, 2, 3, 4, 3, 3, 4, 3, 2, 2, 3, 4, 4, 4, 4, 3, 2, 3, 5, 6, 5, 5, 6, 5, 3, 5, 6, 6, 4, 4, 6, 6, 5, 6, 6, 4, 4,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 2, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 4, 4, 4, 4, 3, 2, 3, 5, 6, 5, 5, 6, 5, 3, 5, 6, 6, 4, 4, 6, 6, 5, 6, 6, 4, 4,
     4, 4, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
