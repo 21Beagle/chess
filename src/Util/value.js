@@ -1,19 +1,38 @@
 import { COLOR, EMPTY_SQUARE, PIECES } from "../Consts/Consts";
-import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck, sum } from "./tools";
-import { PAWN_VALUE_GRID, PAWN_VALUE_GRID_BLACK, PAWN_VALUE_GRID_WHITE } from "../Consts/PieceValueGrid";
+import { checkForCastle, getAvailableMoves, getScopeAll, checkForCheckmate, checkForCheck, sum, getBoardState } from "./tools";
+import {
+    BISHOP_VALUE_GRID_BLACK,
+    BISHOP_VALUE_GRID_WHITE,
+    KNIGHT_VALUE_GRID_BLACK,
+    KNIGHT_VALUE_GRID_WHITE,
+    PAWN_VALUE_GRID,
+    PAWN_VALUE_GRID_BLACK,
+    PAWN_VALUE_GRID_WHITE,
+} from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
+    let squareValueMultiplier = 1;
+    let pawnValueMultiplier = squareValueMultiplier * 0.3;
+    let knightValueMultiplier = squareValueMultiplier * 0.3;
+    let bishopValueMultiplier = squareValueMultiplier * 0.2;
+    let rookValueMultiplier = squareValueMultiplier * 1;
+    let queenValueMultiplier = squareValueMultiplier * 1;
+
     let whiteValue = 0;
     let blackValue = 0;
 
     let whitePieces = [];
     let whiteKingPosition;
     let whitePawnPositions = [];
+    let whiteKnightPositions = [];
+    let whiteBishopPositions = [];
     let whiteAvailableMoves = [];
 
     let blackPieces = [];
     let blackKingPosition;
     let blackPawnPositions = [];
+    let blackKnightPositions = [];
+    let blackBishopPositions = [];
     let blackAvailableMoves = [];
 
     let value = 0;
@@ -36,6 +55,12 @@ export default function evaluate(board, enPassant, castlePerma) {
                 case PIECES.PAWN.CODE:
                     whitePawnPositions.push(i);
                     break;
+                case PIECES.KNIGHT.CODE:
+                    whiteKnightPositions.push(i);
+                    break;
+                case PIECES.BISHOP.CODE:
+                    whiteBishopPositions.push(i);
+                    break;
                 default:
                     break;
             }
@@ -54,6 +79,12 @@ export default function evaluate(board, enPassant, castlePerma) {
                     break;
                 case PIECES.PAWN.CODE:
                     blackPawnPositions.push(i);
+                    break;
+                case PIECES.KNIGHT.CODE:
+                    blackKnightPositions.push(i);
+                    break;
+                case PIECES.BISHOP.CODE:
+                    blackBishopPositions.push(i);
                     break;
                 default:
                     break;
@@ -78,25 +109,31 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     // add value due to the pieces positions
 
-    console.log(blackPawnPositions);
-
     // Pawn
 
-    whiteValue += pieceValuePosition(whitePawnPositions, PAWN_VALUE_GRID_WHITE);
-    blackValue += pieceValuePosition(blackPawnPositions, PAWN_VALUE_GRID_BLACK);
+    whiteValue += pawnValueMultiplier * pieceValuePosition(whitePawnPositions, PAWN_VALUE_GRID_WHITE);
+    blackValue += pawnValueMultiplier * pieceValuePosition(blackPawnPositions, PAWN_VALUE_GRID_BLACK);
+
+    // Knight
+
+    whiteValue += knightValueMultiplier * pieceValuePosition(whiteKnightPositions, KNIGHT_VALUE_GRID_WHITE);
+    blackValue += knightValueMultiplier * pieceValuePosition(blackKnightPositions, KNIGHT_VALUE_GRID_BLACK);
+
+    // Bishop
+
+    whiteValue += bishopValueMultiplier * pieceValuePosition(whiteBishopPositions, BISHOP_VALUE_GRID_WHITE);
+    blackValue += bishopValueMultiplier * pieceValuePosition(blackBishopPositions, BISHOP_VALUE_GRID_BLACK);
+
+    // add value for how many squares can be seen by other place
+
+    // whiteValue += scopeValueCalculatorWhite(scopes[0]);
+    // blackValue += scopeValueCalculatorBlack(scopes[1]);
 
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
     value = whiteValue - blackValue;
 
     return value;
-}
-
-export function getBoardState(board, castlePerma, enPassant) {
-    let scopes = getScopeAll(board, castlePerma, enPassant);
-
-    let castle = checkForCastle(board, castlePerma, scopes);
-    return { board, scopes, castle };
 }
 
 function sumValuePieces(pieces) {
@@ -129,12 +166,30 @@ function sumValuePieces(pieces) {
     return sum;
 }
 
-function pieceValuePosition(positions, valueArray, reverse) {
+function pieceValuePosition(positions, valueArray) {
     let values = positions.map((position) => {
         return valueArray[position];
     });
 
-    console.log(values);
-
     return sum(values);
+}
+
+function scopeValueCalculatorWhite(whiteScope) {
+    let value = 0;
+    for (let position of whiteScope) {
+        if (position.newPosition <= 31) {
+            value += 0.33;
+        }
+    }
+    return value;
+}
+
+function scopeValueCalculatorBlack(blackScope) {
+    let value = 0;
+    for (let position of blackScope) {
+        if (position.newPosition > 31) {
+            value += 1;
+        }
+    }
+    return value;
 }

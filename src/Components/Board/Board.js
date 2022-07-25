@@ -21,9 +21,16 @@ function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     // const FENTest = "k7/1p6/1P6/8/8/8/rq6/7K w KQkq - 0 1";
 
-    const [board, setBoard] = useState(FENToBoard(FENstart).board);
-    const [turnColor, setTurnColor] = useState(COLOR.WHITE);
-    const [castlePerma, setCastlePerma] = useState(CASTLE_PERMA);
+    let init = FENToBoard(FENstart);
+
+    let initBoard = init.board;
+    let initTurnColor = init.turn;
+    let initCastlePerma = init.castle;
+    let initEnPassant = init.enPassant;
+
+    const [board, setBoard] = useState(initBoard);
+    const [turnColor, setTurnColor] = useState(initTurnColor);
+    const [castlePerma, setCastlePerma] = useState(initCastlePerma);
     const [whiteMoveScope, setWhiteMoveScopes] = useState(blackMovesScopeInit(board));
     const [blackMoveScope, setBlackMoveScopes] = useState(whiteMovesScopeInit(board));
     const [castle, setCastle] = useState(checkForCastle(board));
@@ -34,7 +41,7 @@ function Board() {
     const [whiteAvailableMoves, setWhiteAvailableMoves] = useState(whiteMovesScopeInit(board));
     const [blackAvailableMoves, setBlackAvailableMoves] = useState(blackMovesScopeInit(board));
     const [selectedSquare, setSelectedSquare] = useState(-1);
-    const [enPassant, setEnPassant] = useState(-1);
+    const [enPassant, setEnPassant] = useState(initEnPassant);
     const [promotion, setPromotion] = useState(false);
     const [promotionTile, setPromotionTile] = useState(-1);
     const [gameEnded, setGameEnded] = useState("");
@@ -53,15 +60,15 @@ function Board() {
     }, [board, blackMoveScope, whiteMoveScope, castle]);
 
     useEffect(() => {
-        updateCastle(board);
-        // eslint-disable-next-line
-    }, [board, blackMoveScope, whiteMoveScope]);
-
-    useEffect(() => {
         isPlayerInCheck(board, turnColor);
         handleWin();
         // eslint-disable-next-line
     }, [whiteAvailableMoves, blackAvailableMoves]);
+
+    useEffect(() => {
+        updateCastle(board);
+        // eslint-disable-next-line
+    }, [board, blackMoveScope, whiteMoveScope]);
 
     useEffect(() => {
         let val = evaluate(board, enPassant, castlePerma);

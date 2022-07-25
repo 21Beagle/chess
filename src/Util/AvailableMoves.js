@@ -242,7 +242,7 @@ export function availablePawnMoves(position, board, enPassant) {
     availableMoves = availableMovesToClassMove(availableMoves, position);
 
     // promotion moves for White
-    if (color === COLOR.WHITE && rank === 1) {
+    if (color === COLOR.WHITE && rank === 1 && !board[position - 8].piece) {
         availableMoves = [];
         availableMoves.push(new Move([position, position - 8], PIECES.QUEEN.CODE));
         availableMoves.push(new Move([position, position - 8], PIECES.KNIGHT.CODE));
@@ -252,7 +252,7 @@ export function availablePawnMoves(position, board, enPassant) {
         return availableMoves;
     }
     // promotion moves for Black
-    if (color === COLOR.BLACK && rank === 6) {
+    if (color === COLOR.BLACK && rank === 6 && !board[position + 8].piece) {
         availableMoves = [];
 
         availableMoves.push(new Move([position, position + 8], PIECES.QUEEN.CODE));

@@ -6,7 +6,7 @@ export class Move {
         this.promotion = promotion;
         this.oldPosition = oldPosition;
         this.newPosition = newPosition;
-        [this.coordinatesOld] = coordinates(oldPosition);
-        [this.coordinatesNew] = coordinates(newPosition);
+        this.coordinatesOld = coordinates(oldPosition);
+        this.coordinatesNew = coordinates(newPosition);
     }
 }

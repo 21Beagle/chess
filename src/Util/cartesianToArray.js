@@ -9,3 +9,13 @@ export function toIndex(coordinates) {
     let file = coordinates[1];
     return rank + file * 8;
 }
+
+export function chessNotationToIndex(moveString) {
+    const fileString = "abcdefgh";
+    let rank = 8 - parseInt(moveString[1]);
+
+    let fileChar = moveString[0];
+    let file = fileString.indexOf(fileChar);
+
+    return toIndex([file, rank]);
+}

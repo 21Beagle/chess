@@ -8,6 +8,33 @@ import {
     availablePawnMoves,
 } from "../Util/AvailableMoves";
 
+function populateAllMoves(board, enPassant, castlePerma) {
+    let whiteAvailableMoves = [];
+    let blackAvailableMoves = [];
+    let newBoard = [...board];
+
+    let { scopes, castle } = getBoardState(board, castlePerma, enPassant);
+
+    for (let i = 0; i < board.length; i++) {
+        if (newBoard[i].piece === "") continue;
+
+        let squareAvailableMoves = getAvailableMoves(board, i, castle, enPassant);
+
+        if (newBoard[i].color === COLOR.WHITE) {
+            squareAvailableMoves.map((move) => {
+                return whiteAvailableMoves.push(move);
+            });
+        }
+        if (newBoard[i].color === COLOR.BLACK) {
+            squareAvailableMoves.map((move) => {
+                return blackAvailableMoves.push(move);
+            });
+        }
+    }
+
+    return [whiteAvailableMoves, blackAvailableMoves];
+}
+
 export function getAvailableMoves(board, position, castle, enPassant) {
     let scopeMoves = showScopeForPiece(board, position, castle, enPassant);
     let availableMoves = scopeMoves.filter((move) => {
@@ -280,4 +307,11 @@ export function checkForCheckmate(kingPosition, scopeMoves, availableMoves) {
 
 export function sum(array) {
     return array.reduce((partialSum, a) => partialSum + a, 0);
+}
+
+export function getBoardState(board, castlePerma, enPassant) {
+    let scopes = getScopeAll(board, castlePerma, enPassant);
+
+    let castle = checkForCastle(board, castlePerma, scopes);
+    return { board, scopes, castle };
 }

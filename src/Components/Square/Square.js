@@ -17,9 +17,9 @@ function Square({ id, piece, pieceColor, availableMove, handleClick, selected, e
         className = id % 2 === 0 ? "black-tile" : "white-tile";
     }
 
-    // if (enPassantAvailable) {
-    //     className = "en-passant";
-    // }
+    if (enPassantAvailable) {
+        className = "en-passant";
+    }
     if (availableMove) {
         className += " available-move";
     }
