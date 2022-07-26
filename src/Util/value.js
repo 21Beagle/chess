@@ -10,13 +10,15 @@ import {
 } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
-    let squareValueMultiplier = 0.01;
+    let squareValueMultiplier = 0.1;
     let scopeValueMultiplier = 0.05;
     let pawnValueMultiplier = squareValueMultiplier * 1;
     let knightValueMultiplier = squareValueMultiplier * 1;
     let bishopValueMultiplier = squareValueMultiplier * 1;
     // let rookValueMultiplier = squareValueMultiplier * 1;
     // let queenValueMultiplier = squareValueMultiplier * 1;
+
+    let piecePotentialTakeMultiplier = 0.7;
 
     let whiteValue = 0;
     let blackValue = 0;
@@ -142,20 +144,20 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     // minus value if piece can be taken next move
 
-    whiteValue += pieceUnderAttackValueCalculator(whitePawnPositions, scopes[1], PIECES.PAWN.VALUE);
-    blackValue += pieceUnderAttackValueCalculator(blackPawnPositions, scopes[0], PIECES.PAWN.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whitePawnPositions, scopes[1], PIECES.PAWN.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackPawnPositions, scopes[0], PIECES.PAWN.VALUE);
 
-    whiteValue += pieceUnderAttackValueCalculator(whiteKnightPositions, scopes[1], PIECES.KNIGHT.VALUE);
-    blackValue += pieceUnderAttackValueCalculator(blackKnightPositions, scopes[0], PIECES.KNIGHT.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteKnightPositions, scopes[1], PIECES.KNIGHT.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackKnightPositions, scopes[0], PIECES.KNIGHT.VALUE);
 
-    whiteValue += pieceUnderAttackValueCalculator(whiteBishopPositions, scopes[1], PIECES.BISHOP.VALUE);
-    blackValue += pieceUnderAttackValueCalculator(blackBishopPositions, scopes[0], PIECES.BISHOP.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteBishopPositions, scopes[1], PIECES.BISHOP.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackBishopPositions, scopes[0], PIECES.BISHOP.VALUE);
 
-    whiteValue += pieceUnderAttackValueCalculator(whiteRookPositions, scopes[1], PIECES.ROOK.VALUE);
-    blackValue += pieceUnderAttackValueCalculator(blackRookPositions, scopes[0], PIECES.ROOK.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteRookPositions, scopes[1], PIECES.ROOK.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackRookPositions, scopes[0], PIECES.ROOK.VALUE);
 
-    whiteValue += pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE);
-    blackValue += pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE);
 
     // add value for how many squares can be seen by other place
 
