@@ -20,6 +20,8 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     let piecePotentialTakeMultiplier = 0.7;
 
+    let checkValue = 2;
+
     let whiteValue = 0;
     let blackValue = 0;
 
@@ -158,6 +160,9 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE);
     blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE);
+
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([whiteKingPosition], scopes[1], checkValue);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([blackKingPosition], scopes[0], checkValue);
 
     // add value for how many squares can be seen by other place
 
