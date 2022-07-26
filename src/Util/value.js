@@ -18,7 +18,7 @@ export default function evaluate(board, enPassant, castlePerma) {
     // let rookValueMultiplier = squareValueMultiplier * 1;
     // let queenValueMultiplier = squareValueMultiplier * 1;
 
-    let piecePotentialTakeMultiplier = 0.7;
+    let piecePotentialTakeMultiplier = 0.5;
 
     let checkValue = 2;
 
