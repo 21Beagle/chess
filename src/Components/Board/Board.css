@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    width: 80%;
+    width: 96%;
     height: auto;
     border: black 8px solid;
     background-color: black;

@@ -10,11 +10,11 @@ import {
 } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
-    let squareValueMultiplier = 0.1;
-    let scopeValueMultiplier = 0.05;
-    let pawnValueMultiplier = squareValueMultiplier * 1;
-    let knightValueMultiplier = squareValueMultiplier * 1;
-    let bishopValueMultiplier = squareValueMultiplier * 1;
+    let squareValueMultiplier = 1;
+    let scopeValueMultiplier = 0.1;
+    let pawnValueMultiplier = squareValueMultiplier * 0.6;
+    let knightValueMultiplier = squareValueMultiplier * 0.1;
+    let bishopValueMultiplier = squareValueMultiplier * 0.1;
     // let rookValueMultiplier = squareValueMultiplier * 1;
     // let queenValueMultiplier = squareValueMultiplier * 1;
 
@@ -158,8 +158,8 @@ export default function evaluate(board, enPassant, castlePerma) {
     whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteRookPositions, scopes[1], PIECES.ROOK.VALUE);
     blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackRookPositions, scopes[0], PIECES.ROOK.VALUE);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE * 2);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE * 2);
 
     whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([whiteKingPosition], scopes[1], checkValue);
     blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([blackKingPosition], scopes[0], checkValue);
