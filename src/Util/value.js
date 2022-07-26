@@ -10,7 +10,7 @@ import {
 } from "../Consts/PieceValueGrid";
 
 export default function evaluate(board, enPassant, castlePerma) {
-    let squareValueMultiplier = 0.1;
+    let squareValueMultiplier = 0.01;
     let scopeValueMultiplier = 0.05;
     let pawnValueMultiplier = squareValueMultiplier * 1;
     let knightValueMultiplier = squareValueMultiplier * 1;
@@ -26,6 +26,8 @@ export default function evaluate(board, enPassant, castlePerma) {
     let whitePawnPositions = [];
     let whiteKnightPositions = [];
     let whiteBishopPositions = [];
+    let whiteRookPositions = [];
+    let whiteQueenPositions = [];
     let whiteAvailableMoves = [];
 
     let blackPieces = [];
@@ -33,6 +35,8 @@ export default function evaluate(board, enPassant, castlePerma) {
     let blackPawnPositions = [];
     let blackKnightPositions = [];
     let blackBishopPositions = [];
+    let blackRookPositions = [];
+    let blackQueenPositions = [];
     let blackAvailableMoves = [];
 
     let value = 0;
@@ -61,6 +65,12 @@ export default function evaluate(board, enPassant, castlePerma) {
                 case PIECES.BISHOP.CODE:
                     whiteBishopPositions.push(i);
                     break;
+                case PIECES.ROOK.CODE:
+                    whiteRookPositions.push(i);
+                    break;
+                case PIECES.QUEEN.CODE:
+                    whiteQueenPositions.push(i);
+                    break;
                 default:
                     break;
             }
@@ -85,6 +95,12 @@ export default function evaluate(board, enPassant, castlePerma) {
                     break;
                 case PIECES.BISHOP.CODE:
                     blackBishopPositions.push(i);
+                    break;
+                case PIECES.ROOK.CODE:
+                    blackRookPositions.push(i);
+                    break;
+                case PIECES.QUEEN.CODE:
+                    blackQueenPositions.push(i);
                     break;
                 default:
                     break;
@@ -123,6 +139,23 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     whiteValue += bishopValueMultiplier * pieceValuePosition(whiteBishopPositions, BISHOP_VALUE_GRID_WHITE);
     blackValue += bishopValueMultiplier * pieceValuePosition(blackBishopPositions, BISHOP_VALUE_GRID_BLACK);
+
+    // minus value if piece can be taken next move
+
+    whiteValue += pieceUnderAttackValueCalculator(whitePawnPositions, scopes[1], PIECES.PAWN.VALUE);
+    blackValue += pieceUnderAttackValueCalculator(blackPawnPositions, scopes[0], PIECES.PAWN.VALUE);
+
+    whiteValue += pieceUnderAttackValueCalculator(whiteKnightPositions, scopes[1], PIECES.KNIGHT.VALUE);
+    blackValue += pieceUnderAttackValueCalculator(blackKnightPositions, scopes[0], PIECES.KNIGHT.VALUE);
+
+    whiteValue += pieceUnderAttackValueCalculator(whiteBishopPositions, scopes[1], PIECES.BISHOP.VALUE);
+    blackValue += pieceUnderAttackValueCalculator(blackBishopPositions, scopes[0], PIECES.BISHOP.VALUE);
+
+    whiteValue += pieceUnderAttackValueCalculator(whiteRookPositions, scopes[1], PIECES.ROOK.VALUE);
+    blackValue += pieceUnderAttackValueCalculator(blackRookPositions, scopes[0], PIECES.ROOK.VALUE);
+
+    whiteValue += pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE);
+    blackValue += pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE);
 
     // add value for how many squares can be seen by other place
 
@@ -191,5 +224,17 @@ function scopeValueCalculatorBlack(blackScope) {
             value += 1;
         }
     }
+    return value;
+}
+
+function pieceUnderAttackValueCalculator(piecePositions, oppositePlayerScopes, pieceValue) {
+    let value = 0;
+    piecePositions.map((position) => {
+        oppositePlayerScopes.map((scope) => {
+            if (position === scope.newPosition) {
+                value -= pieceValue;
+            }
+        });
+    });
     return value;
 }
