@@ -1,12 +1,5 @@
 import { COLOR, EMPTY_SQUARE, PIECES, CHECK, TOP_RANK, BOTTOM_RANK, CASTLE_AVAILABLE, ENPASSANT_SQUARES } from "../Consts/Consts";
-import {
-    availableBishopMoves,
-    availableKingMoves,
-    availableKnightMoves,
-    availableQueenMoves,
-    availableRookMoves,
-    availablePawnMoves,
-} from "../Util/AvailableMoves";
+import { showScopeForPiece } from "./AvailableMoves/AvailableMoves";
 
 function populateAllMoves(board, enPassant, castlePerma) {
     let whiteAvailableMoves = [];
@@ -98,40 +91,6 @@ export function checkForCastleTemp(board, castlePerma, [whiteMoveScope, blackMov
     }
 
     return newCastle;
-}
-
-export function showScopeForPiece(board, position, castle, enPassant) {
-    let newBoard = [...board];
-    let square = newBoard[position];
-    let availableMoves = [];
-    switch (square.piece) {
-        case PIECES.ROOK.CODE:
-            availableMoves = availableRookMoves(position, newBoard);
-            break;
-        case PIECES.KNIGHT.CODE:
-            availableMoves = availableKnightMoves(position, newBoard);
-            break;
-        case PIECES.BISHOP.CODE:
-            availableMoves = availableBishopMoves(position, newBoard);
-            break;
-        case PIECES.QUEEN.CODE:
-            availableMoves = availableQueenMoves(position, newBoard);
-            break;
-        case PIECES.KING.CODE:
-            availableMoves = availableKingMoves(position, newBoard, castle);
-            break;
-        case PIECES.PAWN.CODE:
-            availableMoves = availablePawnMoves(position, newBoard, enPassant);
-            break;
-        default:
-            break;
-    }
-
-    availableMoves = availableMoves.filter((move) => {
-        return move.newPosition < 64 && move.newPosition >= 0;
-    });
-
-    return availableMoves;
 }
 
 export function tryMove(board, move, enPassant, castlePerma) {
@@ -227,8 +186,11 @@ export function isPlayerInCheck(board, playerColor, [whiteMoveScope, blackMoveSc
 }
 
 export function getScopeAll(board, castle, enPassant) {
-    let blackScope = [];
     let whiteScope = [];
+    let cleanWhiteScopes = [];
+    let blackScope = [];
+    let cleanBlackScopes = [];
+
     for (let i in board) {
         i = parseInt(i);
         if (!board[i].piece) continue;
@@ -236,18 +198,29 @@ export function getScopeAll(board, castle, enPassant) {
             let moves = showScopeForPiece(board, i, castle, enPassant);
             moves.map((move) => {
                 blackScope.push(move);
+                if (!cleanBlackScopes.includes(move.newPosition)) cleanBlackScopes.push(move.newPosition);
                 return 0;
             });
         } else if (board[i].color === COLOR.WHITE) {
             let moves = showScopeForPiece(board, i, castle, enPassant);
             moves.map((move) => {
                 whiteScope.push(move);
+                if (!cleanWhiteScopes.includes(move.newPosition)) cleanWhiteScopes.push(move.newPosition);
                 return 0;
             });
         }
     }
 
-    return [whiteScope, blackScope];
+    return [whiteScope, blackScope, cleanWhiteScopes, cleanBlackScopes];
+}
+
+export function getFinalPositionFromScopesArray(scopesArray) {
+    let cleanScope = [];
+    scopesArray.map((move) => {
+        if (!cleanScope.includes(move.newPosition)) cleanScope.push(move.newPosition);
+        return move;
+    });
+    return cleanScope;
 }
 
 // Tools

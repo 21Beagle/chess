@@ -14,11 +14,10 @@ import {
     isPawnPromotion,
     isPlayerInCheck,
     checkForCastle,
-    showScopeForPiece,
     getScopeAll,
     checkForCastleTemp,
 } from "../../Util/tools";
-
+import { showScopeForPiece } from "../../Util/AvailableMoves/AvailableMoves";
 import { CASTLE_AVAILABLE, COLOR, EMPTY_SQUARE, PIECES, CHECK, CASTLE_PERMA, STALEMATE } from "../../Consts/Consts";
 import evaluate, { getBoardState } from "../../Util/value";
 import { Move } from "../../Models/Move";
@@ -26,9 +25,9 @@ import { Move } from "../../Models/Move";
 function Board() {
     const FENstart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const FENTest = "r3qb1k/1b4p1/p2pr2p/3n4/Pnp1N1N1/6RP/1B3PP1/1B1QR1K1 w - - bm Nxh6";
-    const FENTestWhiteLong = "r3k2r/p3p2p/8/1r6/8/8/P3P2P/R3K2R w KQkq - 0 1";
+    const FENTestWhiteLong = "1r2k2r/P3P2P/P3p2p/1r6/8/8/p3p2p/1R2K2R w KQkq - 0 1";
 
-    let init = FENToBoard(FENstart);
+    let init = FENToBoard(FENTestWhiteLong);
 
     let initBoard = init.board;
     let initTurnColor = init.turn;
@@ -49,9 +48,10 @@ function Board() {
     const [promotionTile, setPromotionTile] = useState(-1);
     const [gameEnded, setGameEnded] = useState("");
     const [boardValue, setBoardValue] = useState(0);
-    const [botColor, setBotColor] = useState(COLOR.BLACK);
+    const [botColor, setBotColor] = useState(COLOR.WHITE);
     const [lastMove, setLastMove] = useState(new Move([-1, -1]));
     const [gameLoaded, setGameLoaded] = useState(false);
+    const [turnNo, setTurnNo] = useState(0);
 
     useEffect(() => {
         if (whiteAvailableMoves !== []) {
@@ -73,7 +73,7 @@ function Board() {
     }, [board, castle, boardValue, enPassant, gameLoaded]);
 
     useEffect(() => {
-        let val = evaluate(board, enPassant, castle);
+        let val = evaluate(board, enPassant, castle, turnNo);
         setBoardValue(val);
     }, [whiteAvailableMoves, blackAvailableMoves]);
 
@@ -94,7 +94,7 @@ function Board() {
             let newEnPassant = getEnPassant(newBoard, move);
 
             let moveAndMultiverse = {
-                value: evaluate(newBoard, newEnPassant, castle),
+                value: evaluate(newBoard, newEnPassant, castle, turnNo + 1),
                 board: newBoard,
                 end: move.newPosition,
                 move: move,
@@ -108,6 +108,7 @@ function Board() {
         let move = findBestMoveForBot(botMoveMultiverse, valueArray);
         handleBotMove(board, move, enPassant);
         setLastMove(move);
+        incrementTurnNumber(turnNo);
     }
 
     function handleMove(move) {
@@ -175,6 +176,7 @@ function Board() {
         if (isSquareAvailable[squareIndex] === true) {
             let move = new Move([selectedSquare, squareIndex]);
             handleMove(move);
+            incrementTurnNumber(turnNo);
             unselectAll();
             hideAvailableMovesAll();
             return;
@@ -406,6 +408,10 @@ function Board() {
         }
     }
 
+    function incrementTurnNumber(turnNo) {
+        setTurnNo(turnNo + 1);
+    }
+
     let promotionComponent = <></>;
     if (promotion) {
         promotionComponent = (
@@ -468,6 +474,7 @@ function Board() {
         setBotColor(playerColorOpposite(botColor));
         setLastMove(new Move([-1, -1]));
         setGameLoaded(false);
+        setTurnNo(0);
     }
 
     let boardComponent = <></>;
@@ -511,6 +518,7 @@ function Board() {
             {promotionComponent}
             {winnerComponent}
             <div>{boardValue}</div>
+            <div>{turnNo}</div>
         </div>
     );
 }

@@ -5,6 +5,7 @@
 }
 
 .id-no {
+    top: -20px;
     color: cyan;
     font-weight: bold;
     text-align: left;
@@ -12,6 +13,14 @@
     width: 100%;
 }
 
+.file-rank {
+    color: orange;
+    font-weight: bold;
+    text-align: right;
+    position: absolute;
+    width: 100%;
+    top: 45px;
+}
 .en-passant {
     background-color: #001aff;
 }

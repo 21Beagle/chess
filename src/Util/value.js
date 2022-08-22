@@ -8,11 +8,12 @@ import {
     PAWN_VALUE_GRID_BLACK,
     PAWN_VALUE_GRID_WHITE,
 } from "../Consts/PieceValueGrid";
+import { coordinates } from "./cartesianToArray";
 
-export default function evaluate(board, enPassant, castlePerma) {
+export default function evaluate(board, enPassant, castlePerma, turnNo) {
     let squareValueMultiplier = 1;
     let scopeValueMultiplier = 0.1;
-    let pawnValueMultiplier = squareValueMultiplier * 0.6;
+    let pawnValueMultiplier = squareValueMultiplier * 0.1;
     let knightValueMultiplier = squareValueMultiplier * 0.1;
     let bishopValueMultiplier = squareValueMultiplier * 0.1;
     // let rookValueMultiplier = squareValueMultiplier * 1;
@@ -46,6 +47,8 @@ export default function evaluate(board, enPassant, castlePerma) {
     let value = 0;
 
     let { scopes, castle } = getBoardState(board, castlePerma, enPassant);
+
+    let [whiteScopes, blackScopes, cleanWhiteScopes, cleanBlackScopes] = scopes;
 
     // loop through board once to get to the correct details we need
 
@@ -117,8 +120,8 @@ export default function evaluate(board, enPassant, castlePerma) {
         }
     }
 
-    if (checkForCheckmate(blackKingPosition, scopes[0], blackAvailableMoves)) return Infinity;
-    if (checkForCheckmate(whiteKingPosition, scopes[1], whiteAvailableMoves)) return -Infinity;
+    if (checkForCheckmate(blackKingPosition, whiteScopes, blackAvailableMoves)) return Infinity;
+    if (checkForCheckmate(whiteKingPosition, blackScopes, whiteAvailableMoves)) return -Infinity;
 
     // Sum the value of the pieces according to their value is probably the most basic way to value a position
 
@@ -146,28 +149,33 @@ export default function evaluate(board, enPassant, castlePerma) {
 
     // minus value if piece can be taken next move
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whitePawnPositions, scopes[1], PIECES.PAWN.VALUE);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackPawnPositions, scopes[0], PIECES.PAWN.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whitePawnPositions, cleanBlackScopes, PIECES.PAWN.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackPawnPositions, cleanWhiteScopes, PIECES.PAWN.VALUE);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteKnightPositions, scopes[1], PIECES.KNIGHT.VALUE);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackKnightPositions, scopes[0], PIECES.KNIGHT.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteKnightPositions, cleanBlackScopes, PIECES.KNIGHT.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackKnightPositions, cleanWhiteScopes, PIECES.KNIGHT.VALUE);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteBishopPositions, scopes[1], PIECES.BISHOP.VALUE);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackBishopPositions, scopes[0], PIECES.BISHOP.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteBishopPositions, cleanBlackScopes, PIECES.BISHOP.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackBishopPositions, cleanWhiteScopes, PIECES.BISHOP.VALUE);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteRookPositions, scopes[1], PIECES.ROOK.VALUE);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackRookPositions, scopes[0], PIECES.ROOK.VALUE);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteRookPositions, cleanBlackScopes, PIECES.ROOK.VALUE);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackRookPositions, cleanWhiteScopes, PIECES.ROOK.VALUE);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, scopes[1], PIECES.QUEEN.VALUE * 2);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, scopes[0], PIECES.QUEEN.VALUE * 2);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(whiteQueenPositions, cleanBlackScopes, PIECES.QUEEN.VALUE * 2);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator(blackQueenPositions, cleanWhiteScopes, PIECES.QUEEN.VALUE * 2);
 
-    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([whiteKingPosition], scopes[1], checkValue);
-    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([blackKingPosition], scopes[0], checkValue);
+    whiteValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([whiteKingPosition], cleanBlackScopes, checkValue);
+    blackValue += piecePotentialTakeMultiplier * pieceUnderAttackValueCalculator([blackKingPosition], cleanWhiteScopes, checkValue);
+
+    // in the late game we want our king to be in the center and the opposite king to be at the edge
+
+    whiteValue += lateGameKingPositionCalculator(whiteKingPosition, turnNo);
+    blackValue += lateGameKingPositionCalculator(blackKingPosition, turnNo);
 
     // add value for how many squares can be seen by other place
 
-    whiteValue += scopeValueMultiplier * scopeValueCalculatorWhite(scopes[0]);
-    blackValue += scopeValueMultiplier * scopeValueCalculatorBlack(scopes[1]);
+    whiteValue += scopeValueMultiplier * scopeValueCalculatorWhite(cleanWhiteScopes);
+    blackValue += scopeValueMultiplier * scopeValueCalculatorBlack(cleanBlackScopes);
 
     // minus the accrued white value from the black and we get a positive if white is winning and negative if black is winning
 
@@ -217,7 +225,7 @@ function pieceValuePosition(positions, valueArray) {
 function scopeValueCalculatorWhite(whiteScope) {
     let value = 0;
     for (let position of whiteScope) {
-        if (position.newPosition <= 31) {
+        if (position <= 31) {
             value += 1;
         }
     }
@@ -227,7 +235,7 @@ function scopeValueCalculatorWhite(whiteScope) {
 function scopeValueCalculatorBlack(blackScope) {
     let value = 0;
     for (let position of blackScope) {
-        if (position.newPosition > 31) {
+        if (position > 31) {
             value += 1;
         }
     }
@@ -244,4 +252,14 @@ function pieceUnderAttackValueCalculator(piecePositions, oppositePlayerScopes, p
         });
     });
     return value;
+}
+
+function lateGameKingPositionCalculator(kingPosition, turnNo) {
+    if (turnNo < 30) return 0;
+    let [file, rank] = coordinates(kingPosition);
+    let fileValue = 2 - 1.2 * Math.abs(4 - file);
+    let rankValue = 2 - 1.2 * Math.abs(4 - rank);
+    let turnNoSclar = Math.max(0.1 * turnNo - 3, 0);
+    console.log(kingPosition, turnNoSclar * Math.max(fileValue, rankValue));
+    return turnNoSclar * Math.min(fileValue, rankValue);
 }

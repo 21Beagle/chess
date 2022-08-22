@@ -8,6 +8,7 @@ import Bishop from "../Pieces/Bishop";
 import Knight from "../Pieces/Knight";
 import Pawn from "../Pieces/Pawn";
 import { PIECES } from "../../Consts/Consts";
+import { coordinates } from "../../Util/cartesianToArray";
 
 function Square({ id, piece, pieceColor, availableMove, handleClick, selected, enPassantAvailable, lastMove }) {
     let className;
@@ -16,6 +17,8 @@ function Square({ id, piece, pieceColor, availableMove, handleClick, selected, e
     } else {
         className = id % 2 === 0 ? "black-tile" : "white-tile";
     }
+
+    let [file, rank] = coordinates(id);
 
     // if (enPassantAvailable) {
     //     className = "en-passant";
@@ -58,7 +61,10 @@ function Square({ id, piece, pieceColor, availableMove, handleClick, selected, e
 
     return (
         <div onClick={() => handleClick(id)} className={className + " tile"}>
-            {/* <p className="id-no">{id}</p> */}
+            <p className="id-no">{id}</p>
+            <p className="file-rank">
+                {file},{rank}
+            </p>
             {Component}
         </div>
     );
