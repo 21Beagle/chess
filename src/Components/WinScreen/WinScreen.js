@@ -1,14 +1,14 @@
 import React from "react";
-import { COLOR, STALEMATE } from "../../Consts/Consts";
+import { COLOUR, STALEMATE } from "../../Consts/Consts";
 import "./WinScreen.css";
 
 function WinScreen({ reset, whoWon }) {
     let text = "";
     switch (whoWon) {
-        case COLOR.BLACK:
+        case COLOUR.BLACK:
             text = "Black won!";
             break;
-        case COLOR.WHITE:
+        case COLOUR.WHITE:
             text = "White won!";
             break;
         case STALEMATE:

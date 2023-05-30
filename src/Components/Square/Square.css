@@ -6,20 +6,20 @@
 
 .id-no {
     top: -20px;
-    color: cyan;
+    color: rgb(0, 0, 0);
     font-weight: bold;
-    text-align: left;
+    text-align: right;
     position: absolute;
     width: 100%;
 }
 
 .file-rank {
-    color: orange;
+    color: rgb(0, 0, 0);
     font-weight: bold;
-    text-align: right;
+    text-align: left;
     position: absolute;
     width: 100%;
-    top: 45px;
+    top: -20px;
 }
 .en-passant {
     background-color: #001aff;
