@@ -17,22 +17,32 @@ type Directions = {
 };
 
 export default class Piece {
-    position: Position;
     type: PieceType;
     colour: Colour;
     selected: boolean;
     hasMoved: boolean = false;
     maxFileDifference: number = 0;
-    static Null: Piece = new Piece(-1, Colour.Null);
-    constructor(position: any, colour: Colour) {
-        this.position = new Position(position);
+    game: ChessGame;
+    private _position: Position;
+
+    constructor(position: any, colour: Colour, game: ChessGame) {
+        this._position = new Position(position);
         this.colour = colour;
         this.selected = false;
         this.type = PIECES.NULL;
+        this.game = game;
     }
 
     get valueGrid() {
         return new Array(64).fill(0);
+    }
+
+    set position(value: string | Position | number | null) {
+        this._position = new Position(value);
+    }
+
+    get position(): Position {
+        return this._position;
     }
 
     positionalValue(position: Position) {

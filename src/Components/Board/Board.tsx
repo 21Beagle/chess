@@ -5,9 +5,7 @@ import Square from "../Square/Square";
 import ChessGame from "../../Chess/ChessGame/ChessGame";
 import Piece from "../../Chess/Pieces/Piece";
 import Move from "../../Chess/Move/Move";
-import Colour from "../../Chess/Colour/Colour";
 import Player from "../../Chess/Player/Player";
-import search from "../../Chess/Search/Search";
 
 let testPosition: string | undefined;
 // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - - 0 24";
@@ -16,7 +14,7 @@ let testPosition: string | undefined;
 // testPosition = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
 
 let whitePlayer = new Player("W", true);
-let blackPlayer = new Player("B", false);
+let blackPlayer = new Player("B", true);
 const Chess = new ChessGame("" || testPosition, whitePlayer, blackPlayer);
 
 function Board() {
@@ -24,20 +22,24 @@ function Board() {
     const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
     const [selectedSquare, setSelectedSquare] = useState<any | null>(null);
-    const [enPassant, setEnPassant] = useState(Chess.enPassantPosition.index);
+    const [enPassant, setEnPassant] = useState(Chess.state.enPassant.index);
     const [playerTurn, setPlayerTurn] = useState(Chess.playerTurn);
     const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
 
     useEffect(() => {
-        setBoard(Chess.board);
-        setEvaluation(Chess.simpleEvaluate());
-        setPlayerTurn(Chess.playerTurn);
+        updateUI();
         handleCpuMove();
     }, [board, playerTurn]);
 
     useEffect(() => {
-        updateEnPassant();
-    });
+        Chess.updateUI = updateUI;
+    }, []);
+
+    function updateUI() {
+        setBoard(Chess.board);
+        setEvaluation(Chess.simpleEvaluate());
+        setPlayerTurn(Chess.playerTurn);
+    }
 
     function changeWhiteCpu() {
         Chess.whitePlayer.isHuman = !Chess.whitePlayer.isHuman;
@@ -75,8 +77,8 @@ function Board() {
     }
 
     function updateEnPassant() {
-        if (Chess.enPassantPosition.index) {
-            setEnPassant(Chess.enPassantPosition.index);
+        if (Chess.state.enPassant.index) {
+            setEnPassant(Chess.state.enPassant.index);
         }
     }
 
@@ -108,7 +110,7 @@ function Board() {
     }
 
     function doMove(move: Move) {
-        move.do(Chess);
+        move.do();
         updateBoard();
         setHighlightedMoves([]);
         changePlayer();
@@ -129,6 +131,14 @@ function Board() {
 
     function showBlackMovesMoves(): void {
         Chess.pickBestMove(blackPlayer);
+    }
+
+    function undoLastMove(): void {
+        let move = Chess.moveHistory.pop();
+        if (!move) return;
+        move.undo();
+        changePlayer();
+        updateBoard();
     }
 
     const boardComponent = board.map((piece, index) => {
@@ -154,6 +164,7 @@ function Board() {
             <p>value: {evaluation}</p>
             <button onClick={() => changeBlackCpu()}>Change black cpu</button>
             <button onClick={() => changeWhiteCpu()}>Change white cpu</button>
+            <button onClick={() => undoLastMove()}> Undo last move</button>
         </div>
     );
 }

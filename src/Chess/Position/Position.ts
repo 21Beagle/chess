@@ -12,21 +12,22 @@ type Neighbours = {
 };
 
 export default class Position {
-    private static _nullIndex: number | null = null;
+    private static _nullIndex: number = -1;
     private static _nullAn: string = "-";
-    private static _nullRank: number | null = null;
-    private static _nullFile: number | null = null;
+    private static _nullRank: number = -1;
+    private static _nullFile: number = -1;
 
-    private _index: number | null = Position._nullIndex;
+    private _index: number = Position._nullIndex;
     private _an: string = Position._nullAn;
-    private _rank: number | null = Position._nullRank;
-    private _file: number | null = Position._nullFile;
+    private _rank: number = Position._nullRank;
+    private _file: number = Position._nullFile;
 
     static Null: Position = new Position("-");
 
     constructor(input: string | Position | number | null) {
         if (input === null) {
-            return;
+            this.setNull();
+            return this;
         }
 
         switch (typeof input) {
@@ -62,7 +63,7 @@ export default class Position {
     }
 
     get neighbours(): Neighbours {
-        if (this.isNull || this.index === null) {
+        if (this.isNull) {
             return {
                 north: new Position(null),
                 south: new Position(null),
@@ -87,7 +88,7 @@ export default class Position {
         }
     }
 
-    get index(): number | null {
+    get index(): number {
         return this._index;
     }
 
@@ -105,7 +106,7 @@ export default class Position {
         this._an = value;
     }
 
-    get rank(): number | null {
+    get rank(): number {
         return this._rank;
     }
 
@@ -114,7 +115,7 @@ export default class Position {
         this._rank = value;
     }
 
-    parseRank(rank: number | null) {
+    parseRank(rank: number) {
         if (rank === null) {
             this.setNull();
         }
@@ -123,7 +124,7 @@ export default class Position {
         return this;
     }
 
-    get file(): number | null {
+    get file(): number {
         return this._file;
     }
 
@@ -132,7 +133,7 @@ export default class Position {
         this._file = value;
     }
 
-    parsefile(file: number | null) {
+    parsefile(file: number) {
         if (file === null) {
             this.setNull();
         }
@@ -173,7 +174,7 @@ export default class Position {
         return this;
     }
 
-    parseIndex(index: number | null) {
+    parseIndex(index: number) {
         if (index === null) {
             this.setNull();
             return this;
@@ -190,7 +191,7 @@ export default class Position {
     }
 
     isEqual(position: Position): boolean {
-        return this.index === position.index;
+        return Position.Equal(this, position);
     }
 
     static fileDifference(start: Position, end: Position) {
@@ -198,7 +199,7 @@ export default class Position {
         return Math.abs(start.file - end.file);
     }
 
-    static isNull(position: string | Position | number | null) {
+    static isNull(position: string | Position | number) {
         switch (typeof position) {
             case "string":
                 if (position === this.Null._an) return true;
@@ -217,7 +218,7 @@ export default class Position {
         }
     }
 
-    static indexToAn(index: number | null) {
+    static indexToAn(index: number) {
         if (index === null) {
             return "-";
         }
@@ -227,41 +228,45 @@ export default class Position {
         return fileString[file] + rank;
     }
 
-    static anToIndex(an: string): number | null {
+    static anToIndex(an: string): number {
         const fileString = "abcdefgh";
         let rank = parseInt(an[1]) + 1;
         if (rank < 0 || rank > 7) {
-            return null;
+            return Position._nullIndex;
         }
         rank = 7 - rank;
         let fileChar = an[0];
         let file = fileString.indexOf(fileChar);
-        if (file === -1) {
-            return null;
+        if (file === Position._nullFile) {
+            return Position._nullIndex;
         }
         return rank + file * 8;
     }
 
-    static rankFileToIndex(file: number | null, rank: number | null) {
+    static rankFileToIndex(file: number, rank: number) {
         if (rank === null || file === null) {
-            return null;
+            return Position._nullIndex;
         }
         return file + (7 - rank) * 8;
     }
 
-    static getRankOfIndex(index: number | null): number | null {
+    static getRankOfIndex(index: number): number {
         if (index === null) {
-            return null;
+            return Position._nullRank;
         }
         let rank = 7 - Math.floor(index / 8);
         return rank;
     }
 
-    static getFileOfIndex(index: number | null): number | null {
+    static getFileOfIndex(index: number): number {
         if (index === null) {
-            return null;
+            return Position._nullFile;
         }
         let file = index % 8;
         return file;
+    }
+
+    static Equal(position1: Position, position2: Position): boolean {
+        return position1.index === position2.index;
     }
 }

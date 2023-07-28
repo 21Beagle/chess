@@ -19,17 +19,16 @@ export default function search(game: ChessGame, depth: number, alpha: number, be
         });
 
         for (let move of moves) {
-            let newGame = move.fakeMakeMove(game, move);
-            // console.log("checking", move.piece.colour.name, move.piece.type.name, move.end.index, depth, alpha, beta);
-            let output = search(newGame, depth - 1, alpha, beta, false);
+            move.do(game);
 
+            let output = search(game, depth - 1, alpha, beta, false);
             bestVal = Math.max(output.value, bestVal);
 
-            if (beta <= alpha) {
-                // console.log("break");
-                break;
-            }
             alpha = Math.max(alpha, bestVal);
+
+            move.undo(game);
+
+            if (beta <= alpha) break;
         }
         return { value: bestVal, alpha: alpha, beta: beta };
     } else {
@@ -43,18 +42,14 @@ export default function search(game: ChessGame, depth: number, alpha: number, be
         });
 
         for (let move of moves) {
-            // console.log("checking", move.piece.colour.name, move.piece.type.name, move.end.index, depth, alpha, beta);
+            move.do(game);
 
-            let newGame = move.fakeMakeMove(game, move);
-            let output = search(newGame, depth - 1, alpha, beta, true);
+            let output = search(game, depth - 1, alpha, beta, true);
 
             bestVal = Math.min(bestVal, output.value);
-
             beta = Math.min(beta, bestVal);
-            if (beta <= alpha) {
-                // console.log("break");
-                break;
-            }
+
+            if (beta <= alpha) break;
         }
         return { value: bestVal, alpha: alpha, beta: beta };
     }

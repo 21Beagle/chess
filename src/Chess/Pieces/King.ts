@@ -23,27 +23,32 @@ export default class King extends Piece {
         let shortRookStart;
         let shortMustBeEmpty;
         let longMustBeEmpty;
+        let castleChange;
 
         if (this.isBlack) {
             longKingEnd = 2;
             longRookEnd = 3;
             longRookStart = 0;
             longMustBeEmpty = [1, 2, 3];
+            castleChange = "q";
 
             shortKingEnd = 6;
             shortRookEnd = 5;
             shortRookStart = 7;
             shortMustBeEmpty = [5, 6];
+            castleChange = "k";
         } else {
             longKingEnd = 58;
             longRookEnd = 59;
             longRookStart = 56;
             longMustBeEmpty = [57, 58, 59];
+            castleChange = "Q";
 
             shortKingEnd = 62;
             shortRookEnd = 61;
             shortRookStart = 63;
             shortMustBeEmpty = [61, 62];
+            castleChange = "K";
         }
 
         let castleLongMove = new Move(this, longKingEnd, game);
@@ -64,6 +69,9 @@ export default class King extends Piece {
         castleShortRookMove.changePlayerAfterMove = false;
 
         castleShortMove.extraMoves.push(castleShortRookMove);
+
+        castleShortMove.castleChange = castleChange;
+        castleLongMove.castleChange = castleChange;
 
         castleLongMove.mustBeFree = longMustBeEmpty.map((index) => {
             return new Position(index);
