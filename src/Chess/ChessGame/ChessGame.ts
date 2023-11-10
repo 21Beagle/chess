@@ -1,7 +1,6 @@
 import FEN from "../FEN/FEN";
 import { isNumeric, isCapital, randomElementFromArray } from "../../Util/tools";
 import EmptySquare from "../Pieces/EmptyPiece";
-import PieceFactory from "../Pieces/PieceFactory";
 import { CASTLE, PIECES } from "../../Consts/Consts";
 import Position from "../Position/Position";
 import _ from "lodash";
@@ -11,6 +10,7 @@ import Colour from "../Colour/Colour";
 import Player from "../Player/Player";
 import search from "../Search/Search";
 import ChessGameState from "./ChessGameState";
+import PieceFactory from "../Pieces/PieceFactory";
 
 type filterMoves = {
     colour: Colour | undefined;
@@ -63,88 +63,55 @@ export default class ChessGame {
     get isBlacksMove(): boolean {
         return this.playerTurn.colour.isBlack;
     }
-    pickBestMove(playerTurn: Player, depth: number = 6): Move {
-        let moves: Move[] = [];
+    pickBestMove(playerTurn: Player, depth: number = 3): Move {
+        console.log("Starting best move calculation for", playerTurn.colour.name);
 
-        console.log("starting best move calculation for", playerTurn.colour.name);
+        const alpha = -Infinity;
+        const beta = Infinity;
 
-        let alpha = -Infinity;
-        let beta = Infinity;
+        const isMaximizingPlayer = playerTurn.colour.isWhite;
+        let bestValue = isMaximizingPlayer ? -Infinity : Infinity;
 
-        let fakeGame = this.copy();
+        const moves = this.getMoves({ colour: playerTurn.colour, validateChecks: true }).sort((a: Move, b: Move) => b.simpleEvaluation - a.simpleEvaluation);
 
-        if (playerTurn.colour.isWhite) {
-            let bestVal = -Infinity;
-            let filter = {
-                colour: Colour.White,
-                validateChecks: true,
-            };
-            moves = this.getMoves(filter).sort((a: Move, b: Move) => {
-                return b.simpleEvaluation - a.simpleEvaluation;
-            });
+        console.log("Checking", moves.length, "moves at depth", depth);
 
-            console.log("Checking", moves.length, "moves at depth", depth);
+        let bestMove;
 
-            for (let move of moves) {
-                move.do();
+        for (const move of moves) {
+            move.do(false);
 
-                let output = search(fakeGame, depth - 1, alpha, beta, false);
-                move.value = output.value;
+            const output = search(this, depth - 1, alpha, beta, !isMaximizingPlayer);
+            move.value = output.value;
 
-                bestVal = Math.max(output.value, bestVal);
-
-                move.undo();
-                alpha = Math.max(alpha, bestVal);
-
-                console.log("alpha", alpha, "beta", beta, "checking", move.piece.colour.name, move.piece.type.name, move.end.index, "got value", output.value);
-                if (beta <= alpha) {
-                    break;
-                }
+            if ((isMaximizingPlayer && output.value > bestValue) || (!isMaximizingPlayer && output.value < bestValue)) {
+                bestValue = output.value;
+                bestMove = move;
             }
-        } else {
-            let bestVal = Infinity;
-            let filter = {
-                colour: Colour.Black,
-                validateChecks: true,
-            };
-            moves = this.getMoves(filter).sort((a: Move, b: Move) => {
-                return b.simpleEvaluation - a.simpleEvaluation;
-            });
 
-            console.log("Checking", moves.length, "moves at depth", depth);
+            move.undo();
 
-            for (let move of moves) {
-                move.do();
-                let output = search(fakeGame, depth - 1, alpha, beta, true);
-                move.value = output.value;
-
-                bestVal = Math.min(bestVal, output.value);
-                beta = Math.min(beta, bestVal);
-
-                move.undo();
-
-                console.log("alpha", alpha, "beta", beta, "checking", move.piece.colour.name, move.piece.type.name, move.end.index, "got value", output.value);
-                if (beta <= alpha) {
-                    break;
-                }
+            if ((isMaximizingPlayer && bestValue >= beta) || (!isMaximizingPlayer && bestValue <= alpha)) {
+                break;
             }
         }
 
-        moves = moves
-            .sort((a: Move, b: Move) => {
-                if (playerTurn.colour.isBlack) {
-                    return a.value - b.value;
-                }
-                return b.value - a.value;
-            })
-            .filter((move) => {
-                return move.value === moves[0].value;
-            });
-        let move: Move = randomElementFromArray(moves);
-        console.log(moves);
-        console.log(move.piece.colour.name, move.piece.type.name, move.start.index, move.end.index, "for value:", move.value);
-        console.log(fakeGame);
-        return move;
+        if (bestMove === undefined) {
+            throw new Error("No best move found");
+        }
+
+        console.log(
+            "Best move:",
+            bestMove.piece.colour.name,
+            bestMove.piece.type.name,
+            bestMove.start.index,
+            bestMove.end.index,
+            "with value:",
+            bestMove.value
+        );
+
+        this.updateUI();
+        return bestMove;
     }
 
     selectPiece(index: number): Piece | null {
@@ -170,7 +137,12 @@ export default class ChessGame {
     }
 
     getPieceAtPosition(position: Position): Piece {
-        return this.board[position.index];
+        try {
+            return this.board[position.index as number];
+        } catch (error) {
+            console.log(position, error);
+            throw new Error("Invalid position");
+        }
     }
 
     placePieceAtIndex(piece: Piece, end: number) {
@@ -179,6 +151,7 @@ export default class ChessGame {
     }
 
     placePieceAtPosition(piece: Piece, end: Position) {
+        if (end.index === null) return;
         this.placePieceAtIndex(piece, end.index);
     }
 
@@ -186,7 +159,8 @@ export default class ChessGame {
         return (this.board[index] = new EmptySquare(index));
     }
 
-    destroyPieceAtPosition(position: Position): Piece {
+    destroyPieceAtPosition(position: Position): Piece | null {
+        if (position.index === null) return null;
         return this.destroyPieceAtIndex(position.index);
     }
 
@@ -217,6 +191,7 @@ export default class ChessGame {
                 allMoves = allMoves.concat(piece.moves(this, validateChecks));
                 return;
             }
+
             if (filter.colour && !filter.colour.isEqual(piece.colour)) {
                 return;
             }
@@ -241,10 +216,6 @@ export default class ChessGame {
         return result;
     }
 
-    isEnPassantPosition(position: Position): boolean {
-        return position.isEqual(this.state.enPassant);
-    }
-
     _destroyPositions(positions: Position[]) {
         positions.forEach((position) => {
             if (position.index !== null) {
@@ -259,7 +230,7 @@ export default class ChessGame {
             return;
         }
 
-        this.state.enPassant = new Position("-");
+        this.state.enPassant = null;
     }
 
     copy(): ChessGame {
@@ -302,10 +273,11 @@ export default class ChessGame {
 
     _parseCastleStateFEN(): string {
         return this.FEN.castle;
-        return this.state.castle;
     }
 
-    _parseEnPassantFEN(): Position {
+    _parseEnPassantFEN(): Position | null {
+        if (this.FEN.enPassant === "-") return null;
+
         return new Position(this.FEN.enPassant);
     }
 }

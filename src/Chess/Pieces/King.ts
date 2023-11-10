@@ -4,14 +4,12 @@ import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Position from "../Position/Position";
 import Piece from "./Piece";
-import PieceType from "./PieceType";
 
 export default class King extends Piece {
-    type: PieceType = PIECES.KING;
-
     constructor(position: number, colour: Colour) {
         super(position, colour);
         this.maxFileDifference = 5;
+        this.type = PIECES.KING;
     }
 
     private castleMoves(game: ChessGame) {
@@ -88,14 +86,15 @@ export default class King extends Piece {
         let moves: Move[] = [];
 
         // directional moves
-        moves.push(new Move(this, this.directions.forward(1), game));
-        moves.push(new Move(this, this.directions.backward(1), game));
-        moves.push(new Move(this, this.directions.left(1), game));
-        moves.push(new Move(this, this.directions.right(1), game));
-        moves.push(new Move(this, this.directions.backwardLeft(1), game));
-        moves.push(new Move(this, this.directions.backwardRight(1), game));
-        moves.push(new Move(this, this.directions.forwardLeft(1), game));
-        moves.push(new Move(this, this.directions.forwardRight(1), game));
+        this.appendMove(game, moves, this.directions.forward(1));
+        this.appendMove(game, moves, this.directions.forward(1));
+        this.appendMove(game, moves, this.directions.backward(1));
+        this.appendMove(game, moves, this.directions.left(1));
+        this.appendMove(game, moves, this.directions.right(1));
+        this.appendMove(game, moves, this.directions.backwardLeft(1));
+        this.appendMove(game, moves, this.directions.backwardRight(1));
+        this.appendMove(game, moves, this.directions.forwardLeft(1));
+        this.appendMove(game, moves, this.directions.forwardRight(1));
 
         //castle moves
 

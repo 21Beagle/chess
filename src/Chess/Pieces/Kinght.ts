@@ -33,10 +33,12 @@ export default class Knight extends Piece {
     }
 
     generateMoves(game: ChessGame): Move[] {
-        let moves: Move[] = this.knightEndPositionShift.map((endIndex) => {
-            if (this.position.index === null) return new Move(this, -1, game);
-            let move = new Move(this, this.position.index + endIndex, game);
-            return new Move(this, this.position.index + endIndex, game);
+        let moves: Move[] = [];
+        this.knightEndPositionShift.forEach((shiftIndex) => {
+            let endIndex = this.position.index + shiftIndex;
+            if (this.position.index === null || !Position.isValidIndex(endIndex)) return;
+            let move = new Move(this, endIndex, game);
+            moves.push(move);
         });
         return moves;
     }

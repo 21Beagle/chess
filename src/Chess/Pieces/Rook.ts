@@ -2,7 +2,6 @@ import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
-import Position from "../Position/Position";
 import Piece from "./Piece";
 import PieceType from "./PieceType";
 

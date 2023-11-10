@@ -1,33 +1,30 @@
-import { POSITION } from "../../Consts/Consts";
-
 type Neighbours = {
-    north: Position;
-    south: Position;
-    east: Position;
-    west: Position;
-    northEast: Position;
-    northWest: Position;
-    southEast: Position;
-    southWest: Position;
+    north: Position | null;
+    south: Position | null;
+    east: Position | null;
+    west: Position | null;
+    northEast: Position | null;
+    northWest: Position | null;
+    southEast: Position | null;
+    southWest: Position | null;
 };
 
 export default class Position {
-    private static _nullIndex: number = -1;
+    private static _nullIndex: number | null = null;
     private static _nullAn: string = "-";
-    private static _nullRank: number = -1;
-    private static _nullFile: number = -1;
+    private static _nullRank: number | null = null;
+    private static _nullFile: number | null = null;
 
-    private _index: number = Position._nullIndex;
+    private _index: number | null = Position._nullIndex;
     private _an: string = Position._nullAn;
-    private _rank: number = Position._nullRank;
-    private _file: number = Position._nullFile;
+    private _rank: number | null = Position._nullRank;
+    private _file: number | null = Position._nullFile;
 
-    static Null: Position = new Position("-");
+    public static Null = new Position(null);
 
     constructor(input: string | Position | number | null) {
         if (input === null) {
-            this.setNull();
-            return this;
+            return;
         }
 
         switch (typeof input) {
@@ -46,33 +43,17 @@ export default class Position {
         }
     }
 
-    get isNull(): boolean {
-        if (this.index === Position._nullIndex) {
-            return true;
-        }
-        if (this.an === Position._nullAn) {
-            return true;
-        }
-        if (this.rank === Position._nullRank) {
-            return true;
-        }
-        if (this.file === Position._nullFile) {
-            return true;
-        }
-        return false;
-    }
-
     get neighbours(): Neighbours {
-        if (this.isNull) {
+        if (this.index === null) {
             return {
-                north: new Position(null),
-                south: new Position(null),
-                east: new Position(null),
-                west: new Position(null),
-                northEast: new Position(null),
-                northWest: new Position(null),
-                southEast: new Position(null),
-                southWest: new Position(null),
+                north: null,
+                south: null,
+                east: null,
+                west: null,
+                northEast: null,
+                northWest: null,
+                southEast: null,
+                southWest: null,
             };
         } else {
             return {
@@ -89,6 +70,9 @@ export default class Position {
     }
 
     get index(): number {
+        if (null === this._index) {
+            throw new Error("Position index is null");
+        }
         return this._index;
     }
 
@@ -107,6 +91,9 @@ export default class Position {
     }
 
     get rank(): number {
+        if (null === this._rank) {
+            throw new Error("Position rank is null");
+        }
         return this._rank;
     }
 
@@ -115,7 +102,7 @@ export default class Position {
         this._rank = value;
     }
 
-    parseRank(rank: number) {
+    parseRank(rank: number | null) {
         if (rank === null) {
             this.setNull();
         }
@@ -125,6 +112,9 @@ export default class Position {
     }
 
     get file(): number {
+        if (null === this._file) {
+            throw new Error("Position file is null");
+        }
         return this._file;
     }
 
@@ -133,7 +123,7 @@ export default class Position {
         this._file = value;
     }
 
-    parsefile(file: number) {
+    parsefile(file: number | null) {
         if (file === null) {
             this.setNull();
         }
@@ -171,15 +161,16 @@ export default class Position {
         this._an = Position._nullAn;
         this._rank = Position._nullRank;
         this._file = Position._nullFile;
-        return this;
+
+        throw new Error("Set a Position to null");
     }
 
-    parseIndex(index: number) {
+    parseIndex(index: number | null) {
         if (index === null) {
             this.setNull();
             return this;
         }
-        if (index < 0 || index > 63) {
+        if (!Position.isValidIndex(index)) {
             this.setNull();
             return this;
         }
@@ -191,7 +182,7 @@ export default class Position {
     }
 
     isEqual(position: Position): boolean {
-        return Position.Equal(this, position);
+        return this.index === position.index;
     }
 
     static fileDifference(start: Position, end: Position) {
@@ -199,26 +190,7 @@ export default class Position {
         return Math.abs(start.file - end.file);
     }
 
-    static isNull(position: string | Position | number) {
-        switch (typeof position) {
-            case "string":
-                if (position === this.Null._an) return true;
-                break;
-            case "object":
-                if (position && position.an === this.Null._an) return true;
-                break;
-            case "number":
-                if (position === null) return true;
-                break;
-            default:
-                break;
-        }
-
-        if (typeof Position === "string") {
-        }
-    }
-
-    static indexToAn(index: number) {
+    static indexToAn(index: number | null) {
         if (index === null) {
             return "-";
         }
@@ -228,45 +200,48 @@ export default class Position {
         return fileString[file] + rank;
     }
 
-    static anToIndex(an: string): number {
+    static anToIndex(an: string): number | null {
         const fileString = "abcdefgh";
         let rank = parseInt(an[1]) + 1;
         if (rank < 0 || rank > 7) {
-            return Position._nullIndex;
+            return null;
         }
         rank = 7 - rank;
         let fileChar = an[0];
         let file = fileString.indexOf(fileChar);
-        if (file === Position._nullFile) {
-            return Position._nullIndex;
+        if (file === -1) {
+            return null;
         }
         return rank + file * 8;
     }
 
-    static rankFileToIndex(file: number, rank: number) {
+    static rankFileToIndex(file: number | null, rank: number | null) {
         if (rank === null || file === null) {
-            return Position._nullIndex;
+            return null;
         }
         return file + (7 - rank) * 8;
     }
 
-    static getRankOfIndex(index: number): number {
+    static getRankOfIndex(index: number | null): number | null {
         if (index === null) {
-            return Position._nullRank;
+            return null;
         }
         let rank = 7 - Math.floor(index / 8);
         return rank;
     }
 
-    static getFileOfIndex(index: number): number {
+    static getFileOfIndex(index: number | null): number | null {
         if (index === null) {
-            return Position._nullFile;
+            return null;
         }
         let file = index % 8;
         return file;
     }
 
-    static Equal(position1: Position, position2: Position): boolean {
-        return position1.index === position2.index;
+    static isValidIndex(index: number | null): boolean {
+        if (index === null) {
+            return false;
+        }
+        return index >= 0 && index <= 63;
     }
 }

@@ -3,17 +3,24 @@ import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Position from "../Position/Position";
+import EmptySquare from "./EmptyPiece";
+import Bishop from "./Bishop";
+import King from "./King";
+import Knight from "./Kinght";
+import Pawn from "./Pawn";
 import PieceType from "./PieceType";
+import Queen from "./Queen";
+import Rook from "./Rook";
 
 type Directions = {
-    forward: (scalar: number) => Position;
-    backward: (scalar: number) => Position;
-    left: (scalar: number) => Position;
-    right: (scalar: number) => Position;
-    forwardLeft: (scalar: number) => Position;
-    forwardRight: (scalar: number) => Position;
-    backwardLeft: (scalar: number) => Position;
-    backwardRight: (scalar: number) => Position;
+    forward: (scalar: number) => Position | null;
+    backward: (scalar: number) => Position | null;
+    left: (scalar: number) => Position | null;
+    right: (scalar: number) => Position | null;
+    forwardLeft: (scalar: number) => Position | null;
+    forwardRight: (scalar: number) => Position | null;
+    backwardLeft: (scalar: number) => Position | null;
+    backwardRight: (scalar: number) => Position | null;
 };
 
 export default class Piece {
@@ -22,15 +29,14 @@ export default class Piece {
     selected: boolean;
     hasMoved: boolean = false;
     maxFileDifference: number = 0;
-    game: ChessGame;
     private _position: Position;
+    checking: boolean = false;
 
-    constructor(position: any, colour: Colour, game: ChessGame) {
+    constructor(position: any, colour: Colour) {
         this._position = new Position(position);
         this.colour = colour;
         this.selected = false;
         this.type = PIECES.NULL;
-        this.game = game;
     }
 
     get valueGrid() {
@@ -54,72 +60,88 @@ export default class Piece {
         if (this.colour.isBlack) {
             return {
                 forward: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index + scalar * 8);
+                    const index = this.position.index + scalar * 8;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 backward: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index - scalar * 8);
+                    const index = this.position.index - scalar * 8;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 left: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index + scalar);
+                    const index = this.position.index + scalar;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 right: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index - scalar);
+                    const index = this.position.index - scalar;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 forwardLeft: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index + scalar * 9);
+                    const index = this.position.index + scalar * 9;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 forwardRight: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index + scalar * 7);
+                    const index = this.position.index + scalar * 7;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 backwardLeft: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index - scalar * 7);
+                    const index = this.position.index - scalar * 7;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
                 backwardRight: (scalar: number = 1) => {
-                    if (this.position.isNull || this.position.index === null) return Position.Null;
-                    return new Position(this.position.index - scalar * 9);
+                    const index = this.position.index - scalar * 9;
+                    if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                    return new Position(index);
                 },
             };
         }
 
         return {
             forward: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index - scalar * 8);
+                const index = this.position.index - scalar * 8;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             backward: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index + scalar * 8);
+                const index = this.position.index + scalar * 8;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             left: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index - scalar);
+                const index = this.position.index - scalar;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             right: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index + scalar);
+                const index = this.position.index + scalar;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             forwardLeft: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index - scalar * 9);
+                const index = this.position.index - scalar * 9;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             forwardRight: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index - scalar * 7);
+                const index = this.position.index - scalar * 7;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             backwardLeft: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index + scalar * 7);
+                const index = this.position.index + scalar * 7;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
             backwardRight: (scalar: number = 1) => {
-                if (this.position.isNull || this.position.index === null) return Position.Null;
-                return new Position(this.position.index + scalar * 9);
+                const index = this.position.index + scalar * 9;
+                if (this.position.index === null || !Position.isValidIndex(index)) return null;
+                return new Position(index);
             },
         };
     }
@@ -178,12 +200,14 @@ export default class Piece {
         this.selected = false;
     }
 
-    directionMoveGenerator(moves: Move[], direction: (scalar: number) => Position, game: ChessGame) {
+    directionMoveGenerator(moves: Move[], direction: (scalar: number) => Position | null, game: ChessGame) {
         for (let i = 1; i <= 8; i++) {
-            let endPosition: Position = direction(i);
+            let endPosition = direction(i);
+            if (!endPosition) continue;
             let move = new Move(this, endPosition, game);
 
             for (let j = 1; j <= i - 1; j++) {
+                if (!direction(j)) continue;
                 move.mustBeFree.push(new Position(direction(j)));
             }
 
@@ -195,6 +219,41 @@ export default class Piece {
                 return;
             }
 
+            moves.push(move);
+        }
+    }
+
+    // static generate(position: number, typeId: string, colour: Colour, game: ChessGame) {
+    //     let piece;
+    //     switch (typeId) {
+    //         case PIECES.KING.id:
+    //             piece = new King(position, colour, game);
+    //             break;
+    //         case PIECES.QUEEN.id:
+    //             piece = new Queen(position, colour, game);
+    //             break;
+    //         case PIECES.ROOK.id:
+    //             piece = new Rook(position, colour, game);
+    //             break;
+    //         case PIECES.BISHOP.id:
+    //             piece = new Bishop(position, colour, game);
+    //             break;
+    //         case PIECES.KNIGHT.id:
+    //             piece = new Knight(position, colour, game);
+    //             break;
+    //         case PIECES.PAWN.id:
+    //             piece = new Pawn(position, colour, game);
+    //             break;
+    //         default:
+    //             piece = new EmptySquare(position, game);
+    //             break;
+    //     }
+    //     return piece;
+    // }
+
+    appendMove(game: ChessGame, moves: Move[], position: Position | null) {
+        if (position !== null) {
+            let move = new Move(this, position, game);
             moves.push(move);
         }
     }

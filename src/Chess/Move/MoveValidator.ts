@@ -1,70 +1,83 @@
 import ChessGame from "../ChessGame/ChessGame";
+import Pawn from "../Pieces/Pawn";
 import Position from "../Position/Position";
 import Move from "./Move";
 
 export default class MoveValidator {
-    move: Move;
-    constructor(move: Move) {
-        this.move = move;
-    }
-
-    validate(game: ChessGame, validateChecks: boolean): boolean {
-        if (this.move.skipValidate) return true;
-        if (!this.move.nullValidate) return false;
-        if (!this.positionValidate()) return false;
-        if (!this.cantHaveMovedValidate()) return false;
-        if (!this.freePositionsValidation(game)) return false;
-        if (!this.isACaptureValidation(game)) return false;
+    static validate(game: ChessGame, move: Move, validateChecks: boolean): boolean {
+        if (move.skipValidate) return true;
+        if (!move.nullValidate) return false;
+        if (!this.positionValidate(move)) return false;
+        if (!this.cantHaveMovedValidate(move)) return false;
+        if (!this.freePositionsValidation(game, move)) return false;
+        if (!this.isACaptureValidation(game, move)) return false;
+        if (!this.isAPromotionValidation(game, move)) return false;
         if (validateChecks) {
-            if (!this.willPutPlayerInCheckValidation(game)) return false;
+            if (!this.willPutPlayerInCheckValidation(game, move)) return false;
+        }
+        if (move.endPiece.isKing && !move.endPiece.colour.isEqual(move.piece.colour)) {
+            move.piece.checking = true;
         }
 
         return true;
     }
-
-    private positionValidate(): boolean {
-        if (this.move.hasToStartAtRank && this.move.start.rank !== this.move.hasToStartAtRank) return false;
-        if (Position.fileDifference(this.move.start, this.move.end) > this.move.piece.maxFileDifference) return false;
+    private static isAPromotionValidation(game: ChessGame, move: Move): boolean {
+        if (move.piece.isPawn) {
+            let piece = move.piece as Pawn;
+            return (move.isPromotion && move.end.rank === piece.promotionRank) || (!move.isPromotion && move.end.rank !== piece.promotionRank);
+        }
         return true;
     }
 
-    private cantHaveMovedValidate(): boolean {
-        if (this.move.piece.hasMoved && this.move.pieceCantHaveMoved) {
+    private static positionValidate(move: Move): boolean {
+        if (move.hasToStartAtRank && move.start.rank !== move.hasToStartAtRank) return false;
+        if (Position.fileDifference(move.start, move.end) > move.piece.maxFileDifference) return false;
+        return true;
+    }
+
+    private static cantHaveMovedValidate(move: Move): boolean {
+        if (move.piece.hasMoved && move.pieceCantHaveMoved) {
             return false;
         }
         return true;
     }
 
-    private willPutPlayerInCheckValidation(game: ChessGame): boolean {
+    private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
         let filter = {
-            colour: this.move.piece.colour.getOpposite(),
+            colour: move.piece.colour.getOpposite(),
             validateChecks: false,
         };
-        this.move.do();
+        move.do(false);
         let opponentMoves = game.getMoves(filter);
 
         let isInCheck = !opponentMoves.some((move) => {
-            return move.endPiece.isKing && move.endPiece.colour.isEqual(this.move.piece.colour);
+            return move.endPiece.isKing && move.endPiece.colour.isEqual(move.piece.colour);
         });
 
-        this.move.undo();
+        move.undo();
         return isInCheck;
     }
 
-    private isACaptureValidation(game: ChessGame): boolean {
-        if (this.move.endPiece.colour.isEqual(this.move.piece.colour)) return false;
-        if (!this.move.mustBeCapture) return true;
-        if (this.move.canBeEnpassant && this.move.piece.isPawn) {
-            this.move.isEnpassantTake = game.state.enPassant.isEqual(this.move.end);
-            if (this.move.isEnpassantTake) {
-                this.move.willDestroy.push(game.state.enPassant.neighbours.north, game.state.enPassant.neighbours.south);
+    private static isACaptureValidation(game: ChessGame, move: Move): boolean {
+        if (move.endPiece.colour.isEqual(move.piece.colour)) return false;
+        if (!move.mustBeCapture) return true;
+        if (move.moveIsCapture) return true;
+
+        if (game.state.enPassant !== null && move.canBeEnpassant && move.piece.isPawn) {
+            move.isEnpassantTake = game.state.enPassant.isEqual(move.end);
+            if (move.isEnpassantTake) {
+                if (game.state.enPassant.neighbours.north === null || game.state.enPassant.neighbours.south == null) {
+                    return false;
+                }
+
+                move.willDestroy.push(game.state.enPassant.neighbours.north, game.state.enPassant.neighbours.south);
             }
         }
-        return this.move.moveIsCapture || this.move.isEnpassantTake;
+        return move.isEnpassantTake;
     }
 
-    private freePositionsValidation(game: ChessGame): boolean {
-        return this.move.mustBeFree.every((position) => {
+    private static freePositionsValidation(game: ChessGame, move: Move): boolean {
+        return move.mustBeFree.every((position) => {
             let piece = game.getPieceAtPosition(position);
             return piece.isEmpty;
         });

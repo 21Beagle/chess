@@ -41,30 +41,91 @@ export default class Pawn extends Piece {
     }
 
     generateMoves(game: ChessGame): Move[] {
+        let moves = [] as Move[];
+
         // check captures
-        let forwardOne = new Move(this, this.directions.forward(1), game);
-        forwardOne.mustBeFree.push(this.directions.forward(1));
-        forwardOne.canBeCapture = false;
-        forwardOne.isAttack = false;
+        moves = this.generateMoveOneAheadMove(game, moves);
 
-        let forwardTwo = new Move(this, this.directions.forward(2), game);
-        forwardTwo.hasToStartAtRank = this.startingRank;
-        forwardTwo.mustBeFree.push(this.directions.forward(1));
-        forwardTwo.mustBeFree.push(this.directions.forward(2));
-        forwardTwo.canBeCapture = false;
-        forwardTwo.willCreateEnPassant = true;
-        forwardTwo.isAttack = false;
-        forwardTwo.enPassantPositionCreated = new Position(this.directions.forward(1));
+        moves = this.generateTwoAheadMove(game, moves);
 
-        let captureLeft = new Move(this, this.directions.forwardLeft(1), game);
-        captureLeft.mustBeCapture = true;
-        captureLeft.canBeEnpassant = true;
+        moves = this.generateAttackMoves(game, moves);
 
-        let captureRight = new Move(this, this.directions.forwardRight(1), game);
-        captureRight.mustBeCapture = true;
-        captureRight.canBeEnpassant = true;
+        return moves;
+    }
+    generatePromotionMoves(game: ChessGame, moves: Move[], direction: (scalar: number) => Position | null): Move[] {
+        let end = direction(1);
+        if (!end) return [];
 
-        let moves: Move[] = [forwardOne, forwardTwo, captureLeft, captureRight];
+        let promoteToQueen = new Move(this, end, game);
+        promoteToQueen.isPromotion = true;
+        promoteToQueen.promotionPiece = PIECES.QUEEN.id;
+
+        let promoteToKnight = new Move(this, end, game);
+        promoteToKnight.isPromotion = true;
+        promoteToKnight.promotionPiece = PIECES.KNIGHT.id;
+
+        let promoteToBishop = new Move(this, end, game);
+        promoteToBishop.isPromotion = true;
+        promoteToBishop.promotionPiece = PIECES.BISHOP.id;
+
+        let promoteToRook = new Move(this, end, game);
+        promoteToRook.isPromotion = true;
+        promoteToRook.promotionPiece = PIECES.ROOK.id;
+
+        moves.push(promoteToQueen);
+        moves.push(promoteToKnight);
+        moves.push(promoteToBishop);
+        moves.push(promoteToRook);
+
+        return moves;
+    }
+
+    private generateMoveOneAheadMove(game: ChessGame, moves: Move[]): Move[] {
+        let forwardOneDirection = this.directions.forward(1);
+        if (forwardOneDirection === null) return moves;
+        let move = new Move(this, forwardOneDirection, game);
+
+        move.mustBeFree.push(forwardOneDirection);
+        move.canBeCapture = false;
+        move.isAttack = false;
+
+        moves.push(move);
+        moves = this.generatePromotionMoves(game, moves, this.directions.forward);
+
+        return moves;
+    }
+
+    private generateAttackMoves(game: ChessGame, moves: Move[]): Move[] {
+        let attackMoves = [] as Move[];
+        attackMoves = this.generatePromotionMoves(game, attackMoves, this.directions.forwardLeft);
+        attackMoves = this.generatePromotionMoves(game, attackMoves, this.directions.forwardRight);
+        this.appendMove(game, attackMoves, this.directions.forwardLeft(1));
+        this.appendMove(game, attackMoves, this.directions.forwardRight(1));
+        attackMoves = attackMoves.map((move) => {
+            move.mustBeCapture = true;
+            return move;
+        });
+
+        moves = moves.concat(attackMoves);
+
+        return moves;
+    }
+
+    private generateTwoAheadMove(game: ChessGame, moves: Move[]): Move[] {
+        let forwardOneDirection = this.directions.forward(1);
+        let forwardTwoDirection = this.directions.forward(2);
+        if (!forwardOneDirection || !forwardTwoDirection) return moves;
+        let move = new Move(this, forwardTwoDirection, game);
+
+        move.hasToStartAtRank = this.startingRank;
+        move.mustBeFree.push(forwardOneDirection);
+        move.mustBeFree.push(forwardTwoDirection);
+        move.canBeCapture = false;
+        move.willCreateEnPassant = true;
+        move.isAttack = false;
+        move.enPassantPositionCreated = new Position(this.directions.forward(1));
+
+        moves.push(move);
 
         return moves;
     }

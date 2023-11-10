@@ -10,6 +10,7 @@ import Pawn from "../Pieces/Pawn";
 import { PIECES } from "../../Consts/Consts";
 import Piece from "../../Chess/Pieces/Piece";
 import Position from "../../Chess/Position/Position";
+import Move from "../../Chess/Move/Move";
 
 type squareProps = {
     index: number;
@@ -18,6 +19,8 @@ type squareProps = {
     handleClick: Function;
     selected: boolean;
     position: Position;
+    lastMove: Move | undefined;
+    isEnpassant?: boolean;
 };
 
 function Square(props: squareProps): JSX.Element {
@@ -28,9 +31,9 @@ function Square(props: squareProps): JSX.Element {
         className = props.index % 2 !== 0 ? "black-tile" : "white-tile";
     }
 
-    // if (isEnpassant) {
-    //     className = "en-passant";
-    // }
+    if (props.isEnpassant) {
+        className = "en-passant";
+    }
     if (props.highlighted) {
         className += " available-move";
     }
@@ -39,9 +42,9 @@ function Square(props: squareProps): JSX.Element {
         className += " selected";
     }
 
-    // if (lastMove) {
-    //     className += " last-move";
-    // }
+    if (props.lastMove && (props.lastMove.start.index === props.index || props.lastMove.end.index === props.index)) {
+        className += " last-move";
+    }
 
     let component;
     switch (props.piece.type.id) {

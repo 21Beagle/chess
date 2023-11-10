@@ -9,7 +9,7 @@ export const PIECES = {
     QUEEN: new PieceType("Queen", "Q", 9),
     ROOK: new PieceType("Rook", "R", 5),
     BISHOP: new PieceType("Bishop", "B", 3),
-    EMPTY: new PieceType("Empty Squared", "", 0),
+    EMPTY: new PieceType("Empty", "", 0),
     NULL: new PieceType("Null", "-", -1),
 };
 
@@ -18,10 +18,6 @@ export const CASTLE = {
     whiteShort: "K",
     blackLong: "q",
     blackShort: "k",
-};
-
-export const POSITION = {
-    NULL: new Position("-"),
 };
 
 export const TOP_RANK = [0, 1, 2, 3, 4, 5, 6, 7];

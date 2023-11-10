@@ -6,25 +6,31 @@ import ChessGame from "../../Chess/ChessGame/ChessGame";
 import Piece from "../../Chess/Pieces/Piece";
 import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
+import Promotion from "../Promotion/Promotion";
+import { set } from "lodash";
 
 let testPosition: string | undefined;
-// testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - - 0 24";
+// testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
 // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
 // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
 // testPosition = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
+// testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
+// testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
 
 let whitePlayer = new Player("W", true);
-let blackPlayer = new Player("B", true);
+let blackPlayer = new Player("B", false);
 const Chess = new ChessGame("" || testPosition, whitePlayer, blackPlayer);
 
 function Board() {
     const [board, setBoard] = useState(Chess.board);
     const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
-    const [selectedSquare, setSelectedSquare] = useState<any | null>(null);
-    const [enPassant, setEnPassant] = useState(Chess.state.enPassant.index);
+    const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
+    const [enPassant, setEnPassant] = useState(Chess.state.enPassant);
     const [playerTurn, setPlayerTurn] = useState(Chess.playerTurn);
     const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
+    const [lastMove, setLastMove] = useState({});
+    const [showPromotion, setShowPromotion] = useState(false);
 
     useEffect(() => {
         updateUI();
@@ -68,6 +74,17 @@ function Board() {
         selectSquare(index);
     }
 
+    function handlePromotion(pieceId: string) {
+        console.log(pieceId);
+        if (!selectedPiece) return;
+        let move = highlightedMoves.find((move) => {
+            return move.isPromotion && move.promotionPiece === pieceId;
+        });
+
+        if (!move) return;
+        doMove(move);
+    }
+
     function changePlayer() {
         Chess.changePlayer();
     }
@@ -76,11 +93,11 @@ function Board() {
         setBoard([...Chess.board]);
     }
 
-    function updateEnPassant() {
-        if (Chess.state.enPassant.index) {
-            setEnPassant(Chess.state.enPassant.index);
-        }
-    }
+    // function updateEnPassant() {
+    //     if (Chess.state.enPassant.index) {
+    //         setEnPassant(Chess.state.enPassant.index);
+    //     }
+    // }
 
     function selectSquare(index: number) {
         let selectedPiece = Chess.selectPiece(index);
@@ -105,7 +122,13 @@ function Board() {
         let move = highlightedMoves.find((move) => {
             return move.end.index === index;
         });
+
         if (!move) return;
+        if (move.isPromotion) {
+            setShowPromotion(true);
+            return;
+        }
+
         doMove(move);
     }
 
@@ -116,12 +139,19 @@ function Board() {
         changePlayer();
         Chess.simpleEvaluate();
         deselectSquare();
+        setShowPromotion(false);
     }
 
     function isHighlightedMove(index: number | null): boolean {
         if (!selectedPiece) return false;
         return highlightedMoves.some((move) => {
             return move.end.index === index;
+        });
+    }
+
+    function getLastMove() {
+        return Chess.moveHistory.findLast((move) => {
+            return move;
         });
     }
 
@@ -151,21 +181,30 @@ function Board() {
                 selected={piece.selected}
                 handleClick={(piece: number) => handleClick(piece)}
                 highlighted={isHighlightedMove(piece.position.index)}
+                isEnpassant={Chess.state.enPassant !== null && piece.position.index === Chess.state.enPassant.index}
+                lastMove={getLastMove()}
             />
         );
     });
+    let promotion = null;
+    if (showPromotion && selectedPiece !== null) {
+        promotion = <Promotion colour={selectedPiece.colour} handlePromotion={(pieceId: string) => handlePromotion(pieceId)} />;
+    }
 
     return (
-        <div className="center">
-            <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button>
-            <button onClick={() => showWhiteMoves()}>White Moves</button>
-            <button onClick={() => showBlackMovesMoves()}>Black Moves</button>
-            <div className="board-wrapper center">{boardComponent}</div>
-            <p>value: {evaluation}</p>
-            <button onClick={() => changeBlackCpu()}>Change black cpu</button>
-            <button onClick={() => changeWhiteCpu()}>Change white cpu</button>
-            <button onClick={() => undoLastMove()}> Undo last move</button>
-        </div>
+        <>
+            <div className="center">
+                <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button>
+                <button onClick={() => showWhiteMoves()}>White Moves</button>
+                <button onClick={() => showBlackMovesMoves()}>Black Moves</button>
+                <div className="board-wrapper center">{boardComponent}</div>
+                {promotion}
+                <p>value: {evaluation}</p>
+                <button onClick={() => changeBlackCpu()}>Change black cpu</button>
+                <button onClick={() => changeWhiteCpu()}>Change white cpu</button>
+                <button onClick={() => undoLastMove()}> Undo last move</button>
+            </div>
+        </>
     );
 }
 
