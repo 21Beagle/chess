@@ -4,7 +4,7 @@
         {
             "label": "start-dev-server",
             "type": "npm",
-            "script": "start",
+            "script": "dev",
             "isBackground": true,
             "problemMatcher": {
                 "owner": "typescript",
@@ -20,7 +20,7 @@
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": ".*",
-                    "endsPattern": "Files successfully emitted, waiting for typecheck results..."
+                    "endsPattern": "press h to show help"
                 }
             }
         },
