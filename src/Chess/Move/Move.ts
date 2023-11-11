@@ -10,28 +10,28 @@ export default class Move {
     start: Position;
     end: Position;
     piece: Piece;
-    willCreateEnPassant: boolean = false;
+    willCreateEnPassant = false;
     willDestroy: Position[] = [];
-    isAttack: boolean = true;
-    isEnpassantTake: boolean = false;
-    isCastleMove: boolean = false;
+    isAttack = true;
+    isEnpassantTake = false;
+    isCastleMove = false;
     enPassantPositionCreated: Position | null = null;
-    canBeEnpassant: boolean = false;
+    canBeEnpassant = false;
     mustBeFree: Position[] = [];
-    mustBeCapture: boolean = false;
-    canBeCapture: boolean = true;
+    mustBeCapture = false;
+    canBeCapture = true;
     hasToStartAtRank: number | null = null;
-    skipValidate: boolean = false;
+    skipValidate = false;
     changePlayerAfterMove = true;
     extraMoves: Move[] = [];
-    value: number = 0;
+    value = 0;
     endPiece: Piece;
-    pieceCantHaveMoved: boolean = false;
+    pieceCantHaveMoved = false;
     destoryedPieces: Piece[] = [];
     stateBefore: ChessGameState;
-    castleChange: string = "";
+    castleChange = "";
     game: ChessGame;
-    isPromotion: boolean = false;
+    isPromotion = false;
     promotionPiece: string = PIECES.EMPTY.id;
 
     constructor(piece: Piece, end: Position | number, game: ChessGame) {
@@ -68,14 +68,14 @@ export default class Move {
     }
 
     private undoDestroyPositions() {
-        for (let piece of this.destoryedPieces) {
+        for (const piece of this.destoryedPieces) {
             this.game.placePieceAtPosition(piece, piece.position);
         }
         this.destoryedPieces = [];
     }
 
     private constructStateAfter(): ChessGameState {
-        let stateAfter = this.stateBefore.copy();
+        const stateAfter = this.stateBefore.copy();
 
         if (this.castleChange !== "") {
             stateAfter.castle.replace(this.castleChange, "");
@@ -98,7 +98,7 @@ export default class Move {
         return stateAfter;
     }
 
-    private doExtraMoves(realMove: boolean = true): void {
+    private doExtraMoves(realMove = true): void {
         this.extraMoves.forEach((move) => {
             move.do(realMove);
         });
@@ -113,9 +113,9 @@ export default class Move {
 
     private handlePromotion(): void {
         if (this.isPromotion) {
-            let position = this.end.index;
+            const position = this.end.index;
             this.game.destroyPieceAtIndex(position as number);
-            let colour = this.piece.colour;
+            // const colour = this.piece.colour;
             // let piece = Piece.generate(position, this.promotionPiece, colour, this.game);
             // this.game.placePieceAtPosition(piece, this.end);
         }
@@ -132,7 +132,7 @@ export default class Move {
         return MoveValidator.validate(game, this, validateChecks);
     }
 
-    do(realMove: boolean = true): void {
+    do(realMove = true): void {
         this.game.destroyPieceAtPosition(this.start);
         this.game.placePieceAtPosition(this.piece, this.end);
         this.game.state = this.stateAfter;

@@ -1,23 +1,15 @@
 {
     "configurations": [
         {
-            "name": "Launch Edge",
-            "request": "launch",
-            "type": "msedge",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
-            "outFiles": ["${workspaceFolder}/src/**"],
-            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
-        },
-
-        {
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}",
             "outFiles": ["${workspaceFolder}/src/**"],
-            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"],
+            "preLaunchTask": "start-dev-server",
+            "postDebugTask": "postdebugKill"
         }
     ]
 }

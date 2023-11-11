@@ -14,7 +14,7 @@ export default class Queen extends Piece {
     }
 
     generateMoves(game: ChessGame): Move[] {
-        let moves: Move[] = [];
+        const moves: Move[] = [];
         this.directionMoveGenerator(moves, this.directions.forwardLeft, game);
         this.directionMoveGenerator(moves, this.directions.forwardRight, game);
         this.directionMoveGenerator(moves, this.directions.backwardLeft, game);

@@ -2,11 +2,32 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "start-dev-server",
             "type": "npm",
             "script": "start",
-            "problemMatcher": [],
-            "label": "npm: start",
-            "detail": "react-scripts start"
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "typescript",
+                "fileLocation": "relative",
+                "pattern": {
+                    "regexp": "ERROR",
+                    "file": 1,
+                    "location": 2,
+                    "severity": 3,
+                    "code": 4,
+                    "message": 5
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": "Files successfully emitted, waiting for typecheck results..."
+                }
+            }
+        },
+        {
+            "label": "postdebugKill",
+            "type": "process",
+            "command": ["${command:workbench.action.terminal.kill}"]
         }
     ]
 }

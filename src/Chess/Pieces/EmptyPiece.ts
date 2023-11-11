@@ -1,5 +1,4 @@
 import { PIECES } from "../../Consts/Consts";
-import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Piece from "./Piece";
 

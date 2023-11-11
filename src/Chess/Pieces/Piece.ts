@@ -27,10 +27,10 @@ export default class Piece {
     type: PieceType;
     colour: Colour;
     selected: boolean;
-    hasMoved: boolean = false;
-    maxFileDifference: number = 0;
+    hasMoved = false;
+    maxFileDifference = 0;
     private _position: Position;
-    checking: boolean = false;
+    checking = false;
 
     constructor(position: any, colour: Colour) {
         this._position = new Position(position);
@@ -59,42 +59,42 @@ export default class Piece {
     get directions(): Directions {
         if (this.colour.isBlack) {
             return {
-                forward: (scalar: number = 1) => {
+                forward: (scalar = 1) => {
                     const index = this.position.index + scalar * 8;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                backward: (scalar: number = 1) => {
+                backward: (scalar = 1) => {
                     const index = this.position.index - scalar * 8;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                left: (scalar: number = 1) => {
+                left: (scalar = 1) => {
                     const index = this.position.index + scalar;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                right: (scalar: number = 1) => {
+                right: (scalar = 1) => {
                     const index = this.position.index - scalar;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                forwardLeft: (scalar: number = 1) => {
+                forwardLeft: (scalar = 1) => {
                     const index = this.position.index + scalar * 9;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                forwardRight: (scalar: number = 1) => {
+                forwardRight: (scalar = 1) => {
                     const index = this.position.index + scalar * 7;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                backwardLeft: (scalar: number = 1) => {
+                backwardLeft: (scalar = 1) => {
                     const index = this.position.index - scalar * 7;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
                 },
-                backwardRight: (scalar: number = 1) => {
+                backwardRight: (scalar = 1) => {
                     const index = this.position.index - scalar * 9;
                     if (this.position.index === null || !Position.isValidIndex(index)) return null;
                     return new Position(index);
@@ -103,42 +103,42 @@ export default class Piece {
         }
 
         return {
-            forward: (scalar: number = 1) => {
+            forward: (scalar = 1) => {
                 const index = this.position.index - scalar * 8;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            backward: (scalar: number = 1) => {
+            backward: (scalar = 1) => {
                 const index = this.position.index + scalar * 8;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            left: (scalar: number = 1) => {
+            left: (scalar = 1) => {
                 const index = this.position.index - scalar;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            right: (scalar: number = 1) => {
+            right: (scalar = 1) => {
                 const index = this.position.index + scalar;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            forwardLeft: (scalar: number = 1) => {
+            forwardLeft: (scalar = 1) => {
                 const index = this.position.index - scalar * 9;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            forwardRight: (scalar: number = 1) => {
+            forwardRight: (scalar = 1) => {
                 const index = this.position.index - scalar * 7;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            backwardLeft: (scalar: number = 1) => {
+            backwardLeft: (scalar = 1) => {
                 const index = this.position.index + scalar * 7;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
             },
-            backwardRight: (scalar: number = 1) => {
+            backwardRight: (scalar = 1) => {
                 const index = this.position.index + scalar * 9;
                 if (this.position.index === null || !Position.isValidIndex(index)) return null;
                 return new Position(index);
@@ -202,9 +202,9 @@ export default class Piece {
 
     directionMoveGenerator(moves: Move[], direction: (scalar: number) => Position | null, game: ChessGame) {
         for (let i = 1; i <= 8; i++) {
-            let endPosition = direction(i);
+            const endPosition = direction(i);
             if (!endPosition) continue;
-            let move = new Move(this, endPosition, game);
+            const move = new Move(this, endPosition, game);
 
             for (let j = 1; j <= i - 1; j++) {
                 if (!direction(j)) continue;
@@ -213,7 +213,7 @@ export default class Piece {
 
             // if we have a position in the mustBeFree array use the last added, otherwise check this index.
             // this stops the loop if we cross over the edges
-            let lastPositionInIteration: Position = move.mustBeFree.length ? move.mustBeFree[move.mustBeFree.length - 1] : this.position;
+            const lastPositionInIteration: Position = move.mustBeFree.length ? move.mustBeFree[move.mustBeFree.length - 1] : this.position;
 
             if (Position.fileDifference(endPosition, lastPositionInIteration) > 1) {
                 return;
@@ -253,7 +253,7 @@ export default class Piece {
 
     appendMove(game: ChessGame, moves: Move[], position: Position | null) {
         if (position !== null) {
-            let move = new Move(this, position, game);
+            const move = new Move(this, position, game);
             moves.push(move);
         }
     }

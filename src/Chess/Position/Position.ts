@@ -28,18 +28,18 @@ export default class Position {
         }
 
         switch (typeof input) {
-            case "string":
-                this.parseAn(input);
-                break;
-            case "object":
-                this.parsePosition(input);
-                break;
-            case "number":
-                this.parseIndex(input);
-                break;
-            default:
-                console.error("Position type not supported", input, typeof input);
-                break;
+        case "string":
+            this.parseAn(input);
+            break;
+        case "object":
+            this.parsePosition(input);
+            break;
+        case "number":
+            this.parseIndex(input);
+            break;
+        default:
+            console.error("Position type not supported", input, typeof input);
+            break;
         }
     }
 
@@ -199,8 +199,8 @@ export default class Position {
             return "-";
         }
         const fileString = "abcdefgh";
-        let file = index % 8;
-        let rank = 8 - Math.floor(index / 8);
+        const file = index % 8;
+        const rank = 8 - Math.floor(index / 8);
         return fileString[file] + rank;
     }
 
@@ -211,8 +211,8 @@ export default class Position {
             return null;
         }
         rank = 7 - rank;
-        let fileChar = an[0];
-        let file = fileString.indexOf(fileChar);
+        const fileChar = an[0];
+        const file = fileString.indexOf(fileChar);
         if (file === -1) {
             return null;
         }
@@ -230,7 +230,7 @@ export default class Position {
         if (index === null) {
             return null;
         }
-        let rank = 7 - Math.floor(index / 8);
+        const rank = 7 - Math.floor(index / 8);
         return rank;
     }
 
@@ -238,7 +238,7 @@ export default class Position {
         if (index === null) {
             return null;
         }
-        let file = index % 8;
+        const file = index % 8;
         return file;
     }
 

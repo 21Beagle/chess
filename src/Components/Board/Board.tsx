@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch, Component } from "react";
+import React, { useState, useEffect } from "react";
 import "./Board.css";
 
 import Square from "../Square/Square";
@@ -7,7 +7,6 @@ import Piece from "../../Chess/Pieces/Piece";
 import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
 import Promotion from "../Promotion/Promotion";
-import { set } from "lodash";
 import Search from "../../Chess/Search/Search";
 import FEN from "../../Chess/FEN/FEN";
 
@@ -19,8 +18,8 @@ let testPosition: string | undefined;
 // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
 // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
 
-let whitePlayer = new Player("W", true);
-let blackPlayer = new Player("B", true);
+const whitePlayer = new Player("W", true);
+const blackPlayer = new Player("B", true);
 const Chess = new ChessGame("" || testPosition, whitePlayer, blackPlayer);
 
 function Board() {
@@ -28,10 +27,8 @@ function Board() {
     const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
-    const [enPassant, setEnPassant] = useState(Chess.state.enPassant);
     const [playerTurn, setPlayerTurn] = useState(Chess.playerTurn);
     const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
-    const [lastMove, setLastMove] = useState({});
     const [showPromotion, setShowPromotion] = useState(false);
 
     useEffect(() => {
@@ -59,7 +56,7 @@ function Board() {
 
     function handleCpuMove() {
         if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
-            let move = Search.search(Chess);
+            const move = Search.search(Chess);
             doMove(move);
         }
     }
@@ -79,7 +76,7 @@ function Board() {
     function handlePromotion(pieceId: string) {
         console.log(pieceId);
         if (!selectedPiece) return;
-        let move = highlightedMoves.find((move) => {
+        const move = highlightedMoves.find((move) => {
             return move.isPromotion && move.promotionPiece === pieceId;
         });
 
@@ -102,14 +99,14 @@ function Board() {
     // }
 
     function selectSquare(index: number) {
-        let selectedPiece = Chess.selectPiece(index);
+        const selectedPiece = Chess.selectPiece(index);
         if (!selectedPiece) return;
         if (selectedPiece.colour.id !== playerTurn.colour.id) {
             return;
         }
         setSelectedSquare(index);
         setSelectedPiece(selectedPiece);
-        let moves = selectedPiece.moves(Chess, true);
+        const moves = selectedPiece.moves(Chess, true);
         setHighlightedMoves(moves);
         console.log(moves);
     }
@@ -121,7 +118,7 @@ function Board() {
     }
 
     function playerMakeMove(index: number) {
-        let move = highlightedMoves.find((move) => {
+        const move = highlightedMoves.find((move) => {
             return move.end.index === index;
         });
 
@@ -166,7 +163,7 @@ function Board() {
     }
 
     function undoLastMove(): void {
-        let move = Chess.moveHistory.pop();
+        const move = Chess.moveHistory.pop();
         if (!move) return;
         move.undo();
         changePlayer();

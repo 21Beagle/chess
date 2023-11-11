@@ -14,7 +14,7 @@ export default class Rook extends Piece {
     }
 
     generateMoves(game: ChessGame): Move[] {
-        let moves: Move[] = [];
+        const moves: Move[] = [];
         this.directionMoveGenerator(moves, this.directions.forward, game);
         this.directionMoveGenerator(moves, this.directions.backward, game);
         this.directionMoveGenerator(moves, this.directions.left, game);

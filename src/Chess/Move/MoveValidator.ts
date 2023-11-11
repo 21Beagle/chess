@@ -23,7 +23,7 @@ export default class MoveValidator {
     }
     private static isAPromotionValidation(game: ChessGame, move: Move): boolean {
         if (move.piece.isPawn) {
-            let piece = move.piece as Pawn;
+            const piece = move.piece as Pawn;
             return (move.isPromotion && move.end.rank === piece.promotionRank) || (!move.isPromotion && move.end.rank !== piece.promotionRank);
         }
         return true;
@@ -43,14 +43,14 @@ export default class MoveValidator {
     }
 
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
-        let filter = {
+        const filter = {
             colour: move.piece.colour.getOpposite(),
             validateChecks: false,
         };
         move.do(false);
-        let opponentMoves = game.getMoves(filter);
+        const opponentMoves = game.getMoves(filter);
 
-        let isInCheck = !opponentMoves.some((move) => {
+        const isInCheck = !opponentMoves.some((move) => {
             return move.endPiece.isKing && move.endPiece.colour.isEqual(move.piece.colour);
         });
 
@@ -78,7 +78,7 @@ export default class MoveValidator {
 
     private static freePositionsValidation(game: ChessGame, move: Move): boolean {
         return move.mustBeFree.every((position) => {
-            let piece = game.getPieceAtPosition(position);
+            const piece = game.getPieceAtPosition(position);
             return piece.isEmpty;
         });
     }

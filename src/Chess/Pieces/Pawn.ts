@@ -7,7 +7,7 @@ import Position from "../Position/Position";
 import Piece from "./Piece";
 
 export default class Pawn extends Piece {
-    maxFileDifference: number = 1;
+    maxFileDifference = 1;
 
     private PAWN_VALUE_GRID_WHITE = [
         9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 8, 8, 8, 8, 7, 7, 6, 5, 6, 7, 7, 6, 5, 6, 4, 3, 4, 5, 5, 4, 3, 4, 1, 1, 2, 4, 4, 2, 1, 1, 1, 1, 2, 4, 4, 2, 1, 1, 0, 0, 0,
@@ -53,22 +53,22 @@ export default class Pawn extends Piece {
         return moves;
     }
     generatePromotionMoves(game: ChessGame, moves: Move[], direction: (scalar: number) => Position | null): Move[] {
-        let end = direction(1);
+        const end = direction(1);
         if (!end) return [];
 
-        let promoteToQueen = new Move(this, end, game);
+        const promoteToQueen = new Move(this, end, game);
         promoteToQueen.isPromotion = true;
         promoteToQueen.promotionPiece = PIECES.QUEEN.id;
 
-        let promoteToKnight = new Move(this, end, game);
+        const promoteToKnight = new Move(this, end, game);
         promoteToKnight.isPromotion = true;
         promoteToKnight.promotionPiece = PIECES.KNIGHT.id;
 
-        let promoteToBishop = new Move(this, end, game);
+        const promoteToBishop = new Move(this, end, game);
         promoteToBishop.isPromotion = true;
         promoteToBishop.promotionPiece = PIECES.BISHOP.id;
 
-        let promoteToRook = new Move(this, end, game);
+        const promoteToRook = new Move(this, end, game);
         promoteToRook.isPromotion = true;
         promoteToRook.promotionPiece = PIECES.ROOK.id;
 
@@ -81,9 +81,9 @@ export default class Pawn extends Piece {
     }
 
     private generateMoveOneAheadMove(game: ChessGame, moves: Move[]): Move[] {
-        let forwardOneDirection = this.directions.forward(1);
+        const forwardOneDirection = this.directions.forward(1);
         if (forwardOneDirection === null) return moves;
-        let move = new Move(this, forwardOneDirection, game);
+        const move = new Move(this, forwardOneDirection, game);
 
         move.mustBeFree.push(forwardOneDirection);
         move.canBeCapture = false;
@@ -112,10 +112,10 @@ export default class Pawn extends Piece {
     }
 
     private generateTwoAheadMove(game: ChessGame, moves: Move[]): Move[] {
-        let forwardOneDirection = this.directions.forward(1);
-        let forwardTwoDirection = this.directions.forward(2);
+        const forwardOneDirection = this.directions.forward(1);
+        const forwardTwoDirection = this.directions.forward(2);
         if (!forwardOneDirection || !forwardTwoDirection) return moves;
-        let move = new Move(this, forwardTwoDirection, game);
+        const move = new Move(this, forwardTwoDirection, game);
 
         move.hasToStartAtRank = this.startingRank;
         move.mustBeFree.push(forwardOneDirection);

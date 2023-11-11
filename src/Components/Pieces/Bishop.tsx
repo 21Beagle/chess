@@ -1,7 +1,6 @@
 import React from "react";
 import white from "../../Media/StandardPieces/whiteBishop.svg";
 import black from "../../Media/StandardPieces/blackBishop.svg";
-import Colour from "../../Chess/Colour/Colour";
 import { pieceProps } from "./piecePropsType";
 
 function Bishop(props: pieceProps) {

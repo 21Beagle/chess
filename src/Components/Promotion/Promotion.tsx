@@ -1,15 +1,12 @@
-import React, { Component } from "react";
-import Square from "../Square/Square";
-import Queen from "../../Chess/Pieces/Queen";
-import Position from "../../Chess/Position/Position";
+import React from "react";
+
 import Colour from "../../Chess/Colour/Colour";
-import Piece from "../../Chess/Pieces/Piece";
 import PromotionSquare from "../PromotionSquare/PromotionSquare";
 import { PIECES } from "../../Consts/Consts";
 
 type Props = {
     colour: Colour;
-    handlePromotion: Function;
+    handlePromotion: (id: string) => void;
 };
 
 const Promotion = (props: Props) => {

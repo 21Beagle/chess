@@ -16,7 +16,7 @@ type squareProps = {
     index: number;
     piece: Piece;
     highlighted: boolean;
-    handleClick: Function;
+    handleClick: (index: number)=>void;
     selected: boolean;
     position: Position;
     lastMove: Move | undefined;
@@ -48,27 +48,27 @@ function Square(props: squareProps): JSX.Element {
 
     let component;
     switch (props.piece.type.id) {
-        case PIECES.ROOK.id:
-            component = <Rook colour={props.piece.colour} />;
-            break;
-        case PIECES.PAWN.id:
-            component = <Pawn colour={props.piece.colour} />;
-            break;
-        case PIECES.KING.id:
-            component = <King colour={props.piece.colour} />;
-            break;
-        case PIECES.QUEEN.id:
-            component = <Queen colour={props.piece.colour} />;
-            break;
-        case PIECES.KNIGHT.id:
-            component = <Knight colour={props.piece.colour} />;
-            break;
-        case PIECES.BISHOP.id:
-            component = <Bishop colour={props.piece.colour} />;
-            break;
-        default:
-            component = <></>;
-            break;
+    case PIECES.ROOK.id:
+        component = <Rook colour={props.piece.colour} />;
+        break;
+    case PIECES.PAWN.id:
+        component = <Pawn colour={props.piece.colour} />;
+        break;
+    case PIECES.KING.id:
+        component = <King colour={props.piece.colour} />;
+        break;
+    case PIECES.QUEEN.id:
+        component = <Queen colour={props.piece.colour} />;
+        break;
+    case PIECES.KNIGHT.id:
+        component = <Knight colour={props.piece.colour} />;
+        break;
+    case PIECES.BISHOP.id:
+        component = <Bishop colour={props.piece.colour} />;
+        break;
+    default:
+        component = <></>;
+        break;
     }
 
     return (

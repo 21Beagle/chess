@@ -49,21 +49,21 @@ export default class King extends Piece {
             castleChange = "K";
         }
 
-        let castleLongMove = new Move(this, longKingEnd, game);
+        const castleLongMove = new Move(this, longKingEnd, game);
         castleLongMove.isCastleMove = true;
         castleLongMove.isAttack = false;
         castleLongMove.pieceCantHaveMoved = true;
 
-        let castleLongRookMove = new Move(game.getPieceAtPosition(new Position(longRookStart)), longRookEnd, game);
+        const castleLongRookMove = new Move(game.getPieceAtPosition(new Position(longRookStart)), longRookEnd, game);
         castleLongRookMove.changePlayerAfterMove = false;
         castleLongMove.extraMoves.push(castleLongRookMove);
 
-        let castleShortMove = new Move(this, shortKingEnd, game);
+        const castleShortMove = new Move(this, shortKingEnd, game);
         castleShortMove.isCastleMove = true;
         castleShortMove.isAttack = false;
         castleShortMove.pieceCantHaveMoved = true;
 
-        let castleShortRookMove = new Move(game.getPieceAtPosition(new Position(shortRookStart)), shortRookEnd, game);
+        const castleShortRookMove = new Move(game.getPieceAtPosition(new Position(shortRookStart)), shortRookEnd, game);
         castleShortRookMove.changePlayerAfterMove = false;
 
         castleShortMove.extraMoves.push(castleShortRookMove);
