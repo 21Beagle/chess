@@ -1,4 +1,3 @@
-import { moveEmitHelpers } from "typescript";
 import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
@@ -16,7 +15,7 @@ export default class Pawn extends Piece {
 
     private PAWN_VALUE_GRID_BLACK = this.PAWN_VALUE_GRID_WHITE.slice().reverse();
 
-    constructor(position: any, colour: Colour) {
+    constructor(position: Position, colour: Colour) {
         super(position, colour);
         this.type = PIECES.PAWN;
     }
@@ -103,6 +102,7 @@ export default class Pawn extends Piece {
         this.appendMove(game, attackMoves, this.directions.forwardRight(1));
         attackMoves = attackMoves.map((move) => {
             move.mustBeCapture = true;
+            move.canBeEnpassant = true;
             return move;
         });
 

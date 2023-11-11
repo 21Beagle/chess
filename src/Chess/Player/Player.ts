@@ -21,6 +21,10 @@ export default class Player {
         return !this._isHuman;
     }
 
+    set isCpu(value: boolean) {
+        this._isHuman = !value;
+    }
+
     get colour(): Colour {
         return this._colour;
     }

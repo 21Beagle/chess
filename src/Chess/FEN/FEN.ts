@@ -6,7 +6,6 @@ import ChessGameState from "../ChessGame/ChessGameState";
 import Colour from "../Colour/Colour";
 import Piece from "../Pieces/Piece";
 import PieceFactory from "../Pieces/PieceFactory";
-import Player from "../Player/Player";
 import Position from "../Position/Position";
 
 export default class FEN {
@@ -19,7 +18,7 @@ export default class FEN {
     fullMoveClock: string;
 
     constructor(inputFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-        let splitFEN = inputFEN.split(" ");
+        const splitFEN = inputFEN.split(" ");
         this.initialString = inputFEN;
         this.board = splitFEN[0];
         this.playerTurn = splitFEN[1];
@@ -30,8 +29,8 @@ export default class FEN {
     }
 
     static ParseFEN(inputFEN: string): ChessGameComposite {
-        let fen = new FEN(inputFEN);
-        let game = {} as ChessGameComposite;
+        const fen = new FEN(inputFEN);
+        const game = {} as ChessGameComposite;
         game.board = FEN.parseBoard(fen);
 
         const castle = FEN.parseCastleStateFEN(fen);
@@ -45,20 +44,20 @@ export default class FEN {
     }
 
     private static parseBoard(fen: FEN): Piece[] {
-        let board = [] as Piece[];
-        let fenChars = fen.board.split("");
+        const board = [] as Piece[];
+        const fenChars = fen.board.split("");
         let position = 0;
         fenChars.forEach((char) => {
             if (char === "/") return;
             if (isNumeric(char)) {
-                let number = parseFloat(char);
+                const number = parseFloat(char);
                 for (let i = 0; i < number; i++) {
                     board[position] = PieceFactory.generate(position, PIECES.EMPTY.id, Colour.Null);
                     position++;
                 }
                 return;
             }
-            let colour = isCapital(char) ? Colour.White : Colour.Black;
+            const colour = isCapital(char) ? Colour.White : Colour.Black;
             board[position] = PieceFactory.generate(position, char.toLocaleUpperCase(), colour);
             position++;
         });
@@ -80,7 +79,7 @@ export default class FEN {
     }
 
     static generateFEN(game: ChessGame): string {
-        let fen = new FEN();
+        const fen = new FEN();
         fen.board = FEN.generateBoardFEN(game);
         fen.playerTurn = FEN.generatePlayerTurnFEN(game);
         fen.castle = FEN.generateCastleStateFEN(game);
@@ -95,7 +94,7 @@ export default class FEN {
         let fen = "";
         let emptyCount = 0;
         for (let i = 0; i < 64; i++) {
-            let piece = game.board[i];
+            const piece = game.board[i];
             if (piece.type.id === PIECES.EMPTY.id) {
                 emptyCount++;
             } else {
@@ -103,7 +102,7 @@ export default class FEN {
                     fen += emptyCount;
                     emptyCount = 0;
                 }
-                fen += piece.type.id;
+                fen += piece.isWhite ?piece.type.id : piece.type.id.toLowerCase();
             }
             if (i % 8 === 7) {
                 if (emptyCount > 0) {

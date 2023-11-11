@@ -4,7 +4,7 @@ import Move from "../Move/Move";
 import Player from "../Player/Player";
 
 export default class Search {
-    static search(game: ChessGame, depth: number = 3): Move {
+     static search(game: ChessGame, depth: number = 3): Move {
         return Search.searchForPlayer(game, game.playerTurn, depth);
     }
 
@@ -55,7 +55,6 @@ export default class Search {
             bestMove.value
         );
 
-        game.updateUI();
         return bestMove;
     }
 

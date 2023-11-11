@@ -6,10 +6,15 @@
             "type": "chrome",
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}",
-            "outFiles": ["${workspaceFolder}/src/**"],
-            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"],
+            "outFiles": [
+                "${workspaceFolder}/src/**"
+            ],
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*.js",
+                "<node_internals>/**/*.js"
+            ],
             "preLaunchTask": "start-dev-server",
-            "postDebugTask": "postdebugKill"
+            "postDebugTask": "postdebugKill",
         }
     ]
 }

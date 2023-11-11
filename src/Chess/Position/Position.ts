@@ -206,16 +206,20 @@ export default class Position {
 
     static anToIndex(an: string): number | null {
         const fileString = "abcdefgh";
-        let rank = parseInt(an[1]) + 1;
-        if (rank < 0 || rank > 7) {
+        const file =  fileString.indexOf(an[0]);
+        const rank = 8 - Number(an[1]);
+        
+
+        // a1 = 0
+        // h1 = 63
+
+        if (file === -1 || rank === -1) {
             return null;
         }
-        rank = 7 - rank;
-        const fileChar = an[0];
-        const file = fileString.indexOf(fileChar);
-        if (file === -1) {
-            return null;
-        }
+
+
+
+
         return rank + file * 8;
     }
 

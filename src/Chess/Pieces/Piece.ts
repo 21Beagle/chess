@@ -3,14 +3,9 @@ import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Position from "../Position/Position";
-import EmptySquare from "./EmptyPiece";
-import Bishop from "./Bishop";
-import King from "./King";
-import Knight from "./Kinght";
-import Pawn from "./Pawn";
+
 import PieceType from "./PieceType";
-import Queen from "./Queen";
-import Rook from "./Rook";
+
 
 type Directions = {
     forward: (scalar: number) => Position | null;
@@ -32,7 +27,7 @@ export default class Piece {
     private _position: Position;
     checking = false;
 
-    constructor(position: any, colour: Colour) {
+    constructor(position: Position | number | string, colour: Colour) {
         this._position = new Position(position);
         this.colour = colour;
         this.selected = false;
@@ -189,6 +184,7 @@ export default class Piece {
     }
 
     generateMoves(game: ChessGame): Array<Move> {
+        console.log(game)
         return [];
     }
 

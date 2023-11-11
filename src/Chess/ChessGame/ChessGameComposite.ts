@@ -7,5 +7,5 @@ export type ChessGameComposite = {
     FEN: FEN;
     board: Piece[];
     state: ChessGameState;
-    playerTurn: Player;
+    playerTurn: Player
 };

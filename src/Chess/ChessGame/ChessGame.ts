@@ -22,9 +22,6 @@ export default class ChessGame {
     blackPlayer: Player;
     _playerTurn: Player;
     state: ChessGameState;
-    updateUI: () => void = () => {
-        console.error("no update function attached to updateUI");
-    };
 
     constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
@@ -121,7 +118,7 @@ export default class ChessGame {
     }
 
     removeMoveFromHistory(move: Move): void {
-        var index = this.moveHistory.indexOf(move);
+        const index = this.moveHistory.indexOf(move);
         if (index > -1) {
             this.moveHistory.splice(index, 1);
         }
@@ -133,7 +130,7 @@ export default class ChessGame {
 
     getMoves(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
-        let validateChecks = filter.validateChecks;
+        const validateChecks = filter.validateChecks;
         this.board.forEach((piece) => {
             if (!filter) {
                 allMoves = allMoves.concat(piece.moves(this, validateChecks));
@@ -151,7 +148,7 @@ export default class ChessGame {
 
     simpleEvaluate(): number {
         let result = 0;
-        for (let piece of this.board) {
+        for (const piece of this.board) {
             if (piece.isBlack) {
                 result -= piece.type.value;
                 result -= piece.positionalValue(piece.position);

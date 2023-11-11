@@ -1,6 +1,4 @@
-import Colour from "../Chess/Colour/Colour";
 import PieceType from "../Chess/Pieces/PieceType";
-import Position from "../Chess/Position/Position";
 
 export const PIECES = {
     PAWN: new PieceType("Pawn", "P", 1),

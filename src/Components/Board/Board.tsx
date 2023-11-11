@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import useSound from "use-sound";
 import "./Board.css";
 
 import Square from "../Square/Square";
@@ -10,19 +11,29 @@ import Promotion from "../Promotion/Promotion";
 import Search from "../../Chess/Search/Search";
 import FEN from "../../Chess/FEN/FEN";
 
-let testPosition: string | undefined;
-// testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
-// testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
-// testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
-// testPosition = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
-// testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
-// testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
+import moveSound from "../../Media/Sounds/move.mp3"; 
+import takeSound from "../../Media/Sounds/take.mp3"; 
 
-const whitePlayer = new Player("W", true);
-const blackPlayer = new Player("B", true);
-const Chess = new ChessGame("" || testPosition, whitePlayer, blackPlayer);
+
+const white = new Player("W", true)
+const black = new Player("B", true)
 
 function Board() {
+
+    const testPosition: string | undefined = undefined;
+    // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
+    // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
+    // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
+    // testPosition = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
+    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
+    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
+    // testPosition = "rnbqkbnr/p2ppppp/8/1ppP4/8/8/PPP1PPPP/RNBQKBNR W KQkq c6 4 3"
+
+
+    const [whitePlayerIsCpu, setWhitePlayerIsCpu] = useState(white.isCpu);
+    const [blackPlayerIsCpu, setBlackPlayerIsCpu] = useState(black.isCpu);
+
+    const Chess = useRef(new ChessGame("" || testPosition, white, black)).current;
     const [board, setBoard] = useState(Chess.board);
     const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
@@ -31,27 +42,38 @@ function Board() {
     const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
     const [showPromotion, setShowPromotion] = useState(false);
 
-    useEffect(() => {
-        updateUI();
+    const [playMove] = useSound(moveSound);
+    const [playTake] = useSound(takeSound);
+    
+    
+    if (Chess.playerTurn.isCpu) {
         handleCpuMove();
-    }, [board, playerTurn]);
+    }
+    
+    const updateUI = useCallback((board:Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
+        setBoard(board);
+        setEvaluation(Chess.simpleEvaluate());
+        setPlayerTurn(()=>playerTurn);
+        setWhitePlayerIsCpu(()=>whiteIsCpu);
+        setBlackPlayerIsCpu(()=>blackIsCpu);
+    }, [Chess])
+    
 
     useEffect(() => {
-        Chess.updateUI = updateUI;
-    }, []);
+        updateUI(Chess.board, Chess.playerTurn, Chess.whitePlayer.isCpu, Chess.blackPlayer.isCpu);
+    }, [Chess, updateUI, Chess.board, Chess.playerTurn, Chess.whitePlayer.isCpu, Chess.blackPlayer.isCpu]);
 
-    function updateUI() {
-        setBoard(Chess.board);
-        setEvaluation(Chess.simpleEvaluate());
-        setPlayerTurn(Chess.playerTurn);
-    }
 
     function changeWhiteCpu() {
         Chess.whitePlayer.isHuman = !Chess.whitePlayer.isHuman;
+        setWhitePlayerIsCpu(()=>Chess.whitePlayer.isCpu);
+        setBlackPlayerIsCpu(()=>Chess.blackPlayer.isCpu);
     }
 
     function changeBlackCpu() {
-        Chess.whitePlayer.isHuman = !Chess.whitePlayer.isHuman;
+        Chess.blackPlayer.isHuman = !Chess.blackPlayer.isHuman;
+        setWhitePlayerIsCpu(()=>Chess.whitePlayer.isCpu);
+        setBlackPlayerIsCpu(()=>Chess.blackPlayer.isCpu);
     }
 
     function handleCpuMove() {
@@ -92,11 +114,6 @@ function Board() {
         setBoard([...Chess.board]);
     }
 
-    // function updateEnPassant() {
-    //     if (Chess.state.enPassant.index) {
-    //         setEnPassant(Chess.state.enPassant.index);
-    //     }
-    // }
 
     function selectSquare(index: number) {
         const selectedPiece = Chess.selectPiece(index);
@@ -139,6 +156,16 @@ function Board() {
         Chess.simpleEvaluate();
         deselectSquare();
         setShowPromotion(false);
+        handleSound(move);
+
+    }
+
+    function handleSound(move: Move) {
+        if (move.isCapture) {
+            playTake();
+        } else {
+            playMove();
+        }
     }
 
     function isHighlightedMove(index: number | null): boolean {
@@ -149,17 +176,17 @@ function Board() {
     }
 
     function getLastMove() {
-        return Chess.moveHistory.findLast((move) => {
+        return Chess.moveHistory.findLast((move:Move) => {
             return move;
         });
     }
 
     function showWhiteMoves(): void {
-        Search.searchForPlayer(Chess, whitePlayer);
+        Search.searchForPlayer(Chess, white);
     }
 
     function showBlackMovesMoves(): void {
-        Search.searchForPlayer(Chess, blackPlayer);
+        Search.searchForPlayer(Chess, black);
     }
 
     function undoLastMove(): void {
@@ -199,8 +226,8 @@ function Board() {
                 <div className="board-wrapper center">{boardComponent}</div>
                 {promotion}
                 <p>value: {evaluation}</p>
-                <button onClick={() => changeBlackCpu()}>Change black cpu</button>
-                <button onClick={() => changeWhiteCpu()}>Change white cpu</button>
+                Black play cpu: <input type="checkbox" checked={blackPlayerIsCpu} onChange={() => changeBlackCpu()}></input>
+                White player cpu: <input type="checkbox" checked={whitePlayerIsCpu} onChange={() => changeWhiteCpu()}></input>
                 <button onClick={() => undoLastMove()}> Undo last move</button>
                 <p> {FEN.generateFEN(Chess)}</p>
             </div>
