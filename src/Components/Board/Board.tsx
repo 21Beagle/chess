@@ -8,6 +8,8 @@ import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
 import Promotion from "../Promotion/Promotion";
 import { set } from "lodash";
+import Search from "../../Chess/Search/Search";
+import FEN from "../../Chess/FEN/FEN";
 
 let testPosition: string | undefined;
 // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
@@ -18,7 +20,7 @@ let testPosition: string | undefined;
 // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
 
 let whitePlayer = new Player("W", true);
-let blackPlayer = new Player("B", false);
+let blackPlayer = new Player("B", true);
 const Chess = new ChessGame("" || testPosition, whitePlayer, blackPlayer);
 
 function Board() {
@@ -57,7 +59,7 @@ function Board() {
 
     function handleCpuMove() {
         if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
-            let move = Chess.pickBestMove(Chess.playerTurn);
+            let move = Search.search(Chess);
             doMove(move);
         }
     }
@@ -156,11 +158,11 @@ function Board() {
     }
 
     function showWhiteMoves(): void {
-        Chess.pickBestMove(whitePlayer);
+        Search.searchForPlayer(Chess, whitePlayer);
     }
 
     function showBlackMovesMoves(): void {
-        Chess.pickBestMove(blackPlayer);
+        Search.searchForPlayer(Chess, blackPlayer);
     }
 
     function undoLastMove(): void {
@@ -203,6 +205,7 @@ function Board() {
                 <button onClick={() => changeBlackCpu()}>Change black cpu</button>
                 <button onClick={() => changeWhiteCpu()}>Change white cpu</button>
                 <button onClick={() => undoLastMove()}> Undo last move</button>
+                <p> {FEN.generateFEN(Chess)}</p>
             </div>
         </>
     );

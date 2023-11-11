@@ -185,6 +185,10 @@ export default class Position {
         return this.index === position.index;
     }
 
+    copy(): Position {
+        return new Position(this);
+    }
+
     static fileDifference(start: Position, end: Position) {
         if (start.file === null || end.file === null) return Infinity;
         return Math.abs(start.file - end.file);

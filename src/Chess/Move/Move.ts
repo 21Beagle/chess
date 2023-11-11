@@ -29,7 +29,6 @@ export default class Move {
     pieceCantHaveMoved: boolean = false;
     destoryedPieces: Piece[] = [];
     stateBefore: ChessGameState;
-    _stateAfter: ChessGameState;
     castleChange: string = "";
     game: ChessGame;
     isPromotion: boolean = false;
@@ -42,7 +41,6 @@ export default class Move {
         this.game = game;
         this.endPiece = game.getPieceAtPosition(this.end);
         this.stateBefore = game.state.copy();
-        this._stateAfter = game.state.copy();
     }
 
     get stateAfter(): ChessGameState {
@@ -53,7 +51,7 @@ export default class Move {
         return this.endPiece.type.value + this.piece.positionalValue(this.end);
     }
 
-    get moveIsCapture(): boolean {
+    get isCapture(): boolean {
         return Colour.areDifferentColourAndNotNull(this.piece.colour, this.endPiece.colour);
     }
 
@@ -77,15 +75,27 @@ export default class Move {
     }
 
     private constructStateAfter(): ChessGameState {
+        let stateAfter = this.stateBefore.copy();
+
         if (this.castleChange !== "") {
-            this._stateAfter.castle.replace(this.castleChange, "");
+            stateAfter.castle.replace(this.castleChange, "");
         }
         if (this.enPassantPositionCreated !== null) {
-            this._stateAfter.enPassant = this.enPassantPositionCreated;
+            stateAfter.enPassant = this.enPassantPositionCreated;
         } else {
-            this._stateAfter.enPassant = null;
+            stateAfter.enPassant = null;
         }
-        return this._stateAfter;
+
+        if (this.isCapture) {
+            stateAfter.halfMoveClock = 0;
+        }
+
+        stateAfter.halfMoveClock++;
+        if (this.piece.colour.isBlack) {
+            stateAfter.fullMoveClock++;
+        }
+
+        return stateAfter;
     }
 
     private doExtraMoves(realMove: boolean = true): void {
@@ -125,21 +135,23 @@ export default class Move {
     do(realMove: boolean = true): void {
         this.game.destroyPieceAtPosition(this.start);
         this.game.placePieceAtPosition(this.piece, this.end);
-        this.game.state.enPassant = this.stateAfter.enPassant;
-        this.game.state.castle = this.stateAfter.castle;
+        this.game.state = this.stateAfter;
         this.destroyPositions();
         this.handlePromotion();
         this.doExtraMoves(realMove);
         if (realMove) {
             this.game.moveHistory.push(this);
+            if (!this.isCapture) {
+                return;
+            }
+            this.game.state.halfMoveClock = 0;
         }
     }
 
     undo(): void {
         this.game.placePieceAtPosition(this.piece, this.start);
         this.game.placePieceAtPosition(this.endPiece, this.end);
-        this.game.state.enPassant = this.stateBefore.enPassant;
-        this.game.state.castle = this.stateBefore.castle;
+        this.game.state = this.stateBefore;
         this.undoDestroyPositions();
         this.undoPromotion();
         this.undoExtraMoves();

@@ -1,13 +1,13 @@
 export default class Colour {
     id: string;
-    private whiteId: string = "W";
-    private blackId: string = "B";
-    private blackName: string = "Black";
-    private whiteName: string = "White";
-    private nullId: string = "";
-    private static _black: Colour = new Colour("B");
-    private static _white: Colour = new Colour("W");
-    private static _null: Colour = new Colour("");
+    private readonly whiteId: string = "W";
+    private readonly blackId: string = "B";
+    private readonly blackName: string = "Black";
+    private readonly whiteName: string = "White";
+    private readonly nullId: string = "";
+    private static readonly _black: Colour = new Colour("B");
+    private static readonly _white: Colour = new Colour("W");
+    private static readonly _null: Colour = new Colour("");
     constructor(id: string) {
         this.id = id;
     }
@@ -41,6 +41,10 @@ export default class Colour {
     getOpposite() {
         if (this.id === this.nullId) return Colour.Null;
         return this.isBlack ? new Colour(this.whiteId) : new Colour(this.blackId);
+    }
+
+    copy(): Colour {
+        return new Colour(this.id);
     }
 
     static get Black(): Colour {

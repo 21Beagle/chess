@@ -61,7 +61,7 @@ export default class MoveValidator {
     private static isACaptureValidation(game: ChessGame, move: Move): boolean {
         if (move.endPiece.colour.isEqual(move.piece.colour)) return false;
         if (!move.mustBeCapture) return true;
-        if (move.moveIsCapture) return true;
+        if (move.isCapture) return true;
 
         if (game.state.enPassant !== null && move.canBeEnpassant && move.piece.isPawn) {
             move.isEnpassantTake = game.state.enPassant.isEqual(move.end);
