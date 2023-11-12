@@ -82,7 +82,7 @@ export default class King extends Piece {
         return [castleLongMove, castleShortMove];
     }
 
-    generateMoves(game: ChessGame): Move[] {
+    _generateMoves(game: ChessGame): Move[] {
         let moves: Move[] = [];
 
         // directional moves

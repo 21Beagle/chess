@@ -13,7 +13,7 @@ export default class Queen extends Piece {
         this.maxFileDifference = 8;
     }
 
-    generateMoves(game: ChessGame): Move[] {
+    _generateMoves(game: ChessGame): Move[] {
         const moves: Move[] = [];
         this.directionMoveGenerator(moves, this.directions.forwardLeft, game);
         this.directionMoveGenerator(moves, this.directions.forwardRight, game);

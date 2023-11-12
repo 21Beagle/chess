@@ -7,4 +7,5 @@ export default class EmptySquare extends Piece {
         super(position, Colour.Null);
         this.type = PIECES.EMPTY;
     }
+
 }

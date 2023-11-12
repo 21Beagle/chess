@@ -5,6 +5,7 @@ import Colour from "../Colour/Colour";
 import Position from "../Position/Position";
 import MoveValidator from "./MoveValidator";
 import ChessGameState from "../ChessGame/ChessGameState";
+import MovesCache from "../MoveCache/MoveCache";
 
 export default class Move {
     start: Position;
@@ -34,13 +35,16 @@ export default class Move {
     isPromotion = false;
     promotionPiece: string = PIECES.EMPTY.id;
 
+    stateId: string;
+
     constructor(piece: Piece, end: Position | number, game: ChessGame) {
         this.start = new Position(piece.position);
         this.end = new Position(end);
         this.piece = piece;
         this.game = game;
         this.endPiece = game.getPieceAtPosition(this.end);
-        this.stateBefore = game.state.copy();
+        this.stateBefore = game.state.copy(true);
+        this.stateId = game.state.id;
     }
 
     get stateAfter(): ChessGameState {
@@ -141,10 +145,7 @@ export default class Move {
         this.doExtraMoves(realMove);
         if (realMove) {
             this.game.moveHistory.push(this);
-            if (!this.isCapture) {
-                return;
-            }
-            this.game.state.halfMoveClock = 0;
+            MovesCache.clearCache()
         }
     }
 

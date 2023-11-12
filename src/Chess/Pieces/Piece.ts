@@ -2,9 +2,12 @@ import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
+import MovesCache from "../MoveCache/MoveCache";
 import Position from "../Position/Position";
 
 import PieceType from "./PieceType";
+
+import { v4 as uuidv4 } from 'uuid';
 
 
 type Directions = {
@@ -27,11 +30,18 @@ export default class Piece {
     private _position: Position;
     checking = false;
 
+    private _moves: Array<Move> = [];
+
+    id: string;
+
+    private moveGeneratedForStateId: string | null = null;
+
     constructor(position: Position | number | string, colour: Colour) {
         this._position = new Position(position);
         this.colour = colour;
         this.selected = false;
         this.type = PIECES.NULL;
+        this.id = uuidv4();
     }
 
     get valueGrid() {
@@ -141,10 +151,32 @@ export default class Piece {
         };
     }
 
-    moves(game: ChessGame, validateChecks: boolean): Array<Move> {
-        return this.generateMoves(game).filter((move) => {
+    get moves(): Array<Move> {
+        return this._moves;
+    }
+
+    generateMoves(game: ChessGame, validateChecks: boolean): Array<Move> {
+        const result = MovesCache.getMoves(this.id, game.state.id);
+
+        if (result.result) {
+            console.log("Using cached moves");
+            return result.moves;
+        }
+
+
+
+        const moves = this._generateMoves(game).filter((move) => {
             return move.validate(game, validateChecks);
         });
+
+
+
+        MovesCache.cacheMoves(this.id, game.state.id, moves);
+
+
+
+
+        return moves;
     }
 
     get isBlack(): boolean {
@@ -183,8 +215,8 @@ export default class Piece {
         return this.type.id === PIECES.QUEEN.id;
     }
 
-    generateMoves(game: ChessGame): Array<Move> {
-        console.log(game)
+    _generateMoves(game: ChessGame): Array<Move> {
+        console.log(this.type.name, game.state.id)
         return [];
     }
 
@@ -254,3 +286,5 @@ export default class Piece {
         }
     }
 }
+
+

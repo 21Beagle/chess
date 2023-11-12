@@ -38,7 +38,7 @@ export default class Colour {
         return Colour.areSameColour(this, colour);
     }
 
-    getOpposite() {
+    get opposite() {
         if (this.id === this.nullId) return Colour.Null;
         return this.isBlack ? new Colour(this.whiteId) : new Colour(this.blackId);
     }

@@ -39,7 +39,7 @@ export default class Pawn extends Piece {
         return this.position.rank === this.startingRank;
     }
 
-    generateMoves(game: ChessGame): Move[] {
+    _generateMoves(game: ChessGame): Move[] {
         let moves = [] as Move[];
 
         // check captures

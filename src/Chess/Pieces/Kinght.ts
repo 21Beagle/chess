@@ -32,7 +32,7 @@ export default class Knight extends Piece {
         return [10, -10, 17, -17, 15, -15, 6, -6];
     }
 
-    generateMoves(game: ChessGame): Move[] {
+    _generateMoves(game: ChessGame): Move[] {
         const moves: Move[] = [];
         this.knightEndPositionShift.forEach((shiftIndex) => {
             const endIndex = this.position.index + shiftIndex;

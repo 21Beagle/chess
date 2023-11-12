@@ -39,6 +39,8 @@ export default class Search {
             if ((isMaximizingPlayer && bestValue >= beta) || (!isMaximizingPlayer && bestValue <= alpha)) {
                 break;
             }
+
+            console.log(moves.length - moves.indexOf(move), "moves left");
         }
 
         if (bestMove === undefined) {

@@ -13,7 +13,7 @@ export default class Rook extends Piece {
         this.maxFileDifference = 7;
     }
 
-    generateMoves(game: ChessGame): Move[] {
+    _generateMoves(game: ChessGame): Move[] {
         const moves: Move[] = [];
         this.directionMoveGenerator(moves, this.directions.forward, game);
         this.directionMoveGenerator(moves, this.directions.backward, game);

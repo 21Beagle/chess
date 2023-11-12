@@ -44,7 +44,7 @@ export default class MoveValidator {
 
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
         const filter = {
-            colour: move.piece.colour.getOpposite(),
+            colour: move.piece.colour.opposite,
             validateChecks: false,
         };
         move.do(false);

@@ -11,6 +11,8 @@ import Promotion from "../Promotion/Promotion";
 import Search from "../../Chess/Search/Search";
 import FEN from "../../Chess/FEN/FEN";
 
+import MovesCache from "../../Chess/MoveCache/MoveCache";
+
 import moveSound from "../../Media/Sounds/move.mp3"; 
 import takeSound from "../../Media/Sounds/take.mp3"; 
 
@@ -78,7 +80,7 @@ function Board() {
 
     function handleCpuMove() {
         if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
-            const move = Search.search(Chess);
+            const move = Search.search(Chess, 2);
             doMove(move);
         }
     }
@@ -123,7 +125,7 @@ function Board() {
         }
         setSelectedSquare(index);
         setSelectedPiece(selectedPiece);
-        const moves = selectedPiece.moves(Chess, true);
+        const moves = selectedPiece.generateMoves(Chess, true, true);
         setHighlightedMoves(moves);
         console.log(moves);
     }
@@ -229,6 +231,7 @@ function Board() {
                 Black play cpu: <input type="checkbox" checked={blackPlayerIsCpu} onChange={() => changeBlackCpu()}></input>
                 White player cpu: <input type="checkbox" checked={whitePlayerIsCpu} onChange={() => changeWhiteCpu()}></input>
                 <button onClick={() => undoLastMove()}> Undo last move</button>
+                <button onClick={() => console.log(MovesCache.cache)}>Moves Cache</button>
                 <p> {FEN.generateFEN(Chess)}</p>
             </div>
         </>

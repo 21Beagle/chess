@@ -7,6 +7,7 @@ import Colour from "../Colour/Colour";
 import Player from "../Player/Player";
 import ChessGameState from "./ChessGameState";
 
+
 type filterMoves = {
     colour: Colour | undefined;
     validateChecks: boolean;
@@ -23,6 +24,7 @@ export default class ChessGame {
     _playerTurn: Player;
     state: ChessGameState;
 
+    
     constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
@@ -133,7 +135,7 @@ export default class ChessGame {
         const validateChecks = filter.validateChecks;
         this.board.forEach((piece) => {
             if (!filter) {
-                allMoves = allMoves.concat(piece.moves(this, validateChecks));
+                allMoves = allMoves.concat(piece.generateMoves(this, validateChecks));
                 return;
             }
 
@@ -141,7 +143,7 @@ export default class ChessGame {
                 return;
             }
 
-            allMoves = allMoves.concat(piece.moves(this, validateChecks));
+            allMoves = allMoves.concat(piece.generateMoves(this, validateChecks));
         }, this);
         return allMoves;
     }
@@ -149,6 +151,8 @@ export default class ChessGame {
     simpleEvaluate(): number {
         let result = 0;
         for (const piece of this.board) {
+            if (piece.isEmpty) continue;
+
             if (piece.isBlack) {
                 result -= piece.type.value;
                 result -= piece.positionalValue(piece.position);
@@ -156,6 +160,8 @@ export default class ChessGame {
                 result += piece.type.value;
                 result += piece.positionalValue(piece.position);
             }
+
+            piece.generateMoves(this, false);
         }
 
         return result;
