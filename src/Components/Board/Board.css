@@ -7,11 +7,14 @@
     aspect-ratio: 1/1;
     background-color: black;
     max-width: 640px;
+    border-right: var(--board-border) 10px solid;
+
+
 }
 
 .thick-border {
-    border: var(--board-border) 8px solid;
-    border: var(--board-border) 8px solid;
+    border: var(--board-border) 16px solid;
+    border-radius: 8px;
 }
 
 .promotion {
@@ -33,6 +36,8 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    width: max-content;
+
 }
 
 .information-wrapper {
@@ -93,11 +98,11 @@
 }
 
 .eval-outer {
+    position: relative;
     display: flex;
-    width: 80px;
+    width: 50px;
     background-color: white;
-    border: var(--board-border) 8px solid;
-    border-right: 0;
+    border-right: var(--board-border) 10px solid;
 
 }
 
@@ -109,4 +114,13 @@
     border-right: 0;
     transition: max-height 2s ease-out;
 
+}
+
+.eval-number {
+    position: absolute;
+    display: block;
+    text-align: center;
+    top: 50%;
+    mix-blend-mode: difference;
+    width: 50px;
 }

@@ -232,11 +232,20 @@ function Board() {
     })
 
     function getEvalStyle(evaluation: number): React.CSSProperties {
-        const m = -2;
-        const b = 50;
-        const linearEquation = m * evaluation + b;
+        // very simple linear equation to get the height of the evaluation bar as a percentage
+
+        // 13 is a good number her
+        // if you are winning by 13 pawns you are winning by a lot and will probably win the game
+        const maxEval = 13;
+
+
         const oneHundredPercent = 100;
         const zeroPercent = 0;
+        const fiftyPercent = 50;
+
+        const m = (fiftyPercent - zeroPercent) / (zeroPercent - maxEval);
+        const b = fiftyPercent;
+        const linearEquation = m * evaluation + b;
         const evalHeight = Math.min(Math.max(linearEquation, zeroPercent), oneHundredPercent);
 
         return {
@@ -250,15 +259,15 @@ function Board() {
 
 
     return (
-        <div className="game-wrapper">
+        <div className="game-wrapper thick-border center">
             {promotion}
             <div className="eval-outer">
                 <div className="eval-inner" style={evalStyle}>
-                    {evaluation.toFixed(2)}
+                    <div className="eval-number">{evaluation.toFixed(2)}</div>
                 </div>
             </div >
-            <div className="board-wrapper thick-border">{boardComponent}</div>
-            <div className="information-wrapper thick-border test1" >
+            <div className="board-wrapper ">{boardComponent}</div>
+            <div className="information-wrapper" >
                 <header>
                     <h3>info</h3> <button>cog</button>
                 </header>
