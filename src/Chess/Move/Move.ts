@@ -6,6 +6,7 @@ import Position from "../Position/Position";
 import MoveValidator from "./MoveValidator";
 import ChessGameState from "../ChessGame/ChessGameState";
 import MovesCache from "../MoveCache/MoveCache";
+import PieceFactory from "../Pieces/PieceFactory";
 
 export default class Move {
     start: Position;
@@ -119,9 +120,9 @@ export default class Move {
         if (this.isPromotion) {
             const position = this.end.index;
             this.game.destroyPieceAtIndex(position as number);
-            // const colour = this.piece.colour;
-            // let piece = Piece.generate(position, this.promotionPiece, colour, this.game);
-            // this.game.placePieceAtPosition(piece, this.end);
+            const colour = this.piece.colour;
+            const piece = PieceFactory.generate(position, this.promotionPiece, colour);
+            this.game.placePieceAtPosition(piece, this.end);
         }
     }
 
@@ -156,5 +157,17 @@ export default class Move {
         this.undoDestroyPositions();
         this.undoPromotion();
         this.undoExtraMoves();
+    }
+
+
+
+    get algebraicNotation(): string {
+        const pieceId = this.piece.type.id;
+        const end = this.end.an;
+        const start = this.start.an;
+        const isCapture = this.isCapture ? "x" : "";
+        const promotion = this.isPromotion ? `=${this.promotionPiece}` : "";
+        const castle = this.isCastleMove ? "O-O" : "";
+        return `${pieceId}${start}${isCapture}${end}${promotion}${castle}`;
     }
 }

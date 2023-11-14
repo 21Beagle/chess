@@ -4,6 +4,11 @@ import black from "../../Media/StandardPieces/blackBishop.svg";
 import { pieceProps } from "./piecePropsType";
 
 function Bishop(props: pieceProps) {
+    let className = "piece-icon";
+    if (props.selected) {
+        className += " selected";
+    }
+
     let iconSrc;
     let alt;
     if (props.colour.isWhite) {
@@ -13,7 +18,7 @@ function Bishop(props: pieceProps) {
         iconSrc = black;
         alt = "Black Bishop";
     }
-    return <img className="piece-icon" src={iconSrc} alt={alt} width="auto" height="auto"></img>;
+    return <img className={className} src={iconSrc} alt={alt} width="auto" height="auto"></img>;
 }
 
 export default Bishop;

@@ -10,6 +10,7 @@ import PieceType from "./PieceType";
 import { v4 as uuidv4 } from 'uuid';
 
 
+
 type Directions = {
     forward: (scalar: number) => Position | null;
     backward: (scalar: number) => Position | null;
@@ -251,33 +252,6 @@ export default class Piece {
         }
     }
 
-    // static generate(position: number, typeId: string, colour: Colour, game: ChessGame) {
-    //     let piece;
-    //     switch (typeId) {
-    //         case PIECES.KING.id:
-    //             piece = new King(position, colour, game);
-    //             break;
-    //         case PIECES.QUEEN.id:
-    //             piece = new Queen(position, colour, game);
-    //             break;
-    //         case PIECES.ROOK.id:
-    //             piece = new Rook(position, colour, game);
-    //             break;
-    //         case PIECES.BISHOP.id:
-    //             piece = new Bishop(position, colour, game);
-    //             break;
-    //         case PIECES.KNIGHT.id:
-    //             piece = new Knight(position, colour, game);
-    //             break;
-    //         case PIECES.PAWN.id:
-    //             piece = new Pawn(position, colour, game);
-    //             break;
-    //         default:
-    //             piece = new EmptySquare(position, game);
-    //             break;
-    //     }
-    //     return piece;
-    // }
 
     appendMove(game: ChessGame, moves: Move[], position: Position | null) {
         if (position !== null) {

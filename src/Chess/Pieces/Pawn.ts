@@ -15,7 +15,7 @@ export default class Pawn extends Piece {
 
     private PAWN_VALUE_GRID_BLACK = this.PAWN_VALUE_GRID_WHITE.slice().reverse();
 
-    constructor(position: Position, colour: Colour) {
+    constructor(position: number, colour: Colour) {
         super(position, colour);
         this.type = PIECES.PAWN;
     }

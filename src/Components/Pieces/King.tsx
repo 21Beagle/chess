@@ -4,6 +4,14 @@ import black from "../../Media/StandardPieces/blackKing.svg";
 import { pieceProps } from "./piecePropsType";
 
 function King(props: pieceProps) {
+
+    let className = "piece-icon";
+    if (props.selected) {
+        className += " selected";
+    }
+
+
+
     let iconSrc;
     let alt;
     if (props.colour.isWhite) {
@@ -13,7 +21,7 @@ function King(props: pieceProps) {
         iconSrc = black;
         alt = "Black King";
     }
-    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
+    return <img className={className} src={iconSrc} alt={alt}></img>;
 }
 
 export default King;

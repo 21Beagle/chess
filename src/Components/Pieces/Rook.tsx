@@ -4,6 +4,11 @@ import black from "../../Media/StandardPieces/blackRook.svg";
 import { pieceProps } from "./piecePropsType";
 
 function Rook(props: pieceProps) {
+    let className = "piece-icon";
+    if (props.selected) {
+        className += " selected";
+    }
+
     let iconSrc;
     let alt;
     if (props.colour.isWhite) {
@@ -13,7 +18,7 @@ function Rook(props: pieceProps) {
         iconSrc = black;
         alt = "Black Rook";
     }
-    return <img className="piece-icon" src={iconSrc} alt={alt}></img>;
+    return <img className={className} src={iconSrc} alt={alt}></img>;
 }
 
 export default Rook;

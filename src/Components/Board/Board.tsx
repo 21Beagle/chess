@@ -13,8 +13,8 @@ import FEN from "../../Chess/FEN/FEN";
 
 import MovesCache from "../../Chess/MoveCache/MoveCache";
 
-import moveSound from "../../Media/Sounds/move.mp3"; 
-import takeSound from "../../Media/Sounds/take.mp3"; 
+import moveSound from "../../Media/Sounds/move.mp3";
+import takeSound from "../../Media/Sounds/take.mp3";
 
 
 const white = new Player("W", true)
@@ -46,20 +46,20 @@ function Board() {
 
     const [playMove] = useSound(moveSound);
     const [playTake] = useSound(takeSound);
-    
-    
+
+
     if (Chess.playerTurn.isCpu) {
         handleCpuMove();
     }
-    
-    const updateUI = useCallback((board:Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
+
+    const updateUI = useCallback((board: Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
         setBoard(board);
         setEvaluation(Chess.simpleEvaluate());
-        setPlayerTurn(()=>playerTurn);
-        setWhitePlayerIsCpu(()=>whiteIsCpu);
-        setBlackPlayerIsCpu(()=>blackIsCpu);
+        setPlayerTurn(() => playerTurn);
+        setWhitePlayerIsCpu(() => whiteIsCpu);
+        setBlackPlayerIsCpu(() => blackIsCpu);
     }, [Chess])
-    
+
 
     useEffect(() => {
         updateUI(Chess.board, Chess.playerTurn, Chess.whitePlayer.isCpu, Chess.blackPlayer.isCpu);
@@ -68,14 +68,14 @@ function Board() {
 
     function changeWhiteCpu() {
         Chess.whitePlayer.isHuman = !Chess.whitePlayer.isHuman;
-        setWhitePlayerIsCpu(()=>Chess.whitePlayer.isCpu);
-        setBlackPlayerIsCpu(()=>Chess.blackPlayer.isCpu);
+        setWhitePlayerIsCpu(() => Chess.whitePlayer.isCpu);
+        setBlackPlayerIsCpu(() => Chess.blackPlayer.isCpu);
     }
 
     function changeBlackCpu() {
         Chess.blackPlayer.isHuman = !Chess.blackPlayer.isHuman;
-        setWhitePlayerIsCpu(()=>Chess.whitePlayer.isCpu);
-        setBlackPlayerIsCpu(()=>Chess.blackPlayer.isCpu);
+        setWhitePlayerIsCpu(() => Chess.whitePlayer.isCpu);
+        setBlackPlayerIsCpu(() => Chess.blackPlayer.isCpu);
     }
 
     function handleCpuMove() {
@@ -125,7 +125,7 @@ function Board() {
         }
         setSelectedSquare(index);
         setSelectedPiece(selectedPiece);
-        const moves = selectedPiece.generateMoves(Chess, true, true);
+        const moves = selectedPiece.generateMoves(Chess, true);
         setHighlightedMoves(moves);
         console.log(moves);
     }
@@ -178,7 +178,7 @@ function Board() {
     }
 
     function getLastMove() {
-        return Chess.moveHistory.findLast((move:Move) => {
+        return Chess.moveHistory.findLast((move: Move) => {
             return move;
         });
     }
@@ -219,22 +219,65 @@ function Board() {
         promotion = <Promotion colour={selectedPiece.colour} handlePromotion={(pieceId: string) => handlePromotion(pieceId)} />;
     }
 
+    const moveHistory = Chess.moveHistory.map((move) => {
+        const className = move.piece.colour.isWhite ? "white move" : "black move";
+
+        return (
+
+
+            <div className={className}>
+                {move.stateBefore.fullMoveClock}. {move.algebraicNotation}
+            </div >
+        );
+    })
+
+    function getEvalStyle(evaluation: number): React.CSSProperties {
+        const m = -2;
+        const b = 50;
+        const linearEquation = m * evaluation + b;
+        const oneHundredPercent = 100;
+        const zeroPercent = 0;
+        const evalHeight = Math.min(Math.max(linearEquation, zeroPercent), oneHundredPercent);
+
+        return {
+            maxHeight: evalHeight + "%"
+        }
+    }
+
+    const evalStyle = getEvalStyle(evaluation);
+
+
+
+
     return (
-        <>
-            <div className="center">
+        <div className="game-wrapper">
+            {promotion}
+            <div className="eval-outer">
+                <div className="eval-inner" style={evalStyle}>
+                    {evaluation.toFixed(2)}
+                </div>
+            </div >
+            <div className="board-wrapper thick-border">{boardComponent}</div>
+            <div className="information-wrapper thick-border test1" >
+                <header>
+                    <h3>info</h3> <button>cog</button>
+                </header>
+                <div className="previous-moves-wrapper">
+                    {moveHistory}
+                </div>
+
+
                 <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button>
                 <button onClick={() => showWhiteMoves()}>White Moves</button>
                 <button onClick={() => showBlackMovesMoves()}>Black Moves</button>
-                <div className="board-wrapper center">{boardComponent}</div>
-                {promotion}
                 <p>value: {evaluation}</p>
                 Black play cpu: <input type="checkbox" checked={blackPlayerIsCpu} onChange={() => changeBlackCpu()}></input>
                 White player cpu: <input type="checkbox" checked={whitePlayerIsCpu} onChange={() => changeWhiteCpu()}></input>
                 <button onClick={() => undoLastMove()}> Undo last move</button>
                 <button onClick={() => console.log(MovesCache.cache)}>Moves Cache</button>
-                <p> {FEN.generateFEN(Chess)}</p>
+                <p className="fen-string"> {FEN.generateFEN(Chess)}</p>
             </div>
-        </>
+        </div >
     );
 }
 
