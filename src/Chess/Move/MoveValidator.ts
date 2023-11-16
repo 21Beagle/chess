@@ -13,9 +13,6 @@ export default class MoveValidator {
         if (!this.isACaptureValidation(game, move)) return false;
         if (!this.isAPromotionValidation(move)) return false;
         if (!this.castleValidate(game, move)) return false;
-        if (move.endPiece.isKing && !move.endPiece.colour.isEqual(move.piece.colour)) {
-            move.piece.checking = true;
-        }
 
         return true;
     }

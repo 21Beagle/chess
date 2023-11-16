@@ -30,11 +30,11 @@ export default class Piece {
     hasMoved = false;
     maxFileDifference = 0;
     private _position: Position;
-    checking = false;
 
     private _moves: Array<Move> = [];
 
     id: string;
+
 
 
     constructor(position: Position | number | string, colour: Colour) {
