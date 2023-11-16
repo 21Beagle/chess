@@ -1,4 +1,5 @@
 .tile {
+
     position: relative;
     width: 100%;
     height: 100%;
@@ -29,7 +30,15 @@
 }
 
 .available-move {
-    background-color: var(--available-move-background);
+    position: absolute;
+    flex-grow: 1;
+    width: 50%;
+    height: 50%;
+    transform: translate(50%, 50%);
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 50%;
+    mix-blend-mode: hard-light;
+
 }
 
 .black-tile {

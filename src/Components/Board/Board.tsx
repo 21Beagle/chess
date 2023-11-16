@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import useSound from "use-sound";
 import "./Board.css";
 
+
 import Square from "../Square/Square";
 import ChessGame from "../../Chess/ChessGame/ChessGame";
 import Piece from "../../Chess/Pieces/Piece";
@@ -9,12 +10,12 @@ import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
 import Promotion from "../Promotion/Promotion";
 import Search from "../../Chess/Search/Search";
-import FEN from "../../Chess/FEN/FEN";
 
-import MovesCache from "../../Chess/MoveCache/MoveCache";
 
 import moveSound from "../../Media/Sounds/move.mp3";
 import takeSound from "../../Media/Sounds/take.mp3";
+import Information from "../Information/Information";
+import Evaluation from "../Evaluation/Evaluation";
 
 
 const white = new Player("W", true)
@@ -22,14 +23,10 @@ const black = new Player("B", true)
 
 function Board() {
 
-    const testPosition: string | undefined = undefined;
+    let testPosition: string | undefined = undefined;
     // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
-    // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
+    testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
     // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
-    // testPosition = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
-    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
-    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq c5 0 1";
-    // testPosition = "rnbqkbnr/p2ppppp/8/1ppP4/8/8/PPP1PPPP/RNBQKBNR W KQkq c6 4 3"
 
 
     const [whitePlayerIsCpu, setWhitePlayerIsCpu] = useState(white.isCpu);
@@ -44,13 +41,13 @@ function Board() {
     const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
     const [showPromotion, setShowPromotion] = useState(false);
 
+    const [viewFlipped, setViewFlipped] = useState(false);
+
     const [playMove] = useSound(moveSound);
     const [playTake] = useSound(takeSound);
 
 
-    if (Chess.playerTurn.isCpu) {
-        handleCpuMove();
-    }
+
 
     const updateUI = useCallback((board: Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
         setBoard(board);
@@ -183,13 +180,13 @@ function Board() {
         });
     }
 
-    function showWhiteMoves(): void {
-        Search.searchForPlayer(Chess, white);
-    }
+    // function showWhiteMoves(): void {
+    //     Search.searchForPlayer(Chess, white);
+    // }
 
-    function showBlackMovesMoves(): void {
-        Search.searchForPlayer(Chess, black);
-    }
+    // function showBlackMovesMoves(): void {
+    //     Search.searchForPlayer(Chess, black);
+    // }
 
     function undoLastMove(): void {
         const move = Chess.moveHistory.pop();
@@ -197,6 +194,10 @@ function Board() {
         move.undo();
         changePlayer();
         updateBoard();
+    }
+
+    function flipView(): void {
+        setViewFlipped(() => !viewFlipped);
     }
 
     const boardComponent = board.map((piece, index) => {
@@ -214,78 +215,34 @@ function Board() {
             />
         );
     });
+
+    if (viewFlipped) {
+        boardComponent.reverse();
+    }
+
     let promotion = null;
     if (showPromotion && selectedPiece !== null) {
         promotion = <Promotion colour={selectedPiece.colour} handlePromotion={(pieceId: string) => handlePromotion(pieceId)} />;
     }
 
-    const moveHistory = Chess.moveHistory.map((move) => {
-        const className = move.piece.colour.isWhite ? "white move" : "black move";
-
-        return (
 
 
-            <div className={className}>
-                {move.stateBefore.fullMoveClock}. {move.algebraicNotation}
-            </div >
-        );
-    })
 
-    function getEvalStyle(evaluation: number): React.CSSProperties {
-        // very simple linear equation to get the height of the evaluation bar as a percentage
-
-        // 13 is a good number her
-        // if you are winning by 13 pawns you are winning by a lot and will probably win the game
-        const maxEval = 13;
-
-
-        const oneHundredPercent = 100;
-        const zeroPercent = 0;
-        const fiftyPercent = 50;
-
-        const m = (fiftyPercent - zeroPercent) / (zeroPercent - maxEval);
-        const b = fiftyPercent;
-        const linearEquation = m * evaluation + b;
-        const evalHeight = Math.min(Math.max(linearEquation, zeroPercent), oneHundredPercent);
-
-        return {
-            maxHeight: evalHeight + "%"
-        }
+    if (Chess.playerTurn.isCpu) {
+        handleCpuMove();
     }
-
-    const evalStyle = getEvalStyle(evaluation);
-
 
 
 
     return (
         <div className="game-wrapper thick-border center">
             {promotion}
-            <div className="eval-outer">
-                <div className="eval-inner" style={evalStyle}>
-                    <div className="eval-number">{evaluation.toFixed(2)}</div>
-                </div>
-            </div >
+            <Evaluation evaluation={evaluation} />
             <div className="board-wrapper ">{boardComponent}</div>
-            <div className="information-wrapper" >
-                <header>
-                    <h3>info</h3> <button>cog</button>
-                </header>
-                <div className="previous-moves-wrapper">
-                    {moveHistory}
-                </div>
-
-
-                <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button>
-                <button onClick={() => showWhiteMoves()}>White Moves</button>
-                <button onClick={() => showBlackMovesMoves()}>Black Moves</button>
-                <p>value: {evaluation}</p>
-                Black play cpu: <input type="checkbox" checked={blackPlayerIsCpu} onChange={() => changeBlackCpu()}></input>
-                White player cpu: <input type="checkbox" checked={whitePlayerIsCpu} onChange={() => changeWhiteCpu()}></input>
-                <button onClick={() => undoLastMove()}> Undo last move</button>
-                <button onClick={() => console.log(MovesCache.cache)}>Moves Cache</button>
-                <p className="fen-string"> {FEN.generateFEN(Chess)}</p>
-            </div>
+            <Information undoLastMove={undoLastMove} Chess={Chess} blackPlayerIsCpu={blackPlayerIsCpu} whitePlayerIsCpu={whitePlayerIsCpu}
+                changeBlackCpu={changeBlackCpu} changeWhiteCpu={changeWhiteCpu} flipView={flipView}
+            ></Information>
+            {/* <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button> */}
         </div >
     );
 }

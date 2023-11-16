@@ -10,7 +10,6 @@ import ChessGameState from "./ChessGameState";
 
 type filterMoves = {
     colour: Colour | undefined;
-    validateChecks: boolean;
 };
 
 export default class ChessGame {
@@ -24,7 +23,7 @@ export default class ChessGame {
     _playerTurn: Player;
     state: ChessGameState;
 
-    
+
     constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
@@ -132,10 +131,9 @@ export default class ChessGame {
 
     getMoves(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
-        const validateChecks = filter.validateChecks;
         this.board.forEach((piece) => {
             if (!filter) {
-                allMoves = allMoves.concat(piece.generateMoves(this, validateChecks));
+                allMoves = allMoves.concat(piece.generateMoves(this));
                 return;
             }
 
@@ -143,7 +141,24 @@ export default class ChessGame {
                 return;
             }
 
-            allMoves = allMoves.concat(piece.generateMoves(this, validateChecks));
+            allMoves = allMoves.concat(piece.generateMoves(this));
+        }, this);
+        return allMoves;
+    }
+
+    getScope(filter: filterMoves): Move[] {
+        let allMoves: Move[] = [];
+        this.board.forEach((piece) => {
+            if (!filter) {
+                allMoves = allMoves.concat(piece.generateScope(this));
+                return;
+            }
+
+            if (filter.colour && !filter.colour.isEqual(piece.colour)) {
+                return;
+            }
+
+            allMoves = allMoves.concat(piece.generateScope(this));
         }, this);
         return allMoves;
     }
@@ -161,7 +176,7 @@ export default class ChessGame {
                 result += piece.positionalValue(piece.position);
             }
 
-            piece.generateMoves(this, false);
+            // piece.generateMoves(this);
         }
 
         return result;

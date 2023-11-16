@@ -33,4 +33,6 @@ export default class Bishop extends Piece {
         this.directionMoveGenerator(moves, this.directions.backwardRight, game);
         return moves;
     }
+
+
 }

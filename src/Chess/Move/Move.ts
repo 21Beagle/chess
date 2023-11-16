@@ -133,8 +133,12 @@ export default class Move {
         }
     }
 
-    validate(game: ChessGame, validateChecks: boolean): boolean {
-        return MoveValidator.validate(game, this, validateChecks);
+    validate(game: ChessGame): boolean {
+        return MoveValidator.validate(game, this);
+    }
+
+    validateScope(game: ChessGame): boolean {
+        return MoveValidator.validateScope(game, this);
     }
 
     do(realMove = true): void {

@@ -2,7 +2,7 @@ import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
-import MovesCache from "../MoveCache/MoveCache";
+// import MovesCache from "../MoveCache/MoveCache";
 import Position from "../Position/Position";
 
 import PieceType from "./PieceType";
@@ -35,7 +35,6 @@ export default class Piece {
 
     id: string;
 
-    private moveGeneratedForStateId: string | null = null;
 
     constructor(position: Position | number | string, colour: Colour) {
         this._position = new Position(position);
@@ -156,29 +155,7 @@ export default class Piece {
         return this._moves;
     }
 
-    generateMoves(game: ChessGame, validateChecks: boolean): Array<Move> {
-        const result = MovesCache.getMoves(this.id, game.state.id);
 
-        if (result.result) {
-            console.log("Using cached moves");
-            return result.moves;
-        }
-
-
-
-        const moves = this._generateMoves(game).filter((move) => {
-            return move.validate(game, validateChecks);
-        });
-
-
-
-        MovesCache.cacheMoves(this.id, game.state.id, moves);
-
-
-
-
-        return moves;
-    }
 
     get isBlack(): boolean {
         return this.colour.isBlack;
@@ -216,10 +193,37 @@ export default class Piece {
         return this.type.id === PIECES.QUEEN.id;
     }
 
+    generateMoves(game: ChessGame): Array<Move> {
+        const result = MovesCache.getMoves(this.id, game.state.id);
+
+        if (result.result) {
+            console.log("Using cached moves");
+            return result.moves;
+        }
+
+        const moves = this._generateMoves(game).filter((move) => {
+            return move.validate(game);
+        });
+
+        MovesCache.cacheMoves(this.id, game.state.id, moves);
+        return moves;
+    }
+
     _generateMoves(game: ChessGame): Array<Move> {
         console.log(this.type.name, game.state.id)
         return [];
     }
+
+    generateScope(game: ChessGame): Array<Move> {
+        const scope = this._generateMoves(game).filter((move) => {
+            return move.validateScope(game);
+        });
+
+        return scope;
+    }
+
+
+
 
     select(): void {
         this.selected = true;

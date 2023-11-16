@@ -34,9 +34,6 @@ function Square(props: squareProps): JSX.Element {
     if (props.isEnpassant) {
         className = "en-passant";
     }
-    if (props.highlighted) {
-        className += " available-move";
-    }
 
     if (props.selected) {
         className += " selected";
@@ -73,6 +70,7 @@ function Square(props: squareProps): JSX.Element {
 
     return (
         <div onClick={() => props.handleClick(props.index)} className={className + " tile"}>
+            {props.highlighted && <div className="available-move"></div>}
             <p className="id-no">
                 {props.index},{props.position.an}
             </p>
