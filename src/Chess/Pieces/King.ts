@@ -52,7 +52,6 @@ export default class King extends Piece {
         const castleLongMove = new Move(this, longKingEnd, game);
         castleLongMove.isCastleMove = true;
         castleLongMove.isAttack = false;
-        castleLongMove.pieceCantHaveMoved = true;
 
         const castleLongRookMove = new Move(game.getPieceAtPosition(new Position(longRookStart)), longRookEnd, game);
         castleLongRookMove.changePlayerAfterMove = false;
@@ -61,7 +60,6 @@ export default class King extends Piece {
         const castleShortMove = new Move(this, shortKingEnd, game);
         castleShortMove.isCastleMove = true;
         castleShortMove.isAttack = false;
-        castleShortMove.pieceCantHaveMoved = true;
 
         const castleShortRookMove = new Move(game.getPieceAtPosition(new Position(shortRookStart)), shortRookEnd, game);
         castleShortRookMove.changePlayerAfterMove = false;
@@ -95,6 +93,10 @@ export default class King extends Piece {
         this.appendMove(game, moves, this.directions.backwardRight(1));
         this.appendMove(game, moves, this.directions.forwardLeft(1));
         this.appendMove(game, moves, this.directions.forwardRight(1));
+
+        moves.forEach((move) => {
+            move.castleChange = "kqKQ";
+        });
 
         //castle moves
 

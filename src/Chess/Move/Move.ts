@@ -83,7 +83,9 @@ export default class Move {
         const stateAfter = this.stateBefore.copy();
 
         if (this.castleChange !== "") {
-            stateAfter.castle.replace(this.castleChange, "");
+            this.castleChange.split("").forEach((castle) => {
+                stateAfter.castle = stateAfter.castle.replace(castle, "");
+            });
         }
         if (this.enPassantPositionCreated !== null) {
             stateAfter.enPassant = this.enPassantPositionCreated;

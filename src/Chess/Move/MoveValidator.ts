@@ -12,6 +12,7 @@ export default class MoveValidator {
         if (!this.freePositionsValidation(game, move)) return false;
         if (!this.isACaptureValidation(game, move)) return false;
         if (!this.isAPromotionValidation(move)) return false;
+        if (!this.castleValidate(game, move)) return false;
         if (move.endPiece.isKing && !move.endPiece.colour.isEqual(move.piece.colour)) {
             move.piece.checking = true;
         }
@@ -21,6 +22,14 @@ export default class MoveValidator {
 
     static validate(game: ChessGame, move: Move): boolean {
         return this.validateScope(game, move) && this.willPutPlayerInCheckValidation(game, move);
+    }
+
+    private static castleValidate(game: ChessGame, move: Move): boolean {
+        const castle = game.state.castle;
+        if (!move.isCastleMove) {
+            return true;
+        }
+        return castle.includes(move.castleChange)
     }
 
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
