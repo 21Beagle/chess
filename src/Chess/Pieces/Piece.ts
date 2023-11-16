@@ -2,6 +2,7 @@ import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
+import MovesCache from "../MoveCache/MoveCache";
 // import MovesCache from "../MoveCache/MoveCache";
 import Position from "../Position/Position";
 
