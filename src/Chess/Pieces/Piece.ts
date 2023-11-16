@@ -33,6 +33,8 @@ export default class Piece {
 
     private _moves: Array<Move> = [];
 
+    private _scope: Array<Move> = [];
+
     id: string;
 
 
@@ -156,6 +158,10 @@ export default class Piece {
         return this._moves;
     }
 
+    get scope(): Array<Move> {
+        return this._scope;
+    }
+
 
 
     get isBlack(): boolean {
@@ -216,9 +222,19 @@ export default class Piece {
     }
 
     generateScope(game: ChessGame): Array<Move> {
+        const result = MovesCache.getScope(this.id, game.state.id);
+
+        if (result.result) {
+            console.log("Using cached scope");
+            return result.moves;
+        }
+
         const scope = this._generateMoves(game).filter((move) => {
             return move.validateScope(game);
         });
+
+        MovesCache.cacheScope(this.id, game.state.id, scope);
+
 
         return scope;
     }
