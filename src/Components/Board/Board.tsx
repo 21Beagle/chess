@@ -16,6 +16,7 @@ import moveSound from "../../Media/Sounds/move.mp3";
 import takeSound from "../../Media/Sounds/take.mp3";
 import Information from "../Information/Information";
 import Evaluation from "../Evaluation/Evaluation";
+import useModal from "../Modal/useModal";
 
 
 const white = new Player("W", true)
@@ -38,7 +39,6 @@ function Board() {
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
     const [playerTurn, setPlayerTurn] = useState(Chess.playerTurn);
-    const [evaluation, setEvaluation] = useState(Chess.currentEvaluation);
     const [showPromotion, setShowPromotion] = useState(false);
 
     const [viewFlipped, setViewFlipped] = useState(false);
@@ -46,12 +46,13 @@ function Board() {
     const [playMove] = useSound(moveSound);
     const [playTake] = useSound(takeSound);
 
+    const [modal, setModal] = useModal();
+
 
 
 
     const updateUI = useCallback((board: Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
         setBoard(board);
-        setEvaluation(Chess.simpleEvaluate());
         setPlayerTurn(() => playerTurn);
         setWhitePlayerIsCpu(() => whiteIsCpu);
         setBlackPlayerIsCpu(() => blackIsCpu);
@@ -122,7 +123,7 @@ function Board() {
         }
         setSelectedSquare(index);
         setSelectedPiece(selectedPiece);
-        const moves = selectedPiece.generateMoves(Chess, true);
+        const moves = selectedPiece.generateMoves(Chess);
         setHighlightedMoves(moves);
         console.log(moves);
     }
@@ -235,15 +236,19 @@ function Board() {
 
 
     return (
-        <div className="game-wrapper thick-border center">
-            {promotion}
-            <Evaluation evaluation={evaluation} />
-            <div className="board-wrapper ">{boardComponent}</div>
-            <Information undoLastMove={undoLastMove} Chess={Chess} blackPlayerIsCpu={blackPlayerIsCpu} whitePlayerIsCpu={whitePlayerIsCpu}
-                changeBlackCpu={changeBlackCpu} changeWhiteCpu={changeWhiteCpu} flipView={flipView}
-            ></Information>
-            {/* <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button> */}
-        </div >
+        <>
+            <div className="game-wrapper thick-border center">
+                {promotion}
+                <Evaluation evaluation={Chess.simpleEvaluate()} />
+                <div className="board-wrapper ">{boardComponent}</div>
+                <Information undoLastMove={undoLastMove} Chess={Chess} blackPlayerIsCpu={blackPlayerIsCpu} whitePlayerIsCpu={whitePlayerIsCpu}
+                    changeBlackCpu={changeBlackCpu} changeWhiteCpu={changeWhiteCpu} flipView={flipView}
+                ></Information>
+                {/* <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button> */}
+            </div >
+            <button onClick={() => setModal({ buttons: [], message: "hello", modalOpen: true })}> set</button>
+            {modal}
+        </>
     );
 }
 

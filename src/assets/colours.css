@@ -17,6 +17,8 @@
 
     --previous-moves-background: #8C7A6B;
     --information-background: #443622;
+
+    --modal-bg-color: #443622;
 }
 
 html, body, #root {

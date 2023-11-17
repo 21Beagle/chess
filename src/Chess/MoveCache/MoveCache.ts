@@ -5,53 +5,63 @@ type CacheResult = {
     moves: Move[];
 }
 
-export default class MovesCache {
-    static moveCache: [[string, string], Move[]][] = [];
 
-    static scopeCache: [[string, string], Move[]][] = [];
+
+
+
+
+
+
+
+export default class MovesCache {
+    static moveCache: Record<string, Record<string, Move[]>> = {};
+
+
+
+    static scopeCache: Record<string, Record<string, Move[]>> = {};
 
     static getMoves(pieceId: string, stateId: string): CacheResult {
+        try {
+            const resultMoves = this.moveCache[pieceId]?.[stateId];
+            const result = {
+                result: resultMoves !== undefined,
+                moves: resultMoves !== undefined ? resultMoves : [] as Move[]
+            }
+            return result;
 
-
-
-        const resultMoves = this.moveCache.find(([key]) => {
-            return key[0] === pieceId && key[1] === stateId;
-        })?.[1];
-
-        const result = {
-            result: resultMoves !== undefined,
-            moves: resultMoves !== undefined ? resultMoves : [] as Move[]
+        } catch (e) {
+            console.log(e);
+            return { result: false, moves: [] as Move[] };
         }
-
-        return result;
     }
 
-    static cacheMoves(pieceId: string, moveId: string, moves: Move[]): void {
-        this.moveCache.push([[pieceId, moveId], moves]);
+    static cacheMoves(pieceId: string, stateId: string, moves: Move[]): void {
+        this.moveCache = { ...this.moveCache, [pieceId]: { [stateId]: moves } }
     }
 
     static clearCache(): void {
         console.log("Clearing cache");
-        this.moveCache = [];
+        this.moveCache = {};
     }
 
 
     static cacheScope(pieceId: string, stateId: string, moves: Move[]): void {
-        this.scopeCache.push([[pieceId, stateId], moves]);
+        this.scopeCache = { ...this.scopeCache, [pieceId]: { [stateId]: moves } }
     }
 
-    static getScope(pieceId: string, stateId: string):
-        CacheResult {
-        const resultMoves = this.scopeCache.find(([key]) => {
-            return key[0] === pieceId && key[1] === stateId;
-        })?.[1];
+    static getScope(pieceId: string, stateId: string): CacheResult {
+        try {
+            const resultMoves = this.scopeCache[pieceId]?.[stateId];
+            const result = {
+                result: resultMoves !== undefined,
+                moves: resultMoves !== undefined ? resultMoves : [] as Move[]
+            }
+            return result;
 
-        const result = {
-            result: resultMoves !== undefined,
-            moves: resultMoves !== undefined ? resultMoves : [] as Move[]
+        } catch (e) {
+            console.log(e);
+            return { result: false, moves: [] as Move[] };
         }
-
-        return result;
     }
 
 }

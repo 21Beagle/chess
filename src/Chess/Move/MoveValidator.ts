@@ -40,7 +40,6 @@ export default class MoveValidator {
             const returnValue = scope.endPiece.isKing && !scope.endPiece.colour.isEqual(scope.piece.colour);
             return returnValue;
         });
-        console.log(isInCheck)
 
         move.undo();
         return isInCheck;
