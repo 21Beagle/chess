@@ -52,6 +52,10 @@ export default class Move {
         return this.constructStateAfter();
     }
 
+    get isCheck(): boolean {
+        return this.endPiece.isKing && Colour.areDifferentColourAndNotNull(this.piece.colour, this.endPiece.colour);
+    }
+
     get simpleEvaluation() {
         return this.endPiece.type.value + this.piece.positionalValue(this.end) - this.piece.positionalValue(this.start);
     }

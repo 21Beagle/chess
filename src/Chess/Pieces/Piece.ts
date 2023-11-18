@@ -202,9 +202,7 @@ export default class Piece {
 
     generateMoves(game: ChessGame): Array<Move> {
         const result = MovesCache.getMoves(this.id, game.state.id);
-
         if (result.result) {
-            console.log("Using cached moves");
             return result.moves;
         }
 
@@ -225,7 +223,6 @@ export default class Piece {
         const result = MovesCache.getScope(this.id, game.state.id);
 
         if (result.result) {
-            console.log("Using cached scope");
             return result.moves;
         }
 

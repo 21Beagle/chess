@@ -1,5 +1,6 @@
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
+import Evaluate from "../Evaluate/Evaluate";
 import Move from "../Move/Move";
 import Player from "../Player/Player";
 
@@ -13,11 +14,11 @@ type Output = {
 
 
 export default class Search {
-    static search(game: ChessGame, depth: number = 3): Move {
+    static search(game: ChessGame, depth: number = 3): Move | null {
         return Search.searchForPlayer(game, game.playerTurn, depth);
     }
 
-    static searchForPlayer(game: ChessGame, playerTurn: Player, depth: number = 3): Move {
+    static searchForPlayer(game: ChessGame, playerTurn: Player, depth: number = 3): Move | null {
         console.log("Starting best move calculation for", playerTurn.colour.name);
 
         let alpha = -Infinity;
@@ -35,6 +36,7 @@ export default class Search {
         let bestMove;
         for (const move of moves) {
             console.time('move');
+            console.log(move.algebraicNotation, "with value", move.simpleEvaluation)
             move.do(false);
 
             const output = Search.innerSearch(game, depth - 1, alpha, beta, !isMaximizingPlayer, numberOfPositions);
@@ -59,10 +61,11 @@ export default class Search {
             console.log(alpha, beta)
             console.log(moves.length - moves.indexOf(move), "moves left", "positions checked:", numberOfPositions);
             console.timeEnd('move');
+            console.log("-------------------------")
         }
 
         if (bestMove === undefined) {
-            throw new Error("No best move found");
+            return null
         }
 
         console.log("Number of positions checked", numberOfPositions)
@@ -90,7 +93,7 @@ export default class Search {
     ): Output {
 
         if (depth === 0) {
-            return { value: game.simpleEvaluate(), alpha, beta, numberOfPositions: numberOfPositions + 1 };
+            return { value: Evaluate.simple(game), alpha, beta, numberOfPositions: numberOfPositions + 1 };
         }
 
         const isMaximizingPlayer = maximizingPlayer;
@@ -123,6 +126,7 @@ export default class Search {
                 break;
             }
         }
+
 
         return { value: bestValue, alpha, beta, numberOfPositions };
     }

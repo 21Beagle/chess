@@ -71,12 +71,12 @@ function Square(props: squareProps): JSX.Element {
     return (
         <div onClick={() => props.handleClick(props.index)} className={className + " tile"}>
             {props.highlighted && <div className="available-move"></div>}
-            <p className="id-no">
+            {/* <p className="id-no">
                 {props.index},{props.position.an}
-            </p>
-            <p className="file-rank">
+            </p> */}
+            {/* <p className="file-rank">
                 ({props.position.file}, {props.position.rank})
-            </p>
+            </p> */}
             {component}
         </div>
     );

@@ -4,12 +4,13 @@ import { ModalProps } from './ModalTypes';
 
 
 
-function Modal({ buttons, message, modalOpen, closeModal }: ModalProps) {
+function Modal({ buttons, message, modalOpen, closeModal, showCloseButton }: ModalProps) {
     if (modalOpen === false) return (<></>)
 
 
-
-    buttons.push({ text: "Close", onClick: () => { closeModal() } });
+    if (showCloseButton) {
+        buttons.push({ text: "Close", onClick: () => { closeModal() } });
+    }
 
 
 
@@ -17,12 +18,12 @@ function Modal({ buttons, message, modalOpen, closeModal }: ModalProps) {
     return (
 
         <div className="dark-screen">
-            <div className="modal">
+            <div className="modal thick-border">
                 <h3>{message}</h3>
                 <div className="modal-buttons">
                     {buttons.map((button) => {
                         return (
-                            <button onClick={button.onClick}>{button.text}</button>
+                            <button onClick={() => { button.onClick(); closeModal() }}>{button.text}</button>
                         )
                     })}
                 </div>

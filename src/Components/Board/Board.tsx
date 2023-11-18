@@ -8,7 +8,6 @@ import ChessGame from "../../Chess/ChessGame/ChessGame";
 import Piece from "../../Chess/Pieces/Piece";
 import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
-import Promotion from "../Promotion/Promotion";
 import Search from "../../Chess/Search/Search";
 
 
@@ -17,6 +16,8 @@ import takeSound from "../../Media/Sounds/take.mp3";
 import Information from "../Information/Information";
 import Evaluation from "../Evaluation/Evaluation";
 import useModal from "../Modal/useModal";
+import Evaluate from "../../Chess/Evaluate/Evaluate";
+import { PIECES } from "../../Consts/Consts";
 
 
 const white = new Player("W", true)
@@ -25,9 +26,12 @@ const black = new Player("B", true)
 function Board() {
 
     let testPosition: string | undefined = undefined;
-    testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
+    // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
     // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
     // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
+    // testPosition = "3k4/8/1N4q1/8/6Q1/8/8/3K4 w - - 0 1"
+    testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
+
 
 
     const [whitePlayerIsCpu, setWhitePlayerIsCpu] = useState(white.isCpu);
@@ -79,8 +83,9 @@ function Board() {
     function handleCpuMove() {
         if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
             console.time('Finding best move');
-            const move = Search.search(Chess, 4);
+            const move = Search.search(Chess, 3);
             console.timeEnd('Finding best move');
+            if (!move) return;
             doMove(move);
         }
     }
@@ -97,15 +102,15 @@ function Board() {
         selectSquare(index);
     }
 
-    function handlePromotion(pieceId: string) {
+    function handlePromotion(move: Move, pieceId: string) {
         console.log(pieceId);
         if (!selectedPiece) return;
-        const move = highlightedMoves.find((move) => {
-            return move.isPromotion && move.promotionPiece === pieceId;
+        const promotionMove = highlightedMoves.find((highlightedMove) => {
+            return highlightedMove.isPromotion && highlightedMove.promotionPiece === pieceId && highlightedMove.end.index === move.end.index;
         });
 
-        if (!move) return;
-        doMove(move);
+        if (!promotionMove) return;
+        doMove(promotionMove);
     }
 
     function changePlayer() {
@@ -143,7 +148,23 @@ function Board() {
 
         if (!move) return;
         if (move.isPromotion) {
-            setShowPromotion(true);
+            setModal({
+                message: "Promotion", buttons: [
+                    {
+                        text: "Queen",
+                        onClick: () => handlePromotion(move, PIECES.QUEEN.id)
+                    }, {
+                        text: "Knight",
+                        onClick: () => handlePromotion(move, PIECES.KNIGHT.id)
+                    }, {
+                        text: "Bishop",
+                        onClick: () => handlePromotion(move, PIECES.BISHOP.id)
+                    }, {
+                        text: "Rook",
+                        onClick: () => handlePromotion(move, PIECES.ROOK.id)
+                    },
+                ], modalOpen: true
+            });
             return;
         }
 
@@ -155,7 +176,7 @@ function Board() {
         updateBoard();
         setHighlightedMoves([]);
         changePlayer();
-        Chess.simpleEvaluate();
+        Evaluate.simple(Chess);
         deselectSquare();
         setShowPromotion(false);
         handleSound(move);
@@ -223,9 +244,11 @@ function Board() {
         boardComponent.reverse();
     }
 
-    let promotion = null;
     if (showPromotion && selectedPiece !== null) {
-        promotion = <Promotion colour={selectedPiece.colour} handlePromotion={(pieceId: string) => handlePromotion(pieceId)} />;
+
+
+        setShowPromotion(false);
+
     }
 
 
@@ -240,15 +263,13 @@ function Board() {
     return (
         <>
             <div className="game-wrapper thick-border center">
-                {promotion}
-                <Evaluation evaluation={Chess.simpleEvaluate()} />
+                <Evaluation evaluation={Evaluate.simple(Chess)} />
                 <div className="board-wrapper ">{boardComponent}</div>
                 <Information undoLastMove={undoLastMove} Chess={Chess} blackPlayerIsCpu={blackPlayerIsCpu} whitePlayerIsCpu={whitePlayerIsCpu}
                     changeBlackCpu={changeBlackCpu} changeWhiteCpu={changeWhiteCpu} flipView={flipView}
                 ></Information>
                 {/* <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button> */}
             </div >
-            <button onClick={() => setModal({ buttons: [], message: "hello", modalOpen: true })}> set</button>
             {modal}
         </>
     );

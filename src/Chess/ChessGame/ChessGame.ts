@@ -125,10 +125,6 @@ export default class ChessGame {
         }
     }
 
-    evaluate(): number {
-        return this.simpleEvaluate();
-    }
-
     getMoves(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
@@ -163,24 +159,7 @@ export default class ChessGame {
         return allMoves;
     }
 
-    simpleEvaluate(): number {
-        let result = 0;
-        for (const piece of this.board) {
-            if (piece.isEmpty) continue;
 
-            if (piece.isBlack) {
-                result -= piece.type.value;
-                result -= piece.positionalValue(piece.position);
-            } else {
-                result += piece.type.value;
-                result += piece.positionalValue(piece.position);
-            }
-
-            // piece.generateMoves(this);
-        }
-
-        return result;
-    }
 
     _destroyPositions(positions: Position[]) {
         positions.forEach((position) => {
@@ -192,6 +171,7 @@ export default class ChessGame {
 
     _handleEnPassant(move: Move): void {
         if (move.willCreateEnPassant) {
+
             this.state.enPassant = move.enPassantPositionCreated;
             return;
         }

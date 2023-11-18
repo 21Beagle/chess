@@ -28,7 +28,7 @@ export default function useModal(modelProps: inputModalProps = defaultModalProps
 
     function setModal(newModalProps: ModalProps) {
         setModalOpen(() => newModalProps.modalOpen);
-        setModalButtons(() => [...newModalProps.buttons]);
+        setModalButtons(() => newModalProps.buttons);
         setModalMessage(() => newModalProps.message);
         return;
     }

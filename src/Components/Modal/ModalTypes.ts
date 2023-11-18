@@ -8,4 +8,5 @@ export type ModalProps = {
     message: string;
     modalOpen: boolean;
     closeModal: () => void;
+    showCloseButton?: boolean;
 }
