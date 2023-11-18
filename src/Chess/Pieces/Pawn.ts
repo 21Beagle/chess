@@ -9,9 +9,16 @@ export default class Pawn extends Piece {
     maxFileDifference = 1;
 
     private PAWN_VALUE_GRID_WHITE = [
-        9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 8, 8, 8, 8, 7, 7, 6, 5, 6, 7, 7, 6, 5, 6, 4, 3, 4, 5, 5, 4, 3, 4, 1, 1, 2, 4, 4, 2, 1, 1, 1, 1, 2, 4, 4, 2, 1, 1, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 2, 2, 1, 1, 1,
+        2, 1, 2, 3, 3, 2, 1, 2,
+        3, 2, 3, 4, 4, 3, 2, 3,
+        4, 3, 4, 5, 5, 4, 3, 4,
+        5, 4, 5, 6, 6, 5, 4, 5,
+        7, 7, 7, 7, 7, 7, 7, 7,
+        8, 8, 8, 8, 8, 8, 8, 8,
     ];
+
 
     private PAWN_VALUE_GRID_BLACK = this.PAWN_VALUE_GRID_WHITE.slice().reverse();
 

@@ -13,6 +13,26 @@ export default class Rook extends Piece {
         this.maxFileDifference = 7;
     }
 
+    private ROOK_VALUE_GRID_WHITE = [
+        5, 5, 5, 5, 5, 5, 5, 5,
+        5, 6, 6, 6, 6, 6, 6, 5,
+        5, 6, 7, 7, 7, 7, 6, 5,
+        5, 6, 7, 8, 8, 7, 6, 5,
+        5, 6, 7, 8, 8, 7, 6, 5,
+        5, 6, 7, 7, 7, 7, 6, 5,
+        5, 6, 6, 6, 6, 6, 6, 5,
+        5, 5, 5, 5, 5, 5, 5, 5,
+    ];
+
+    private ROOK_VALUE_GRID_BLACK = this.ROOK_VALUE_GRID_WHITE.slice().reverse()
+
+    get valueGrid() {
+        if (this.colour.isWhite) {
+            return this.ROOK_VALUE_GRID_WHITE;
+        }
+        return this.ROOK_VALUE_GRID_BLACK;
+    }
+
     _generateMoves(game: ChessGame): Move[] {
         const moves: Move[] = [];
         this.directionMoveGenerator(moves, this.directions.forward, game);

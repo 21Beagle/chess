@@ -12,6 +12,21 @@ export default class King extends Piece {
         this.type = PIECES.KING;
     }
 
+    private KING_VALUE_GRID = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 1, 1, 1, 1, 1, 0,
+        0, 1, 2, 2, 2, 2, 1, 0,
+        0, 1, 2, 4, 4, 2, 1, 0,
+        0, 1, 2, 4, 4, 2, 1, 0,
+        0, 1, 2, 2, 2, 2, 1, 0,
+        0, 1, 1, 1, 1, 1, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ];
+
+    get valueGrid() {
+        return this.KING_VALUE_GRID;
+    }
+
     private castleMoves(game: ChessGame) {
         let longKingEnd;
         let longRookEnd;

@@ -53,7 +53,7 @@ export default class Move {
     }
 
     get simpleEvaluation() {
-        return this.endPiece.type.value + this.piece.positionalValue(this.end);
+        return this.endPiece.type.value + this.piece.positionalValue(this.end) - this.piece.positionalValue(this.start);
     }
 
     get isCapture(): boolean {

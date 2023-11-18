@@ -45,6 +45,7 @@ export default class MoveValidator {
         return isInCheck;
     }
 
+
     private static isAPromotionValidation(move: Move): boolean {
         if (move.piece.isPawn) {
             const piece = move.piece as Pawn;

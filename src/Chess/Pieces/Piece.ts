@@ -242,6 +242,8 @@ export default class Piece {
 
 
 
+
+
     select(): void {
         this.selected = true;
     }
