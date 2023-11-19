@@ -26,12 +26,12 @@ const black = new Player("B", true)
 
 function Board() {
 
-    let testPosition: string | undefined = undefined;
+    const testPosition: string | undefined = undefined;
     // testPosition = "1r2r1k1/1bp1qppn/1p1p3p/p7/P1PPp2n/BBP1P1NP/4QPP1/1R2R1K1 b - a1 0 24";
     // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
     // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
     // testPosition = "3k4/8/1N4q1/8/6Q1/8/8/3K4 w - - 0 1"
-    testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
+    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
 
 
 
