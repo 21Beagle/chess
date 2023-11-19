@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import useSound from "use-sound";
 import "./Board.css";
 
@@ -8,7 +8,6 @@ import ChessGame from "../../Chess/ChessGame/ChessGame";
 import Piece from "../../Chess/Pieces/Piece";
 import Move from "../../Chess/Move/Move";
 import Player from "../../Chess/Player/Player";
-import Search from "../../Chess/Search/Search";
 
 
 import moveSound from "../../Media/Sounds/move.mp3";
@@ -19,10 +18,14 @@ import useModal from "../Modal/useModal";
 import Evaluate from "../../Chess/Evaluate/Evaluate";
 import { PIECES } from "../../Consts/Consts";
 import GameSettings from "../GameSettings/GameSettings";
+import FEN from "../../Chess/FEN/FEN";
 
 
 const white = new Player("W", true)
 const black = new Player("B", true)
+
+
+
 
 function Board() {
 
@@ -34,7 +37,10 @@ function Board() {
     // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
 
 
-
+    const searchWorker = useMemo(() => {
+        return new Worker("searchWorker.ts", { type: "module" })
+    },
+        [])
 
 
     const Chess = useRef(new ChessGame("" || testPosition, white, black)).current;
@@ -61,23 +67,82 @@ function Board() {
 
     }, [setBoard, setPlayerTurn])
 
+    const handleSound = useCallback((move: Move) => {
+        if (move.isCapture) {
+            playTake();
+        } else {
+            playMove();
+        }
+    }, [playMove, playTake])
+
+
+    const changePlayer = useCallback(() => {
+        Chess.changePlayer();
+    }, [Chess])
+
+    const updateBoard = useCallback(() => {
+        setBoard([...Chess.board]);
+    }, [Chess.board, setBoard])
+
+    const deselectSquare = useCallback(() => {
+        setSelectedSquare(null);
+        Chess.deselectPiece();
+        setHighlightedMoves([]);
+    }, [Chess, setHighlightedMoves, setSelectedSquare])
+
+
+
+    const doMove = useCallback((move: Move) => {
+        move.do();
+        updateBoard();
+        setHighlightedMoves([]);
+        changePlayer();
+        Evaluate.simple(Chess);
+        deselectSquare();
+        setShowPromotion(false);
+        handleSound(move);
+
+    }, [Chess, updateBoard, changePlayer, deselectSquare, handleSound])
+
+    const handleCpuMove = useCallback(() => {
+        if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
+            console.time('Finding best move');
+
+            const fen = FEN.generateFEN(Chess)
+            searchWorker.postMessage(fen, {});
+            searchWorker.onmessage = (e) => {
+                const returnedMove = e.data;
+                console.log(returnedMove)
+                console.timeEnd('Finding best move');
+                const filter = {
+                    colour: Chess.playerTurn.colour,
+                }
+
+                const generatedMoves = Chess.getMoves(filter)
+                const move = generatedMoves.find((generatedMove) => {
+                    return generatedMove.start.index === returnedMove.start._index &&
+                        generatedMove.end.index === returnedMove.end._index &&
+                        generatedMove.piece.type.id === returnedMove.piece.type.id &&
+                        generatedMove.promotionPiece === returnedMove.promotionPiece;
+                })
+
+                if (!move) return;
+                doMove(move);
+                updateUI(Chess.board, Chess.playerTurn)
+            };
+
+        }
+    }, [Chess, searchWorker, playerTurn.colour, doMove, updateUI])
 
     useEffect(() => {
         updateUI(Chess.board, Chess.playerTurn);
-    }, [Chess, updateUI, Chess.board, Chess.playerTurn, Chess.playerTurn.isCpu]);
+        handleCpuMove();
+    }, [Chess, updateUI, handleCpuMove, Chess.board, Chess.playerTurn, Chess.playerTurn.isCpu]);
 
 
 
 
-    function handleCpuMove() {
-        if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
-            console.time('Finding best move');
-            const move = Search.search(Chess);
-            console.timeEnd('Finding best move');
-            if (!move) return;
-            doMove(move);
-        }
-    }
+
 
     function handleClick(index: number) {
         if (isHighlightedMove(index)) {
@@ -102,19 +167,11 @@ function Board() {
         doMove(promotionMove);
     }
 
-    function changePlayer() {
-        Chess.changePlayer();
-    }
-
-    function updateBoard() {
-        setBoard([...Chess.board]);
-    }
-
 
     function selectSquare(index: number) {
         const selectedPiece = Chess.selectPiece(index);
         if (!selectedPiece) return;
-        if (selectedPiece.colour.id !== playerTurn.colour.id) {
+        if (selectedPiece.colour.id !== playerTurn.colour.id || playerTurn.isCpu) {
             return;
         }
         setSelectedSquare(index);
@@ -124,11 +181,6 @@ function Board() {
         console.log(moves);
     }
 
-    function deselectSquare() {
-        setSelectedSquare(null);
-        Chess.deselectPiece();
-        setHighlightedMoves([]);
-    }
 
     function playerMakeMove(index: number) {
         const move = highlightedMoves.find((move) => {
@@ -172,25 +224,10 @@ function Board() {
         doMove(move);
     }
 
-    function doMove(move: Move) {
-        move.do();
-        updateBoard();
-        setHighlightedMoves([]);
-        changePlayer();
-        Evaluate.simple(Chess);
-        deselectSquare();
-        setShowPromotion(false);
-        handleSound(move);
 
-    }
 
-    function handleSound(move: Move) {
-        if (move.isCapture) {
-            playTake();
-        } else {
-            playMove();
-        }
-    }
+
+
 
     function isHighlightedMove(index: number | null): boolean {
         if (!selectedPiece) return false;
@@ -253,11 +290,6 @@ function Board() {
     }
 
 
-
-
-    if (Chess.playerTurn.isCpu) {
-        handleCpuMove();
-    }
 
 
     function openSettings() {

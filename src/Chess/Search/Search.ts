@@ -15,7 +15,7 @@ type Output = {
 
 
 export default class Search {
-    static depth = 3;
+    static depth = 1;
     static search(game: ChessGame): Move | null {
         return Search.searchForPlayer(game, game.playerTurn, Search.depth);
     }

@@ -13,6 +13,7 @@ type filterMoves = {
 };
 
 export default class ChessGame {
+
     FEN: FEN;
     board: Piece[] = [];
     moveHistory: Move[];

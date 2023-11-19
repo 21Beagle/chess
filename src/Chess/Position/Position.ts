@@ -28,18 +28,18 @@ export default class Position {
         }
 
         switch (typeof input) {
-        case "string":
-            this.parseAn(input);
-            break;
-        case "object":
-            this.parsePosition(input);
-            break;
-        case "number":
-            this.parseIndex(input);
-            break;
-        default:
-            console.error("Position type not supported", input, typeof input);
-            break;
+            case "string":
+                this.parseAn(input);
+                break;
+            case "object":
+                this.parsePosition(input);
+                break;
+            case "number":
+                this.parseIndex(input);
+                break;
+            default:
+                console.error("Position type not supported", input, typeof input);
+                break;
         }
     }
 
@@ -206,9 +206,9 @@ export default class Position {
 
     static anToIndex(an: string): number | null {
         const fileString = "abcdefgh";
-        const file =  fileString.indexOf(an[0]);
+        const file = fileString.indexOf(an[0]);
         const rank = 8 - Number(an[1]);
-        
+
 
         // a1 = 0
         // h1 = 63
