@@ -1,4 +1,3 @@
-import React from "react";
 import "./Square.css";
 
 import King from "../Pieces/King";
