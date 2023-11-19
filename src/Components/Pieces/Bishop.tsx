@@ -1,4 +1,3 @@
-import React from "react";
 import white from "../../Media/StandardPieces/whiteBishop.svg";
 import black from "../../Media/StandardPieces/blackBishop.svg";
 import { pieceProps } from "./piecePropsType";

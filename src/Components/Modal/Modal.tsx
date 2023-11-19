@@ -1,29 +1,34 @@
+import ModalButton, { ButtonInput } from '../ModalButton/ModalButton';
 import './Modal.css'
-import { ModalProps } from './ModalTypes';
 
 
+export type ModalProps = {
+    buttons: ButtonInput[]
+    message?: string;
+    modalOpen: boolean;
+    closeModal: () => void;
+    showCloseButton?: boolean;
+    title: string;
+    component?: JSX.Element;
+}
 
+function Modal({ buttons, message, modalOpen, closeModal, title = "", component = <></> }: ModalProps) {
 
-function Modal({ buttons, message, modalOpen, closeModal, showCloseButton }: ModalProps) {
     if (modalOpen === false) return (<></>)
-
-
-    if (showCloseButton) {
-        buttons.push({ text: "Close", onClick: () => { closeModal() } });
-    }
-
-
 
 
     return (
 
         <div className="dark-screen">
             <div className="modal thick-border">
-                <h3>{message}</h3>
+                <h2>{title}</h2>
+                <p>{message}</p>
+                {component}
+
                 <div className="modal-buttons">
-                    {buttons.map((button) => {
+                    {buttons.map((button, index) => {
                         return (
-                            <button onClick={() => { button.onClick(); closeModal() }}>{button.text}</button>
+                            <ModalButton key={index} text={button.text} icon={button.icon} pieceIconColour={button.pieceIconColour} onClick={button.onClick} closeModal={closeModal} />
                         )
                     })}
                 </div>

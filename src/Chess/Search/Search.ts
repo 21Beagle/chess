@@ -9,13 +9,15 @@ type Output = {
     alpha: number;
     beta: number;
     numberOfPositions: number;
+
 };
 
 
 
 export default class Search {
-    static search(game: ChessGame, depth: number = 3): Move | null {
-        return Search.searchForPlayer(game, game.playerTurn, depth);
+    static depth = 3;
+    static search(game: ChessGame): Move | null {
+        return Search.searchForPlayer(game, game.playerTurn, Search.depth);
     }
 
     static searchForPlayer(game: ChessGame, playerTurn: Player, depth: number = 3): Move | null {

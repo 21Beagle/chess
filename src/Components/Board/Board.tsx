@@ -18,6 +18,7 @@ import Evaluation from "../Evaluation/Evaluation";
 import useModal from "../Modal/useModal";
 import Evaluate from "../../Chess/Evaluate/Evaluate";
 import { PIECES } from "../../Consts/Consts";
+import GameSettings from "../GameSettings/GameSettings";
 
 
 const white = new Player("W", true)
@@ -34,8 +35,7 @@ function Board() {
 
 
 
-    const [whitePlayerIsCpu, setWhitePlayerIsCpu] = useState(white.isCpu);
-    const [blackPlayerIsCpu, setBlackPlayerIsCpu] = useState(black.isCpu);
+
 
     const Chess = useRef(new ChessGame("" || testPosition, white, black)).current;
     const [board, setBoard] = useState(Chess.board);
@@ -55,35 +55,24 @@ function Board() {
 
 
 
-    const updateUI = useCallback((board: Piece[], playerTurn: Player, whiteIsCpu: boolean, blackIsCpu: boolean) => {
+    const updateUI = useCallback((board: Piece[], playerTurn: Player) => {
         setBoard(board);
         setPlayerTurn(() => playerTurn);
-        setWhitePlayerIsCpu(() => whiteIsCpu);
-        setBlackPlayerIsCpu(() => blackIsCpu);
-    }, [setBoard, setPlayerTurn, setWhitePlayerIsCpu, setBlackPlayerIsCpu])
+
+    }, [setBoard, setPlayerTurn])
 
 
     useEffect(() => {
-        updateUI(Chess.board, Chess.playerTurn, Chess.whitePlayer.isCpu, Chess.blackPlayer.isCpu);
-    }, [Chess, updateUI, Chess.board, Chess.playerTurn, Chess.whitePlayer.isCpu, Chess.blackPlayer.isCpu]);
+        updateUI(Chess.board, Chess.playerTurn);
+    }, [Chess, updateUI, Chess.board, Chess.playerTurn, Chess.playerTurn.isCpu]);
 
 
-    function changeWhiteCpu() {
-        Chess.whitePlayer.isHuman = !Chess.whitePlayer.isHuman;
-        setWhitePlayerIsCpu(() => Chess.whitePlayer.isCpu);
-        setBlackPlayerIsCpu(() => Chess.blackPlayer.isCpu);
-    }
 
-    function changeBlackCpu() {
-        Chess.blackPlayer.isHuman = !Chess.blackPlayer.isHuman;
-        setWhitePlayerIsCpu(() => Chess.whitePlayer.isCpu);
-        setBlackPlayerIsCpu(() => Chess.blackPlayer.isCpu);
-    }
 
     function handleCpuMove() {
         if (Chess.playerTurn.colour.isEqual(playerTurn.colour) && Chess.playerTurn.isCpu) {
             console.time('Finding best move');
-            const move = Search.search(Chess, 3);
+            const move = Search.search(Chess);
             console.timeEnd('Finding best move');
             if (!move) return;
             doMove(move);
@@ -149,19 +138,31 @@ function Board() {
         if (!move) return;
         if (move.isPromotion) {
             setModal({
-                message: "Promotion", buttons: [
+                title: "Promotion",
+                buttons: [
                     {
                         text: "Queen",
-                        onClick: () => handlePromotion(move, PIECES.QUEEN.id)
+                        onClick: () => handlePromotion(move, PIECES.QUEEN.id),
+                        icon: "Queen",
+                        pieceIconColour: move.piece.colour.id,
                     }, {
                         text: "Knight",
-                        onClick: () => handlePromotion(move, PIECES.KNIGHT.id)
+                        onClick: () => handlePromotion(move, PIECES.KNIGHT.id),
+                        icon: "Knight",
+                        pieceIconColour: move.piece.colour.id,
+
                     }, {
                         text: "Bishop",
-                        onClick: () => handlePromotion(move, PIECES.BISHOP.id)
+                        onClick: () => handlePromotion(move, PIECES.BISHOP.id),
+                        icon: "Bishop",
+                        pieceIconColour: move.piece.colour.id,
+
                     }, {
                         text: "Rook",
-                        onClick: () => handlePromotion(move, PIECES.ROOK.id)
+                        onClick: () => handlePromotion(move, PIECES.ROOK.id),
+                        icon: "Rook",
+                        pieceIconColour: move.piece.colour.id,
+
                     },
                 ], modalOpen: true
             });
@@ -259,16 +260,27 @@ function Board() {
     }
 
 
+    function openSettings() {
+        setModal({
+            title: "Settings",
+            component: <GameSettings chess={Chess} />,
+            buttons: [
+                {
+                    onClick: () => { },
+                    text: "Close",
+                },
+            ], modalOpen: true
+        });
+    }
+
 
     return (
         <>
             <div className="game-wrapper thick-border center">
                 <Evaluation evaluation={Evaluate.simple(Chess)} />
                 <div className="board-wrapper ">{boardComponent}</div>
-                <Information undoLastMove={undoLastMove} Chess={Chess} blackPlayerIsCpu={blackPlayerIsCpu} whitePlayerIsCpu={whitePlayerIsCpu}
-                    changeBlackCpu={changeBlackCpu} changeWhiteCpu={changeWhiteCpu} flipView={flipView}
+                <Information openSettings={openSettings} undoLastMove={undoLastMove} Chess={Chess} flipView={flipView}
                 ></Information>
-                {/* <button onClick={() => console.log(selectedPiece, Chess)}>Debug</button> */}
             </div >
             {modal}
         </>

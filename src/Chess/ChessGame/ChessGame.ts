@@ -24,6 +24,7 @@ export default class ChessGame {
     state: ChessGameState;
 
 
+
     constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
