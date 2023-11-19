@@ -1,6 +1,6 @@
-import ChessGame from "./Chess/ChessGame/ChessGame";
-import Player from "./Chess/Player/Player";
-import Search from "./Chess/Search/Search";
+import ChessGame from "./src/Chess/ChessGame/ChessGame";
+import Player from "./src/Chess/Player/Player";
+import Search from "./src/Chess/Search/Search";
 
 
 self.onmessage = (e) => {
