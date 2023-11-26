@@ -9,7 +9,7 @@
       "ES2023.Array",
       "es2017",
     ],
-    "module": "es6",
+    "module": "ES2022",
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -27,7 +27,7 @@
   "include": [
     "src",
     "decs.d.ts",
-    "searchWorker.ts"
+    "src/searchWorker.ts",
   ],
   "references": [
     {

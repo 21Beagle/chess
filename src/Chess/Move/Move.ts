@@ -3,10 +3,10 @@ import ChessGame from "../ChessGame/ChessGame";
 import Piece from "../Pieces/Piece";
 import Colour from "../Colour/Colour";
 import Position from "../Position/Position";
-import MoveValidator from "./MoveValidator";
 import ChessGameState from "../ChessGame/ChessGameState";
 import MovesCache from "../MoveCache/MoveCache";
 import PieceFactory from "../Pieces/PieceFactory";
+import MoveValidator from "./MoveValidator";
 
 export default class Move {
     start: Position;
@@ -26,7 +26,7 @@ export default class Move {
     skipValidate = false;
     changePlayerAfterMove = true;
     extraMoves: Move[] = [];
-    value = 0;
+    value: number | null = null;
     endPiece: Piece;
     pieceCantHaveMoved = false;
     destoryedPieces: Piece[] = [];
@@ -37,6 +37,9 @@ export default class Move {
     promotionPiece: string = PIECES.EMPTY.id;
 
     stateId: string;
+
+    valueCalculated = false;
+
 
     constructor(piece: Piece, end: Position | number, game: ChessGame) {
         this.start = new Position(piece.position);
@@ -56,8 +59,8 @@ export default class Move {
         return this.endPiece.isKing && Colour.areDifferentColourAndNotNull(this.piece.colour, this.endPiece.colour);
     }
 
-    get simpleEvaluation() {
-        return this.endPiece.type.value + this.piece.positionalValue(this.end) - this.piece.positionalValue(this.start);
+    get simpleEvaluation(): number {
+        return this.endPiece.type.value + this.piece.valueGrid[this.end.index as number];
     }
 
     get isCapture(): boolean {

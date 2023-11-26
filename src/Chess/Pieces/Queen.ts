@@ -3,14 +3,17 @@ import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Piece from "./Piece";
-import PieceType from "./PieceType";
 
 export default class Queen extends Piece {
-    type: PieceType = PIECES.QUEEN;
+
+    static id = "Q";
+    static name = "Queen";
+    static value: 9;
 
     constructor(position: number, colour: Colour) {
         super(position, colour);
         this.maxFileDifference = 8;
+        this.type = PIECES.QUEEN;
     }
 
     private QUEEN_VALUE_GRID_WHITE = [

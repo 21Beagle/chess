@@ -39,3 +39,21 @@
     width: max-content;
     box-shadow: 0px 40px 56px 30px rgba(0, 0, 0, 0.69);
 }
+
+@media (max-width: 1100px) {
+    .board-wrapper {
+        min-width: 300px;
+        min-height: 300px;
+        width: 100%;
+        max-width: auto;
+        border-right: var(--board-border) 5px solid;
+    }
+
+    .game-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0px 40px 56px 30px rgba(0, 0, 0, 0.69);
+        width: calc(100% - 50px);
+    }
+}

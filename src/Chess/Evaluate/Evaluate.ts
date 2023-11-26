@@ -48,7 +48,7 @@ export default class Evaluate {
             result += piece.type.value;
             result += piece.positionalValue(piece.position);
         }
-        return result;
+        return result * 0.1;
     }
 
     private static mateValue(game: ChessGame, result: number) {

@@ -81,3 +81,14 @@
     mix-blend-mode: difference;
     width: 50px;
 }
+
+
+@media (max-width: 1100px) {
+    .information-wrapper {
+        max-width: none;
+    }
+
+    .previous-moves-wrapper {
+        display: none;
+    }
+}

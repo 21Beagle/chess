@@ -4,10 +4,12 @@ import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Position from "../Position/Position";
 import Piece from "./Piece";
-import PieceType from "./PieceType";
 
 export default class Knight extends Piece {
-    type: PieceType = PIECES.KNIGHT;
+    static id = "N";
+    static name = "Knight";
+    static value: 3;
+
     maxFileDifference = 2;
 
     private KNIGHT_VALUE_GRID_WHITE = [
@@ -19,6 +21,7 @@ export default class Knight extends Piece {
 
     constructor(position: number, colour: Colour) {
         super(position, colour);
+        this.type = PIECES.KNIGHT;
     }
 
     get valueGrid() {

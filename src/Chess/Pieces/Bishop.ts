@@ -5,6 +5,10 @@ import Move from "../Move/Move";
 import Piece from "./Piece";
 
 export default class Bishop extends Piece {
+    static id = "B";
+    static name = "Bishop";
+    static value: 3.1;
+
     constructor(position: number, colour: Colour) {
         super(position, colour);
         this.maxFileDifference = 8;

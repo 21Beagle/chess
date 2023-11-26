@@ -3,14 +3,16 @@ import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Piece from "./Piece";
-import PieceType from "./PieceType";
 
 export default class Rook extends Piece {
-    type: PieceType = PIECES.ROOK;
+    static id = "R";
+    static name = "Rook";
+    static value: 5;
 
     constructor(position: number, colour: Colour) {
         super(position, colour);
         this.maxFileDifference = 7;
+        this.type = PIECES.ROOK;
     }
 
     private ROOK_VALUE_GRID_WHITE = [

@@ -15,7 +15,7 @@ type Output = {
 
 
 export default class Search {
-    static depth = 1;
+    static depth = 3;
     static search(game: ChessGame): Move | null {
         return Search.searchForPlayer(game, game.playerTurn, Search.depth);
     }
@@ -31,7 +31,11 @@ export default class Search {
         const isMaximizingPlayer = playerTurn.colour.isWhite;
         let bestValue = isMaximizingPlayer ? -Infinity : Infinity;
 
-        const moves = game.getMoves({ colour: playerTurn.colour }).sort((a: Move, b: Move) => b.simpleEvaluation - a.simpleEvaluation);
+        const moves = game.getMoves({ colour: playerTurn.colour }).sort((a: Move, b: Move) => {
+            let value = b.simpleEvaluation - a.simpleEvaluation;
+            value = isMaximizingPlayer ? value : -value
+            return value
+        });
 
         console.log("Checking", moves.length, "moves at depth", depth);
 
@@ -40,6 +44,7 @@ export default class Search {
             console.time('move');
             console.log(move.algebraicNotation, "with value", move.simpleEvaluation)
             move.do(false);
+            console.log(alpha, beta)
 
             const output = Search.innerSearch(game, depth - 1, alpha, beta, !isMaximizingPlayer, numberOfPositions);
             move.value = output.value;
@@ -93,10 +98,12 @@ export default class Search {
         maximizingPlayer: boolean,
         numberOfPositions: number
     ): Output {
-
         if (depth === 0) {
-            return { value: Evaluate.simple(game), alpha, beta, numberOfPositions: numberOfPositions + 1 };
+            const value = Evaluate.simple(game);
+            // console.log("Reached depth 0", value)
+            return { value: value, alpha, beta, numberOfPositions: numberOfPositions + 1 };
         }
+        // console.time('innerSearch');
 
         const isMaximizingPlayer = maximizingPlayer;
         let bestValue = isMaximizingPlayer ? -Infinity : Infinity;
@@ -105,11 +112,14 @@ export default class Search {
             colour: isMaximizingPlayer ? Colour.White : Colour.Black,
         };
 
-        const moves = game.getMoves(filter).sort((a: Move, b: Move) => b.simpleEvaluation - a.simpleEvaluation);
+        const moves = game.getMoves(filter).sort((a: Move, b: Move) => {
+            let value = b.simpleEvaluation - a.simpleEvaluation;
+            value = isMaximizingPlayer ? value : -value
+            return value
+        });
 
         for (const move of moves) {
             move.do(false);
-
             const output = Search.innerSearch(game, depth - 1, alpha, beta, !isMaximizingPlayer, numberOfPositions);
             move.value = output.value;
 
@@ -120,14 +130,17 @@ export default class Search {
                 bestValue = Math.min(bestValue, output.value);
                 beta = Math.min(beta, bestValue);
             }
-            numberOfPositions = output.numberOfPositions;
+            numberOfPositions = output.numberOfPositions + 1;
 
             move.undo();
 
             if ((isMaximizingPlayer && bestValue >= beta) || (!isMaximizingPlayer && bestValue <= alpha)) {
+
+                // console.log("Pruning, depth", depth, "best value:", bestValue, "alpha:", alpha, "beta", beta)
                 break;
             }
         }
+        // console.timeEnd('innerSearch');
 
 
         return { value: bestValue, alpha, beta, numberOfPositions };

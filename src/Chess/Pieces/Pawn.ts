@@ -6,6 +6,10 @@ import Position from "../Position/Position";
 import Piece from "./Piece";
 
 export default class Pawn extends Piece {
+    static id = "P";
+    static name = "Pawn";
+    static value: 1;
+
     maxFileDifference = 1;
 
     private PAWN_VALUE_GRID_WHITE = [

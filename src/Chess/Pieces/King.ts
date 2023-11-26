@@ -1,11 +1,15 @@
+import Piece from "./Piece";
 import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
 import Position from "../Position/Position";
-import Piece from "./Piece";
 
 export default class King extends Piece {
+    static id = "K";
+    static name = "King";
+    static value: 0;
+
     constructor(position: number, colour: Colour) {
         super(position, colour);
         this.maxFileDifference = 5;

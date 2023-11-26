@@ -1,3 +1,4 @@
+import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Pawn from "../Pieces/Pawn";
 import Position from "../Position/Position";
@@ -32,6 +33,7 @@ export default class MoveValidator {
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
         const filter = {
             colour: move.piece.colour.opposite,
+            excludePieces: [PIECES.KING.id],
         };
         move.do(false);
         const opponentScopes = game.getScope(filter);

@@ -9,7 +9,10 @@ import ChessGameState from "./ChessGameState";
 
 
 type filterMoves = {
-    colour: Colour | undefined;
+    colour?: Colour;
+    piece?: string;
+    pieces?: string[];
+    exludedPieces?: string[];
 };
 
 export default class ChessGame {
@@ -130,35 +133,49 @@ export default class ChessGame {
     getMoves(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
-            if (!filter) {
+            if (this.getMovesFilter(filter, piece)) {
                 allMoves = allMoves.concat(piece.generateMoves(this));
                 return;
             }
-
-            if (filter.colour && !filter.colour.isEqual(piece.colour)) {
-                return;
-            }
-
-            allMoves = allMoves.concat(piece.generateMoves(this));
         }, this);
         return allMoves;
     }
 
+
     getScope(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
-            if (!filter) {
+            if (this.getMovesFilter(filter, piece)) {
                 allMoves = allMoves.concat(piece.generateScope(this));
                 return;
             }
 
-            if (filter.colour && !filter.colour.isEqual(piece.colour)) {
-                return;
-            }
-
-            allMoves = allMoves.concat(piece.generateScope(this));
         }, this);
         return allMoves;
+    }
+
+    getMovesFilter(filter: filterMoves, piece: Piece): boolean {
+        if (!filter) {
+            return true;
+        }
+
+        if (filter.colour && !filter.colour.isEqual(piece.colour)) {
+            return false;
+        }
+
+        if (filter.piece && filter.piece !== piece.type.id) {
+            return false;
+        }
+
+        if (filter.pieces && !filter.pieces.includes(piece.type.id)) {
+            return false;
+        }
+
+        if (filter.exludedPieces && filter.exludedPieces.includes(piece.type.id)) {
+            return false;
+        }
+
+        return true;
     }
 
 
