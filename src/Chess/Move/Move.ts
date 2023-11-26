@@ -177,10 +177,10 @@ export default class Move {
     get algebraicNotation(): string {
         const pieceId = this.piece.type.id;
         const end = this.end.an;
-        const start = this.start.an;
+        // const start = this.start.an;
         const isCapture = this.isCapture ? "x" : "";
         const promotion = this.isPromotion ? `=${this.promotionPiece}` : "";
         const castle = this.isCastleMove ? "O-O" : "";
-        return `${pieceId}${start}${isCapture}${end}${promotion}${castle}`;
+        return `${pieceId}${isCapture}${end}${promotion}${castle}`;
     }
 }
