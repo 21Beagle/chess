@@ -1,4 +1,3 @@
-import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Pawn from "../Pieces/Pawn";
 import Position from "../Position/Position";
@@ -19,7 +18,7 @@ export default class MoveValidator {
     }
 
     static validate(game: ChessGame, move: Move): boolean {
-        return this.validateScope(game, move) && this.willPutPlayerInCheckValidation(game, move);
+        return this.validateScope(game, move) && !this.willPutPlayerInCheckValidation(game, move);
     }
 
     private static castleValidate(game: ChessGame, move: Move): boolean {
@@ -27,26 +26,17 @@ export default class MoveValidator {
         if (!move.isCastleMove) {
             return true;
         }
-        return castle.includes(move.castleChange)
+        return castle.includes(move.castleChange);
     }
 
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
-        const filter = {
-            colour: move.piece.colour.opposite,
-            excludePieces: [PIECES.KING.id],
-        };
         move.do(false);
-        const opponentScopes = game.getScope(filter);
 
-        const isInCheck = !opponentScopes.some((scope) => {
-            const returnValue = scope.endPiece.isKing && !scope.endPiece.colour.isEqual(scope.piece.colour);
-            return returnValue;
-        });
+        const isInCheck = game.isCheck(move.piece.colour);
 
         move.undo();
         return isInCheck;
     }
-
 
     private static isAPromotionValidation(move: Move): boolean {
         if (move.piece.isPawn) {
@@ -68,8 +58,6 @@ export default class MoveValidator {
         }
         return true;
     }
-
-
 
     private static isACaptureValidation(game: ChessGame, move: Move): boolean {
         if (move.endPiece.colour.isEqual(move.piece.colour)) return false;

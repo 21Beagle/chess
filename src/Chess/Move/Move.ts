@@ -4,7 +4,7 @@ import Piece from "../Pieces/Piece";
 import Colour from "../Colour/Colour";
 import Position from "../Position/Position";
 import ChessGameState from "../ChessGame/ChessGameState";
-import MovesCache from "../MoveCache/MoveCache";
+import Cache from "../Cache/Cache";
 import PieceFactory from "../Pieces/PieceFactory";
 import MoveValidator from "./MoveValidator";
 
@@ -40,6 +40,7 @@ export default class Move {
 
     valueCalculated = false;
 
+    searchCalculatedValue = 0;
 
     constructor(piece: Piece, end: Position | number, game: ChessGame) {
         this.start = new Position(piece.position);
@@ -159,7 +160,7 @@ export default class Move {
         this.doExtraMoves(realMove);
         if (realMove) {
             this.game.moveHistory.push(this);
-            MovesCache.clearCache()
+            Cache.clearCache();
         }
     }
 
@@ -171,8 +172,6 @@ export default class Move {
         this.undoPromotion();
         this.undoExtraMoves();
     }
-
-
 
     get algebraicNotation(): string {
         const pieceId = this.piece.type.id;

@@ -5,7 +5,6 @@ import Move from "../Move/Move";
 import Piece from "./Piece";
 
 export default class Queen extends Piece {
-
     static id = "Q";
     static name = "Queen";
     static value: 9;
@@ -16,24 +15,13 @@ export default class Queen extends Piece {
         this.type = PIECES.QUEEN;
     }
 
-    private QUEEN_VALUE_GRID_WHITE = [
-        1, 1, 1, 3, 3, 1, 1, 1,
-        1, 2, 2, 4, 4, 2, 2, 1,
-        1, 2, 3, 5, 5, 3, 2, 1,
-        3, 4, 5, 7, 7, 5, 4, 3,
-        3, 4, 5, 7, 7, 5, 4, 3,
-        1, 2, 3, 5, 5, 3, 2, 1,
-        1, 2, 2, 4, 4, 2, 2, 1,
-        1, 1, 1, 3, 3, 1, 1, 1,
+    private VALUE_GRID_QUEEN = [
+        1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 1, 1, 2, 3, 5, 5, 3, 2, 1, 3, 4, 5, 7, 7, 5, 4, 3, 3, 4, 5, 7, 7, 5, 4, 3, 1, 2, 3, 5, 5, 3, 2, 1, 1, 2, 2,
+        4, 4, 2, 2, 1, 1, 1, 1, 3, 3, 1, 1, 1,
     ];
 
-    private QUEEN_VALUE_GRID_BLACK = this.QUEEN_VALUE_GRID_WHITE.slice().reverse()
-
     get valueGrid() {
-        if (this.colour.isWhite) {
-            return this.QUEEN_VALUE_GRID_WHITE;
-        }
-        return this.QUEEN_VALUE_GRID_BLACK;
+        return this.VALUE_GRID_QUEEN;
     }
 
     _generateMoves(game: ChessGame): Move[] {

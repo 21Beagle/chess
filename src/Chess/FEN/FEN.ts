@@ -78,7 +78,7 @@ export default class FEN {
         return new Position(fen.enPassant);
     }
 
-    static generateFEN(game: ChessGame): string {
+    static generateFEN(game: ChessGame, ignoreCounter: boolean = false): string {
         const fen = new FEN();
         fen.board = FEN.generateBoardFEN(game);
         fen.playerTurn = FEN.generatePlayerTurnFEN(game);
@@ -86,6 +86,10 @@ export default class FEN {
         fen.enPassant = FEN.generateEnPassantFEN(game);
         fen.halfMoveClock = FEN.generateHalfMoveClockFEN(game);
         fen.fullMoveClock = FEN.generateTurnNumberFEN(game);
+
+        if (ignoreCounter) {
+            return `${fen.board} ${fen.playerTurn}`;
+        }
 
         return `${fen.board} ${fen.playerTurn} ${fen.castle} ${fen.enPassant} ${fen.halfMoveClock} ${fen.fullMoveClock}`;
     }
@@ -102,7 +106,7 @@ export default class FEN {
                     fen += emptyCount;
                     emptyCount = 0;
                 }
-                fen += piece.isWhite ?piece.type.id : piece.type.id.toLowerCase();
+                fen += piece.isWhite ? piece.type.id : piece.type.id.toLowerCase();
             }
             if (i % 8 === 7) {
                 if (emptyCount > 0) {

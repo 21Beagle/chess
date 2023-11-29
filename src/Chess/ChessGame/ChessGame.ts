@@ -7,7 +7,6 @@ import Colour from "../Colour/Colour";
 import Player from "../Player/Player";
 import ChessGameState from "./ChessGameState";
 
-
 type filterMoves = {
     colour?: Colour;
     piece?: string;
@@ -16,7 +15,6 @@ type filterMoves = {
 };
 
 export default class ChessGame {
-
     FEN: FEN;
     board: Piece[] = [];
     moveHistory: Move[];
@@ -26,8 +24,6 @@ export default class ChessGame {
     blackPlayer: Player;
     _playerTurn: Player;
     state: ChessGameState;
-
-
 
     constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
@@ -62,6 +58,24 @@ export default class ChessGame {
 
     get isBlacksMove(): boolean {
         return this.playerTurn.colour.isBlack;
+    }
+
+    isCheck(colour: Colour): boolean {
+        for (const piece of this.board) {
+            if (piece.isEmpty) continue;
+            if (piece.isKing) continue;
+            if (piece.colour.isEqual(colour)) continue;
+
+            const moves = piece.generateScope(this);
+            const foundCheck = moves.some((move) => {
+                return move.endPiece.isKing;
+            });
+
+            if (foundCheck) {
+                return true;
+            }
+        }
+        return false;
     }
 
     selectPiece(index: number): Piece | null {
@@ -141,7 +155,6 @@ export default class ChessGame {
         return allMoves;
     }
 
-
     getScope(filter: filterMoves): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
@@ -149,7 +162,6 @@ export default class ChessGame {
                 allMoves = allMoves.concat(piece.generateScope(this));
                 return;
             }
-
         }, this);
         return allMoves;
     }
@@ -178,8 +190,6 @@ export default class ChessGame {
         return true;
     }
 
-
-
     _destroyPositions(positions: Position[]) {
         positions.forEach((position) => {
             if (position.index !== null) {
@@ -190,7 +200,6 @@ export default class ChessGame {
 
     _handleEnPassant(move: Move): void {
         if (move.willCreateEnPassant) {
-
             this.state.enPassant = move.enPassantPositionCreated;
             return;
         }

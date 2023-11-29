@@ -12,12 +12,10 @@ export default class Knight extends Piece {
 
     maxFileDifference = 2;
 
-    private KNIGHT_VALUE_GRID_WHITE = [
+    private VALUE_GRID_KINGHT = [
         0, 1, 1, 1, 1, 1, 1, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 5, 7, 6, 6, 7, 0, 1, 2, 4, 8, 7, 7, 8, 0, 2, 1, 3, 6, 5, 5, 6, 3, 1, 1, 2, 4, 3, 3, 4, 2, 1, 1, 1, 1,
         3, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
-
-    private KNIGHT_VALUE_GRID_BLACK = this.KNIGHT_VALUE_GRID_WHITE.slice().reverse();
 
     constructor(position: number, colour: Colour) {
         super(position, colour);
@@ -25,10 +23,7 @@ export default class Knight extends Piece {
     }
 
     get valueGrid() {
-        if (this.colour.isWhite) {
-            return this.KNIGHT_VALUE_GRID_WHITE;
-        }
-        return this.KNIGHT_VALUE_GRID_BLACK;
+        return this.VALUE_GRID_KINGHT;
     }
 
     get knightEndPositionShift() {

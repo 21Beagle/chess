@@ -2,15 +2,13 @@ import { PIECES } from "../../Consts/Consts";
 import ChessGame from "../ChessGame/ChessGame";
 import Colour from "../Colour/Colour";
 import Move from "../Move/Move";
-import MovesCache from "../MoveCache/MoveCache";
+import Cache from "../Cache/Cache";
 // import MovesCache from "../MoveCache/MoveCache";
 import Position from "../Position/Position";
 
 import PieceType from "./PieceType";
 
-import { v4 as uuidv4 } from 'uuid';
-
-
+import { v4 as uuidv4 } from "uuid";
 
 type Directions = {
     forward: (scalar: number) => Position | null;
@@ -37,8 +35,6 @@ export default class Piece {
 
     id: string;
 
-
-
     constructor(position: Position | number | string, colour: Colour) {
         this._position = new Position(position);
         this.colour = colour;
@@ -61,7 +57,10 @@ export default class Piece {
 
     positionalValue(position: Position) {
         if (position.index === null) return 0;
-        return this.valueGrid[position.index] / 10;
+        if (this.colour.isBlack) {
+            return this.valueGrid[63 - position.index];
+        }
+        return this.valueGrid[position.index];
     }
 
     get directions(): Directions {
@@ -162,8 +161,6 @@ export default class Piece {
         return this._scope;
     }
 
-
-
     get isBlack(): boolean {
         return this.colour.isBlack;
     }
@@ -201,7 +198,7 @@ export default class Piece {
     }
 
     generateMoves(game: ChessGame): Array<Move> {
-        const result = MovesCache.getMoves(this.id, game.state.id);
+        const result = Cache.getMoves(this.id, game.state.id);
         if (result.result) {
             return result.moves;
         }
@@ -210,17 +207,17 @@ export default class Piece {
             return move.validate(game);
         });
 
-        MovesCache.cacheMoves(this.id, game.state.id, moves);
+        Cache.cacheMoves(this.id, game.state.id, moves);
         return moves;
     }
 
     _generateMoves(game: ChessGame): Array<Move> {
-        console.log(this.type.name, game.state.id)
+        console.log(this.type.name, game.state.id);
         return [];
     }
 
     generateScope(game: ChessGame): Array<Move> {
-        const result = MovesCache.getScope(this.id, game.state.id);
+        const result = Cache.getScope(this.id, game.state.id);
 
         if (result.result) {
             return result.moves;
@@ -230,16 +227,10 @@ export default class Piece {
             return move.validateScope(game);
         });
 
-        MovesCache.cacheScope(this.id, game.state.id, scope);
-
+        Cache.cacheScope(this.id, game.state.id, scope);
 
         return scope;
     }
-
-
-
-
-
 
     select(): void {
         this.selected = true;
@@ -272,7 +263,6 @@ export default class Piece {
         }
     }
 
-
     appendMove(game: ChessGame, moves: Move[], position: Position | null) {
         if (position !== null) {
             const move = new Move(this, position, game);
@@ -280,5 +270,3 @@ export default class Piece {
         }
     }
 }
-
-

@@ -12,19 +12,10 @@ export default class Pawn extends Piece {
 
     maxFileDifference = 1;
 
-    private PAWN_VALUE_GRID_WHITE = [
-        0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 1, 2, 2, 1, 1, 1,
-        2, 1, 2, 3, 3, 2, 1, 2,
-        3, 2, 3, 4, 4, 3, 2, 3,
-        4, 3, 4, 5, 5, 4, 3, 4,
-        5, 4, 5, 6, 6, 5, 4, 5,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8,
+    private VALUE_GRID_PAWN = [
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1, 2, 3, 3, 2, 1, 2, 3, 2, 3, 4, 4, 3, 2, 3, 4, 3, 4, 5, 5, 4, 3, 4, 5, 4, 5, 6, 6, 5, 4, 5, 7, 7, 7,
+        7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8,
     ];
-
-
-    private PAWN_VALUE_GRID_BLACK = this.PAWN_VALUE_GRID_WHITE.slice().reverse();
 
     constructor(position: number, colour: Colour) {
         super(position, colour);
@@ -32,10 +23,7 @@ export default class Pawn extends Piece {
     }
 
     get valueGrid() {
-        if (this.colour.isWhite) {
-            return this.PAWN_VALUE_GRID_WHITE;
-        }
-        return this.PAWN_VALUE_GRID_BLACK;
+        return this.VALUE_GRID_PAWN;
     }
 
     get promotionRank() {
