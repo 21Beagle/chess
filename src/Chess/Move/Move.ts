@@ -110,6 +110,8 @@ export default class Move {
             stateAfter.fullMoveClock++;
         }
 
+        stateAfter.colour = stateAfter.colour.opposite;
+
         return stateAfter;
     }
 
