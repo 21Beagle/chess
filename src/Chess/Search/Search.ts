@@ -18,7 +18,9 @@ export default class Search {
     moves: Move[] = [];
     iterativeDeepeningCurrentDepth: number = 1;
 
-    constructor(game: ChessGame, maxDepth: number = 6) {
+    static maxDepth: number = 4;
+
+    constructor(game: ChessGame, maxDepth: number = Search.maxDepth) {
         this.game = game;
         this.iterativeDeepeningMaxDepth = maxDepth;
 

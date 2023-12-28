@@ -1,10 +1,10 @@
 export default class Colour {
     id: string;
-    private readonly whiteId: string = "W";
-    private readonly blackId: string = "B";
-    private readonly blackName: string = "Black";
-    private readonly whiteName: string = "White";
-    private readonly nullId: string = "";
+    private static readonly whiteId: string = "W";
+    private static readonly blackId: string = "B";
+    private static readonly blackName: string = "Black";
+    private static readonly whiteName: string = "White";
+    private static readonly nullId: string = "";
     private static readonly _black: Colour = new Colour("B");
     private static readonly _white: Colour = new Colour("W");
     private static readonly _null: Colour = new Colour("");
@@ -13,24 +13,24 @@ export default class Colour {
     }
 
     get isWhite() {
-        return this.id === this.whiteId;
+        return this.id === Colour.whiteId;
     }
 
     get isBlack() {
-        return this.id === this.blackId;
+        return this.id === Colour.blackId;
     }
 
     get isNull() {
-        return this.id === this.nullId;
+        return this.id === Colour.nullId;
     }
 
     get name() {
-        return this.isBlack ? this.blackName : this.whiteName;
+        return this.isBlack ? Colour.blackName : Colour.whiteName;
     }
 
     changePlayer(): Colour {
-        if (this.id === this.nullId) return Colour.Null;
-        this.id = this.isBlack ? this.whiteId : this.blackId;
+        if (this.id === Colour.nullId) return Colour.Null;
+        this.id = this.isBlack ? Colour.whiteId : Colour.blackId;
         return this;
     }
 
@@ -39,8 +39,8 @@ export default class Colour {
     }
 
     get opposite() {
-        if (this.id === this.nullId) return Colour.Null;
-        return this.isBlack ? new Colour(this.whiteId) : new Colour(this.blackId);
+        if (this.id === Colour.nullId) return Colour.Null;
+        return this.isBlack ? new Colour(Colour.whiteId) : new Colour(Colour.blackId);
     }
 
     copy(): Colour {

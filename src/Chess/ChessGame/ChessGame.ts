@@ -22,10 +22,11 @@ export default class ChessGame {
     selectedPiece: Piece | null = null;
     whitePlayer: Player;
     blackPlayer: Player;
-    _playerTurn: Player;
     state: ChessGameState;
 
-    constructor(input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", whitePlayer: Player, blackPlayer: Player) {
+    public static initalBoardFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    constructor(input = ChessGame.initalBoardFEN, whitePlayer: Player, blackPlayer: Player) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
 
@@ -34,22 +35,13 @@ export default class ChessGame {
         this.board = gameComposite.board;
         this.state = gameComposite.state;
         this.FEN = gameComposite.FEN;
-        this._playerTurn = gameComposite.state.colour.isWhite ? this.whitePlayer : this.blackPlayer;
 
         this.currentEvaluation = 0;
         this.moveHistory = [];
     }
 
     get playerTurn(): Player {
-        return this._playerTurn;
-    }
-
-    set playerTurn(value: Player) {
-        if (value.colour.isWhite) {
-            this._playerTurn = this.whitePlayer;
-        } else {
-            this._playerTurn = this.blackPlayer;
-        }
+        return this.state.colour.isWhite ? this.whitePlayer : this.blackPlayer;
     }
 
     get isWhitesMove(): boolean {
@@ -60,19 +52,33 @@ export default class ChessGame {
         return this.playerTurn.colour.isBlack;
     }
 
-    isCheck(colour: Colour): boolean {
+    resetBoard(whitePlayerHuman: boolean = true, blackPlayerHuman: boolean = false): void {
+        this.whitePlayer = new Player("W", whitePlayerHuman);
+        this.blackPlayer = new Player("B", blackPlayerHuman);
+
+        const gameComposite = FEN.ParseFEN(ChessGame.initalBoardFEN);
+
+        this.board = gameComposite.board;
+        this.state = gameComposite.state;
+        this.FEN = gameComposite.FEN;
+
+        this.currentEvaluation = 0;
+        this.moveHistory = [];
+    }
+
+    isInCheck(colour: Colour): boolean {
         for (const piece of this.board) {
             if (piece.isEmpty) continue;
             if (piece.isKing) continue;
             if (piece.colour.isEqual(colour)) continue;
 
-            const moves = piece.generateScope(this);
-            const foundCheck = moves.some((move) => {
-                return move.endPiece.isKing;
+            const scopes = piece.generateScope(this);
+            const foundCheck = scopes.some((scope) => {
+                return scope.endPiece.isKing;
             });
 
-            if (foundCheck) {
-                return true;
+            if (foundCheck === true) {
+                return foundCheck;
             }
         }
         return false;
@@ -124,13 +130,11 @@ export default class ChessGame {
     }
 
     destroyPieceAtPosition(position: Position): Piece | null {
-        if (position.index === null) return null;
         return this.destroyPieceAtIndex(position.index);
     }
 
     changePlayer(): void {
-        this.state.colour = this.playerTurn.colour;
-        this.playerTurn = this.playerTurn.colour.isWhite ? this.blackPlayer : this.whitePlayer;
+        this.state.colour = this.state.colour.opposite;
     }
 
     addMoveHistory(move: Move): void {

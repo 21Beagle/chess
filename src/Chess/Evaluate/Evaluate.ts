@@ -65,10 +65,7 @@ export default class Evaluate {
     }
 
     private static mateValue(game: ChessGame): number {
-        let isCheckMate = false;
-        if (game.isCheck(game.playerTurn.colour)) {
-            isCheckMate = game.getMoves({ colour: game.playerTurn.colour }).length === 0;
-        }
+        const isCheckMate = Evaluate.isCheckMate(game);
 
         if (isCheckMate) {
             if (game.playerTurn.colour.isWhite) {
@@ -78,5 +75,13 @@ export default class Evaluate {
             }
         }
         return 0;
+    }
+
+    public static isCheckMate(game: ChessGame) {
+        let isCheckMate = false;
+        if (game.isInCheck(game.playerTurn.colour)) {
+            isCheckMate = game.getMoves({ colour: game.playerTurn.colour }).length === 0;
+        }
+        return isCheckMate;
     }
 }

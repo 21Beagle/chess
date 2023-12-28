@@ -38,7 +38,6 @@ function Board() {
     const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null);
     const [highlightedMoves, setHighlightedMoves] = useState<Move[]>([]);
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
-    const [playerTurn, setPlayerTurn] = useState(Chess.playerTurn);
     const [showPromotion, setShowPromotion] = useState(false);
     const [searchingForMove, setSearchingForMove] = useState(false);
 
@@ -49,12 +48,13 @@ function Board() {
 
     const [modal, setModal] = useModal();
 
+    // use Callbacks
+
     const updateUI = useCallback(
-        (board: Piece[], playerTurn: Player) => {
-            setBoard(board);
-            setPlayerTurn(() => playerTurn);
+        (board: Piece[]) => {
+            setBoard([...board]);
         },
-        [setBoard, setPlayerTurn]
+        [setBoard]
     );
 
     const handleSound = useCallback(
@@ -70,12 +70,7 @@ function Board() {
 
     const changePlayer = useCallback(() => {
         Chess.changePlayer();
-        setPlayerTurn(() => Chess.playerTurn);
     }, [Chess]);
-
-    const updateBoard = useCallback(() => {
-        setBoard([...Chess.board]);
-    }, [Chess.board, setBoard]);
 
     const deselectSquare = useCallback(() => {
         setSelectedSquare(null);
@@ -86,51 +81,91 @@ function Board() {
     const doMove = useCallback(
         (move: Move) => {
             move.do();
-            updateBoard();
+            updateUI(Chess.board);
             setHighlightedMoves([]);
             Evaluate.simple(Chess);
             deselectSquare();
             setShowPromotion(false);
-            changePlayer();
             handleSound(move);
         },
-        [Chess, updateBoard, changePlayer, deselectSquare, handleSound]
+        [Chess, updateUI, deselectSquare, handleSound]
     );
 
     const handleCpuMove = useCallback(() => {
-        if (playerTurn.isCpu && searchingForMove === false) {
-            setSearchingForMove(true);
-            const fen = FEN.generateFEN(Chess);
-            searchWorker.postMessage(fen, {});
-            searchWorker.onmessage = (e) => {
-                const returnedMove = e.data;
-                console.log(returnedMove);
-                console.timeEnd("Finding best move");
-                const filter = {
-                    colour: Chess.playerTurn.colour,
-                };
-
-                const generatedMoves = Chess.getMoves(filter);
-                const move = generatedMoves.find((generatedMove) => {
-                    return (
-                        generatedMove.start.index === returnedMove.start._index &&
-                        generatedMove.end.index === returnedMove.end._index &&
-                        generatedMove.piece.type.id === returnedMove.piece.type.id &&
-                        generatedMove.promotionPiece === returnedMove.promotionPiece
-                    );
-                });
-
-                if (!move) return;
-                setSearchingForMove(false);
-                doMove(move);
-                updateUI(Chess.board, Chess.playerTurn);
-            };
+        if (Chess.playerTurn.isHuman || searchingForMove === true) {
+            return;
         }
-    }, [playerTurn.isCpu, Chess, searchWorker, doMove, updateUI, searchingForMove, setSearchingForMove]);
+        console.time("Finding best move");
+
+        setSearchingForMove(true);
+        const fen = FEN.generateFEN(Chess);
+        searchWorker.postMessage(fen, {});
+        searchWorker.onmessage = (e) => {
+            const returnedMove = e.data;
+            console.log(returnedMove);
+            console.timeEnd("Finding best move");
+            const filter = {
+                colour: Chess.playerTurn.colour,
+            };
+
+            const generatedMoves = Chess.getMoves(filter);
+            const move = generatedMoves.find((generatedMove) => {
+                return (
+                    generatedMove.start.index === returnedMove.start._index &&
+                    generatedMove.end.index === returnedMove.end._index &&
+                    generatedMove.piece.type.id === returnedMove.piece.type.id &&
+                    generatedMove.promotionPiece === returnedMove.promotionPiece
+                );
+            });
+
+            if (!move) return;
+            setSearchingForMove(false);
+            doMove(move);
+            updateUI(Chess.board);
+        };
+    }, [Chess, searchWorker, doMove, updateUI, searchingForMove, setSearchingForMove]);
+
+    const resetBoard = useCallback(
+        (whitePlayerHuman: boolean = true, blackPlayerHuman: boolean = false) => {
+            Chess.resetBoard(whitePlayerHuman, blackPlayerHuman);
+            updateUI(Chess.board);
+            if (blackPlayerHuman) {
+                setViewFlipped(true);
+            }
+        },
+        [Chess, updateUI]
+    );
+
+    const isWinner = useCallback(() => {
+        if (Evaluate.isCheckMate(Chess)) {
+            setModal({
+                title: `${Chess.playerTurn.colour.opposite.name} is the winner`,
+                message: "Play again?",
+                buttons: [
+                    {
+                        text: "Play as white",
+                        onClick: () => resetBoard(true, false),
+                    },
+                    {
+                        text: "Play as Black",
+                        onClick: () => resetBoard(false, true),
+                    },
+                ],
+                modalOpen: true,
+            });
+            return true;
+        }
+        return false;
+    }, [Chess, setModal, resetBoard]);
+
+    // use Effect
 
     useEffect(() => {
         handleCpuMove();
-    }, [handleCpuMove, playerTurn]);
+        isWinner();
+    }, [handleCpuMove, Chess.playerTurn.isCpu, isWinner]);
+
+    // handle this handle that
 
     function handleClick(index: number) {
         if (isHighlightedMove(index)) {
@@ -158,7 +193,7 @@ function Board() {
     function selectSquare(index: number) {
         const selectedPiece = Chess.selectPiece(index);
         if (!selectedPiece) return;
-        if (selectedPiece.colour.id !== playerTurn.colour.id || playerTurn.isCpu) {
+        if (selectedPiece.colour.id !== Chess.playerTurn.colour.id || Chess.playerTurn.isCpu) {
             return;
         }
         setSelectedSquare(index);
@@ -174,42 +209,40 @@ function Board() {
         });
 
         if (!move) return;
-        if (move.isPromotion) {
-            setModal({
-                title: "Promotion",
-                buttons: [
-                    {
-                        text: "Queen",
-                        onClick: () => handlePromotion(move, PIECES.QUEEN.id),
-                        icon: "Queen",
-                        pieceIconColour: move.piece.colour.id,
-                    },
-                    {
-                        text: "Knight",
-                        onClick: () => handlePromotion(move, PIECES.KNIGHT.id),
-                        icon: "Knight",
-                        pieceIconColour: move.piece.colour.id,
-                    },
-                    {
-                        text: "Bishop",
-                        onClick: () => handlePromotion(move, PIECES.BISHOP.id),
-                        icon: "Bishop",
-                        pieceIconColour: move.piece.colour.id,
-                    },
-                    {
-                        text: "Rook",
-                        onClick: () => handlePromotion(move, PIECES.ROOK.id),
-                        icon: "Rook",
-                        pieceIconColour: move.piece.colour.id,
-                    },
-                ],
-                modalOpen: true,
-            });
-            return;
-        }
-
-        doMove(move);
+        if (!move.isPromotion) return doMove(move);
+        setModal({
+            title: "Promotion",
+            buttons: [
+                {
+                    text: "Queen",
+                    onClick: () => handlePromotion(move, PIECES.QUEEN.id),
+                    icon: "Queen",
+                    pieceIconColour: move.piece.colour.id,
+                },
+                {
+                    text: "Knight",
+                    onClick: () => handlePromotion(move, PIECES.KNIGHT.id),
+                    icon: "Knight",
+                    pieceIconColour: move.piece.colour.id,
+                },
+                {
+                    text: "Bishop",
+                    onClick: () => handlePromotion(move, PIECES.BISHOP.id),
+                    icon: "Bishop",
+                    pieceIconColour: move.piece.colour.id,
+                },
+                {
+                    text: "Rook",
+                    onClick: () => handlePromotion(move, PIECES.ROOK.id),
+                    icon: "Rook",
+                    pieceIconColour: move.piece.colour.id,
+                },
+            ],
+            modalOpen: true,
+        });
     }
+
+    // actions and properties
 
     function isHighlightedMove(index: number | null): boolean {
         if (!selectedPiece) return false;
@@ -237,12 +270,14 @@ function Board() {
         if (!move) return;
         move.undo();
         changePlayer();
-        updateBoard();
+        updateUI(Chess.board);
     }
 
     function flipView(): void {
         setViewFlipped(() => !viewFlipped);
     }
+
+    // render
 
     const boardComponent = board.map((piece, index) => {
         return (

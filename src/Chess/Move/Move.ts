@@ -101,16 +101,16 @@ export default class Move {
             stateAfter.enPassant = null;
         }
 
-        if (this.isCapture) {
+        if (this.isCapture || this.piece.isPawn) {
             stateAfter.halfMoveClock = 0;
         }
 
         stateAfter.halfMoveClock++;
-        if (this.piece.colour.isBlack) {
+        if (this.piece.colour.isWhite) {
             stateAfter.fullMoveClock++;
         }
 
-        stateAfter.colour = stateAfter.colour.opposite;
+        stateAfter.colour = this.stateBefore.colour.opposite;
 
         return stateAfter;
     }

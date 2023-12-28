@@ -40,7 +40,11 @@ function Information({ Chess, undoLastMove, flipView, openSettings }: Props) {
                 </button>
 
                 <button onClick={() => flipView()}>
-                    <CgEditFlipV onClick={() => flipView()} />
+                    <CgEditFlipV />
+                </button>
+
+                <button onClick={() => console.log(Chess)}>
+                    <CgEditFlipV />
                 </button>
             </div>
 

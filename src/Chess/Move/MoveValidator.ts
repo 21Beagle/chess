@@ -32,7 +32,7 @@ export default class MoveValidator {
     private static willPutPlayerInCheckValidation(game: ChessGame, move: Move): boolean {
         move.do(false);
 
-        const isInCheck = game.isCheck(move.piece.colour);
+        const isInCheck = game.isInCheck(move.piece.colour);
 
         move.undo();
         return isInCheck;
