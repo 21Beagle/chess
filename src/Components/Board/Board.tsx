@@ -19,7 +19,7 @@ import GameSettings from "../GameSettings/GameSettings";
 import FEN from "../../Chess/FEN/FEN";
 
 const white = new Player("W", true);
-const black = new Player("B", false);
+const black = new Player("B", true);
 
 function Board() {
     const testPosition: string | undefined = undefined;
@@ -27,7 +27,7 @@ function Board() {
     // testPosition = "8/2n1pp2/4K3/6n1/8/8/8/8 w - - 0 24";
     // testPosition = "q3k3/8/8/1N1N4/8/8/8/1K6 w - - 0 24";
     // testPosition = "3k4/8/1N4q1/8/6Q1/8/8/3K4 w - - 0 1"
-    // testPosition = "r3k2r/pPpp1ppp/8/8/8/8/PPPP1PpP/R3K2R w KQkq - 0 1";
+    // testPosition = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
 
     const searchWorker = useMemo(() => {
         return new Worker(new URL("../../searchWorker.ts", import.meta.url), { type: "module" });

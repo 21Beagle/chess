@@ -269,4 +269,8 @@ export default class Piece {
             moves.push(move);
         }
     }
+
+    isOfType(typeId: string): boolean {
+        return this.type.id === typeId;
+    }
 }

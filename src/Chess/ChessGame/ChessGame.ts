@@ -7,7 +7,7 @@ import Colour from "../Colour/Colour";
 import Player from "../Player/Player";
 import ChessGameState from "./ChessGameState";
 
-type filterMoves = {
+type chessFilter = {
     colour?: Colour;
     piece?: string;
     pieces?: string[];
@@ -148,10 +148,10 @@ export default class ChessGame {
         }
     }
 
-    getMoves(filter: filterMoves): Move[] {
+    getMoves(filter: chessFilter): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
-            if (this.getMovesFilter(filter, piece)) {
+            if (this.filterPieces(filter, piece)) {
                 allMoves = allMoves.concat(piece.generateMoves(this));
                 return;
             }
@@ -159,10 +159,10 @@ export default class ChessGame {
         return allMoves;
     }
 
-    getScope(filter: filterMoves): Move[] {
+    getScope(filter: chessFilter): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
-            if (this.getMovesFilter(filter, piece)) {
+            if (this.filterPieces(filter, piece)) {
                 allMoves = allMoves.concat(piece.generateScope(this));
                 return;
             }
@@ -170,7 +170,7 @@ export default class ChessGame {
         return allMoves;
     }
 
-    getMovesFilter(filter: filterMoves, piece: Piece): boolean {
+    filterPieces(filter: chessFilter, piece: Piece): boolean {
         if (!filter) {
             return true;
         }
@@ -192,6 +192,16 @@ export default class ChessGame {
         }
 
         return true;
+    }
+
+    getPieces(filter: chessFilter): Piece[] {
+        const pieces: Piece[] = [];
+        this.board.forEach((piece) => {
+            if (this.filterPieces(filter, piece)) {
+                pieces.push(piece);
+            }
+        }, this);
+        return pieces;
     }
 
     _destroyPositions(positions: Position[]) {

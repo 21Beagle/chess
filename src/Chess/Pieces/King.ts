@@ -17,14 +17,8 @@ export default class King extends Piece {
     }
 
     private KING_VALUE_GRID = [
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 1, 1, 1, 1, 1, 1, 0,
-        0, 1, 2, 2, 2, 2, 1, 0,
-        0, 1, 2, 4, 4, 2, 1, 0,
-        0, 1, 2, 4, 4, 2, 1, 0,
-        0, 1, 2, 2, 2, 2, 1, 0,
-        0, 1, 1, 1, 1, 1, 1, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 1, 2, 4, 4, 2, 1, 0, 0, 1, 2, 4, 4, 2, 1, 0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 1, 1,
+        1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
 
     get valueGrid() {
@@ -41,62 +35,83 @@ export default class King extends Piece {
         let shortMustBeEmpty;
         let longMustBeEmpty;
         let castleChange;
+        let longCantBeUnderAttack;
+        let shortCantBeUnderAttack;
 
         if (this.isBlack) {
             longKingEnd = 2;
             longRookEnd = 3;
             longRookStart = 0;
             longMustBeEmpty = [1, 2, 3];
+            longCantBeUnderAttack = [3, 4];
             castleChange = "q";
 
             shortKingEnd = 6;
             shortRookEnd = 5;
             shortRookStart = 7;
             shortMustBeEmpty = [5, 6];
+            shortCantBeUnderAttack = [4, 5];
             castleChange = "k";
         } else {
             longKingEnd = 58;
             longRookEnd = 59;
             longRookStart = 56;
             longMustBeEmpty = [57, 58, 59];
+            longCantBeUnderAttack = [59, 60];
+
             castleChange = "Q";
 
             shortKingEnd = 62;
             shortRookEnd = 61;
             shortRookStart = 63;
             shortMustBeEmpty = [61, 62];
+            shortCantBeUnderAttack = [60, 61];
             castleChange = "K";
         }
 
-        const castleLongMove = new Move(this, longKingEnd, game);
-        castleLongMove.isCastleMove = true;
-        castleLongMove.isAttack = false;
+        const castleLongMove = this.createCastleMove(longKingEnd, game, longRookStart, longRookEnd, longMustBeEmpty, longCantBeUnderAttack, castleChange);
 
-        const castleLongRookMove = new Move(game.getPieceAtPosition(new Position(longRookStart)), longRookEnd, game);
-        castleLongRookMove.changePlayerAfterMove = false;
-        castleLongMove.extraMoves.push(castleLongRookMove);
-
-        const castleShortMove = new Move(this, shortKingEnd, game);
-        castleShortMove.isCastleMove = true;
-        castleShortMove.isAttack = false;
-
-        const castleShortRookMove = new Move(game.getPieceAtPosition(new Position(shortRookStart)), shortRookEnd, game);
-        castleShortRookMove.changePlayerAfterMove = false;
-
-        castleShortMove.extraMoves.push(castleShortRookMove);
-
-        castleShortMove.castleChange = castleChange;
-        castleLongMove.castleChange = castleChange;
-
-        castleLongMove.mustBeFree = longMustBeEmpty.map((index) => {
-            return new Position(index);
-        });
-
-        castleShortMove.mustBeFree = shortMustBeEmpty.map((index) => {
-            return new Position(index);
-        });
+        const castleShortMove = this.createCastleMove(shortKingEnd, game, shortRookStart, shortRookEnd, shortMustBeEmpty, shortCantBeUnderAttack, castleChange);
 
         return [castleLongMove, castleShortMove];
+    }
+
+    private createCastleMove(
+        kingEnd: number,
+        game: ChessGame,
+        rookStart: number,
+        rookEnd: number,
+        mustBeEmpty: number[],
+        cantBeUnderAttack: number[],
+        castleChange: string
+    ) {
+        const castleMove = new Move(this, kingEnd, game);
+        castleMove.isCastleMove = true;
+        castleMove.isAttack = false;
+        castleMove.changePlayerAfterMove = false;
+
+        castleMove.mustHavePieceAtIndex = {
+            piece: "R",
+            index: rookStart,
+        };
+
+        castleMove.mustBeFree = mustBeEmpty.map((index) => {
+            return new Position(index);
+        });
+
+        castleMove.pieceAtIndexesCantHaveMoved = [rookStart, this.position.index];
+
+        castleMove.castleChange = castleChange;
+
+        castleMove.indexesCantBeUnderAttack = [this.position.index].concat(mustBeEmpty);
+
+        castleMove.indexesCantBeUnderAttack = cantBeUnderAttack;
+
+        const castleRookMove = new Move(game.getPieceAtPosition(new Position(rookStart)), rookEnd, game);
+        castleRookMove.skipValidate = true;
+
+        castleMove.extraMoves.push(castleRookMove);
+        return castleMove;
     }
 
     _generateMoves(game: ChessGame): Move[] {
@@ -114,7 +129,13 @@ export default class King extends Piece {
         this.appendMove(game, moves, this.directions.forwardRight(1));
 
         moves.forEach((move) => {
-            move.castleChange = "kqKQ";
+            if (move.piece.isWhite) {
+                move.castleChange = "KQ";
+            }
+
+            if (move.piece.isBlack) {
+                move.castleChange = "kq";
+            }
         });
 
         //castle moves

@@ -36,16 +36,23 @@ export default class Move {
     isPromotion = false;
     promotionPiece: string = PIECES.EMPTY.id;
 
+    hasMovedBefore: boolean;
+
     stateId: string;
 
     valueCalculated = false;
 
     searchCalculatedValue = 0;
+    mustHavePieceAtIndex: { piece?: string; index?: number } = {};
+
+    pieceAtIndexesCantHaveMoved: number[] = [];
+    indexesCantBeUnderAttack: number[] = [];
 
     constructor(piece: Piece, end: Position | number, game: ChessGame) {
         this.start = new Position(piece.position);
         this.end = new Position(end);
         this.piece = piece;
+        this.hasMovedBefore = this.piece.hasMoved;
         this.game = game;
         this.endPiece = game.getPieceAtPosition(this.end);
         this.stateBefore = game.state.copy(true);
@@ -109,8 +116,9 @@ export default class Move {
         if (this.piece.colour.isWhite) {
             stateAfter.fullMoveClock++;
         }
-
-        stateAfter.colour = this.stateBefore.colour.opposite;
+        if (this.changePlayerAfterMove) {
+            stateAfter.colour = stateAfter.colour.opposite;
+        }
 
         return stateAfter;
     }
@@ -160,6 +168,7 @@ export default class Move {
         this.destroyPositions();
         this.handlePromotion();
         this.doExtraMoves(realMove);
+        this.piece.hasMoved = true;
         if (realMove) {
             this.game.moveHistory.push(this);
             Cache.clearCache();
@@ -173,6 +182,7 @@ export default class Move {
         this.undoDestroyPositions();
         this.undoPromotion();
         this.undoExtraMoves();
+        this.piece.hasMoved = this.hasMovedBefore;
     }
 
     get algebraicNotation(): string {
