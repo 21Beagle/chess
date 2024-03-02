@@ -19,7 +19,7 @@ import GameSettings from "../GameSettings/GameSettings";
 import FEN from "../../Chess/FEN/FEN";
 
 const white = new Player("W", true);
-const black = new Player("B", true);
+const black = new Player("B", false);
 
 function Board() {
     const testPosition: string | undefined = undefined;
@@ -163,7 +163,7 @@ function Board() {
     useEffect(() => {
         handleCpuMove();
         isWinner();
-    }, [handleCpuMove, Chess.playerTurn.isCpu, isWinner]);
+    }, [handleCpuMove, Chess.playerTurn.colour.id, isWinner]);
 
     // handle this handle that
 

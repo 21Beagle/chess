@@ -25,8 +25,10 @@ function Information({ Chess, undoLastMove, flipView, openSettings }: Props) {
         <div className="information-wrapper">
             <header>
                 <h3>Information</h3>{" "}
-                <button onClick={() => openSettings()}>
-                    <SlSettings />
+                <button className="information" onClick={() => openSettings()}>
+                    <span className="information">
+                        <SlSettings />
+                    </span>
                 </button>
             </header>
             <div className="previous-moves-wrapper">{moveHistory}</div>
@@ -35,16 +37,22 @@ function Information({ Chess, undoLastMove, flipView, openSettings }: Props) {
                 <button onClick={() => showBlackMovesMoves()}>Black Moves</button> */}
 
             <div className="button-row">
-                <button onClick={() => undoLastMove()}>
-                    <SlArrowLeft></SlArrowLeft>
+                <button className="information" onClick={() => undoLastMove()}>
+                    <span className="information">
+                        <SlArrowLeft />
+                    </span>
                 </button>
 
-                <button onClick={() => flipView()}>
-                    <CgEditFlipV />
+                <button className="information" onClick={() => flipView()}>
+                    <span className="information">
+                        <CgEditFlipV />
+                    </span>
                 </button>
 
-                <button onClick={() => console.log(Chess)}>
-                    <CgEditFlipV />
+                <button className="information" onClick={() => console.log(Chess)}>
+                    <span className="information">
+                        <CgEditFlipV />
+                    </span>
                 </button>
             </div>
 

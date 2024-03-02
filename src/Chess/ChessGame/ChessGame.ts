@@ -116,7 +116,7 @@ export default class ChessGame {
     }
 
     placePieceAtIndex(piece: Piece, end: number) {
-        piece.position = end;
+        piece.position = new Position(end);
         this.board[end] = piece;
     }
 

@@ -48,8 +48,8 @@ export default class Move {
     pieceAtIndexesCantHaveMoved: number[] = [];
     indexesCantBeUnderAttack: number[] = [];
 
-    constructor(piece: Piece, end: Position | number, game: ChessGame) {
-        this.start = new Position(piece.position);
+    constructor(piece: Piece, end: number, game: ChessGame) {
+        this.start = new Position(piece.position.index);
         this.end = new Position(end);
         this.piece = piece;
         this.hasMovedBefore = this.piece.hasMoved;

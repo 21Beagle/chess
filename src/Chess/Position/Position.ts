@@ -11,36 +11,13 @@ type Neighbours = {
 
 export default class Position {
     private static _nullIndex: number | null = null;
-    private static _nullAn: string = "-";
-    private static _nullRank: number | null = null;
-    private static _nullFile: number | null = null;
-
     private _index: number | null = Position._nullIndex;
-    private _an: string = Position._nullAn;
-    private _rank: number | null = Position._nullRank;
-    private _file: number | null = Position._nullFile;
 
-    public static Null = new Position(null);
-
-    constructor(input: string | Position | number | null) {
+    constructor(input: number) {
         if (input === null) {
             return;
         }
-
-        switch (typeof input) {
-            case "string":
-                this.parseAn(input);
-                break;
-            case "object":
-                this.parsePosition(input);
-                break;
-            case "number":
-                this.parseIndex(input);
-                break;
-            default:
-                console.error("Position type not supported", input, typeof input);
-                break;
-        }
+        this._index = input;
     }
 
     get neighbours(): Neighbours {
@@ -77,108 +54,50 @@ export default class Position {
     }
 
     set index(value) {
-        this.parseIndex(value);
         this._index = value;
     }
 
     get an(): string {
-        return this._an;
+        return Position.indexToAn(this.index);
     }
 
     set an(value) {
-        this.parseAn(value);
-        this._an = value;
+        this._index = Position.anToIndex(value);
     }
 
     get rank(): number {
-        if (null === this._rank) {
+        const rank = Position.getRankOfIndex(this._index);
+
+        if (null === this._index || rank === null) {
             throw new Error("Position rank is null");
         }
-        return this._rank;
+
+        return rank;
     }
 
     set rank(value) {
-        this.parseRank(value);
-        this._rank = value;
-    }
-
-    parseRank(rank: number | null) {
-        if (rank === null) {
-            this.setNull();
-        }
-        this._index = Position.rankFileToIndex(rank, this.file);
-        this._an = Position.indexToAn(this.index);
-        return this;
+        this._index = Position.rankFileToIndex(value, this.file);
     }
 
     get file(): number {
-        if (null === this._file) {
+        const file = Position.getFileOfIndex(this._index);
+        if (null === this._index || file === null) {
             throw new Error("Position file is null");
         }
-        return this._file;
+        return file;
     }
 
     set file(value) {
-        this.parsefile(value);
-        this._file = value;
+        this._index = Position.rankFileToIndex(this.rank, value);
     }
 
-    parsefile(file: number | null) {
-        if (file === null) {
-            this.setNull();
-        }
-        this._index = Position.rankFileToIndex(this.rank, file);
-        this._an = Position.indexToAn(this.index);
-        return this;
-    }
-
-    parsePosition(position: Position) {
-        this._index = position.index;
-        this._rank = position.rank;
-        this._file = position.file;
-        this._an = position.an;
-        return this;
-    }
-
-    parseAn(an: string) {
-        if (an === Position._nullAn) {
-            this.setNull();
-            return this;
-        }
-        this._index = Position.anToIndex(an);
-        if (this._index === null || this._index < 0 || this._index > 63) {
-            this.setNull();
-            return this;
-        }
-        this._an = an;
-        this._rank = Position.getRankOfIndex(this.index);
-        this._file = Position.getRankOfIndex(this.index);
-        return this;
-    }
-
-    setNull() {
-        this._index = Position._nullIndex;
-        this._an = Position._nullAn;
-        this._rank = Position._nullRank;
-        this._file = Position._nullFile;
-
-        throw new Error("Set a Position to null");
-    }
-
-    parseIndex(index: number | null) {
+    static ParseAn(an: string): Position | null {
+        const index = Position.anToIndex(an);
         if (index === null) {
-            this.setNull();
-            return this;
+            return null;
         }
-        if (!Position.isValidIndex(index)) {
-            this.setNull();
-            return this;
-        }
-        this._index = index;
-        this._an = Position.indexToAn(index);
-        this._rank = Position.getRankOfIndex(index);
-        this._file = Position.getFileOfIndex(index);
-        return this;
+
+        return new Position(index);
     }
 
     isEqual(position: Position): boolean {
@@ -186,7 +105,7 @@ export default class Position {
     }
 
     copy(): Position {
-        return new Position(this);
+        return new Position(this.index);
     }
 
     static fileDifference(start: Position, end: Position) {
@@ -209,16 +128,12 @@ export default class Position {
         const file = fileString.indexOf(an[0]);
         const rank = 8 - Number(an[1]);
 
-
         // a1 = 0
         // h1 = 63
 
         if (file === -1 || rank === -1) {
             return null;
         }
-
-
-
 
         return rank + file * 8;
     }

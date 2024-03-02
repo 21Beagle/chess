@@ -35,7 +35,7 @@ export default class Piece {
 
     id: string;
 
-    constructor(position: Position | number | string, colour: Colour) {
+    constructor(position: number, colour: Colour) {
         this._position = new Position(position);
         this.colour = colour;
         this.selected = false;
@@ -47,8 +47,8 @@ export default class Piece {
         return new Array(64).fill(0);
     }
 
-    set position(value: string | Position | number | null) {
-        this._position = new Position(value);
+    set position(value: Position) {
+        this._position = value;
     }
 
     get position(): Position {
@@ -244,11 +244,13 @@ export default class Piece {
         for (let i = 1; i <= 8; i++) {
             const endPosition = direction(i);
             if (!endPosition) continue;
-            const move = new Move(this, endPosition, game);
+            const move = new Move(this, endPosition.index, game);
 
             for (let j = 1; j <= i - 1; j++) {
                 if (!direction(j)) continue;
-                move.mustBeFree.push(new Position(direction(j)));
+                const index = direction(j)?.index;
+                if (index === undefined || index === null) continue;
+                move.mustBeFree.push(new Position(index));
             }
 
             // if we have a position in the mustBeFree array use the last added, otherwise check this index.
@@ -265,7 +267,7 @@ export default class Piece {
 
     appendMove(game: ChessGame, moves: Move[], position: Position | null) {
         if (position !== null) {
-            const move = new Move(this, position, game);
+            const move = new Move(this, position.index, game);
             moves.push(move);
         }
     }

@@ -75,7 +75,7 @@ export default class FEN {
     private static parseEnPassantFEN(fen: FEN): Position | null {
         if (fen.enPassant === "-") return null;
 
-        return new Position(fen.enPassant);
+        return Position.ParseAn(fen.enPassant);
     }
 
     static generateFEN(game: ChessGame, ignoreCounter: boolean = false): string {

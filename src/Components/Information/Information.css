@@ -97,6 +97,16 @@ header > button {
     width: 50px;
 }
 
+button.information {
+    height: 40px;
+    width: 40px;
+}
+
+span.information {
+    font-size: 25px;
+    line-height: 40px;
+}
+
 @media (max-width: 1100px) {
     .information-wrapper {
         max-width: none;
