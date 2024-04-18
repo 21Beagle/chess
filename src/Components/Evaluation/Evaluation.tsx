@@ -1,7 +1,7 @@
-
 type Props = {
-    evaluation: number
-}
+    evaluation: number;
+};
+import "./Evaluation.css";
 
 export default function Evaluation({ evaluation }: Props) {
     function getEvalStyle(evaluation: number): React.CSSProperties {
@@ -10,7 +10,6 @@ export default function Evaluation({ evaluation }: Props) {
         // 13 is a good number her
         // if you are winning by 13 pawns you are winning by a lot and will probably win the game
         const maxEval = 13;
-
 
         const oneHundredPercent = 100;
         const zeroPercent = 0;
@@ -22,8 +21,8 @@ export default function Evaluation({ evaluation }: Props) {
         const evalHeight = Math.min(Math.max(linearEquation, zeroPercent), oneHundredPercent);
 
         return {
-            maxHeight: evalHeight + "%"
-        }
+            maxHeight: evalHeight + "%",
+        };
     }
 
     const evalStyle = getEvalStyle(evaluation);
@@ -33,6 +32,6 @@ export default function Evaluation({ evaluation }: Props) {
             <div className="eval-inner" style={evalStyle}>
                 <div className="eval-number">{evaluation.toFixed(2)}</div>
             </div>
-        </div >
-    )
+        </div>
+    );
 }

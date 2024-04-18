@@ -1,0 +1,23 @@
+.eval-outer {
+    position: relative;
+    display: flex;
+    width: 50px;
+    background-color: white;
+    border-right: var(--board-border) 10px solid;
+}
+
+.eval-inner {
+    flex-grow: 1;
+    background-color: black;
+    border-right: 0;
+    transition: max-height 2s ease-out;
+}
+
+.eval-number {
+    position: absolute;
+    display: block;
+    text-align: center;
+    top: 50%;
+    mix-blend-mode: difference;
+    width: 50px;
+}
