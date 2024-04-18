@@ -10,14 +10,16 @@ Experience the chess bot in action by visiting the live deployment [here](https:
 
 To run the project on your local machine, follow these simple steps:
 
-Clone the Repository: Start by cloning the GitHub repository to your local environment using the following command: `git clone https://github.com/21beagle/chess.git`
+1. Clone the Repository: Start by cloning the GitHub repository to your local environment using the following command: `git clone https://github.com/21beagle/chess.git`
 
-Install Dependencies: Navigate into the cloned directory and install the necessary dependencies by running: `npm install`
+2. Install Dependencies: Navigate into the cloned directory and install the necessary dependencies by running: `npm install`
 
-Start the Development Server: Once the dependencies are installed, launch the development server with the following command: `npm run dev`
+3. Start the Development Server: Once the dependencies are installed, launch the development server with the following command: `npm run dev`
 
 Now you're ready to explore and play against the chess bot locally on your machine!
 
-### Planned
+---
+
+### Planned updates
 
 While the current version of the chess bot provides a challenging opponent by looking four moves ahead, there are plans to further enhance its capabilities. One key improvement on the horizon is to increase the depth of moves that the bot searches. However, it's essential to balance this enhancement with performance considerations, as deeper searches may lead to longer wait times for the bot's move calculation. Nonetheless, by strategically optimizing the search algorithms, we aim to provide an even more formidable opponent for players seeking a challenge.
