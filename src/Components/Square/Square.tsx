@@ -30,9 +30,9 @@ function Square(props: squareProps): JSX.Element {
         className = props.index % 2 !== 0 ? "black-tile" : "white-tile";
     }
 
-    if (props.isEnpassant) {
-        className = "en-passant";
-    }
+    // if (props.isEnpassant) {
+    //     className = "en-passant";
+    // }
 
     if (props.selected) {
         className += " selected";
