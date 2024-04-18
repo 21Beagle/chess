@@ -8,28 +8,25 @@ export default class Search {
     static depth = 3;
     iterativeDeepeningMaxDepth: number;
 
-    alpha: number;
-    beta: number;
     numberOfPositions: number = 0;
 
     game: ChessGame;
     bestMove: Move | null = null;
 
     moves: Move[] = [];
-    iterativeDeepeningCurrentDepth: number = 1;
+    iterativeDeepeningCurrentDepth: number = 2;
 
     static maxDepth: number = 4;
+    forceReturn: boolean = false;
 
     constructor(game: ChessGame, maxDepth: number = Search.maxDepth) {
         this.game = game;
         this.iterativeDeepeningMaxDepth = maxDepth;
-
-        this.alpha = -Infinity;
-        this.beta = Infinity;
     }
 
     search(): Move | null {
         const move = this.iterativeDeepening(this.game);
+
         if (move === undefined) {
             return null;
         }
@@ -37,7 +34,7 @@ export default class Search {
         return move;
     }
 
-    alphaBeta(game: ChessGame, depth: number, isMaximizingPlayer: boolean, presortedMoves: Move[] = []): number {
+    alphaBeta(game: ChessGame, alpha: number, beta: number, depth: number, isMaximizingPlayer: boolean, presortedMoves: Move[] = []): number {
         if (depth === 0) {
             this.numberOfPositions++;
             return Evaluate.simple(game);
@@ -55,37 +52,37 @@ export default class Search {
             value = -Infinity;
             for (const move of moves) {
                 move.do(false);
-                const output = this.alphaBeta(game, depth - 1, false);
+                const output = this.alphaBeta(game, alpha, beta, depth - 1, false);
                 value = Math.max(output, value);
                 move.searchCalculatedValue = output;
                 move.undo();
 
                 if (depth === this.iterativeDeepeningCurrentDepth) {
-                    console.log(move.algebraicNotation, this.alpha, this.beta);
+                    console.log(move.algebraicNotation, alpha, beta);
                 }
 
-                if (value > this.beta) {
+                alpha = Math.max(alpha, value);
+                if (value >= beta) {
                     break;
                 }
-                this.alpha = Math.max(this.alpha, value);
             }
         } else {
             value = Infinity;
             for (const move of moves) {
                 move.do(false);
-                const output = this.alphaBeta(game, depth - 1, true);
+                const output = this.alphaBeta(game, alpha, beta, depth - 1, true);
                 value = Math.min(output, value);
                 move.searchCalculatedValue = output;
                 move.undo();
 
                 if (depth === this.iterativeDeepeningCurrentDepth) {
-                    console.log(move.algebraicNotation, this.alpha, this.beta);
+                    console.log(move.algebraicNotation, alpha, beta);
                 }
 
-                if (value < this.alpha) {
+                beta = Math.min(beta, value);
+                if (value <= alpha) {
                     break;
                 }
-                this.beta = Math.min(this.beta, value);
             }
         }
         this.moves = moves.toSorted((a: Move, b: Move) => {
@@ -100,15 +97,16 @@ export default class Search {
 
     iterativeDeepening(game: ChessGame, maxDepth: number = this.iterativeDeepeningMaxDepth): Move | null {
         console.time(`IterativeDeepending total for depth ${maxDepth}`);
-        for (let depth = 1; depth <= maxDepth; depth++) {
+
+        for (let depth = 2; depth <= maxDepth; depth += 2) {
             this.iterativeDeepeningCurrentDepth = depth;
-            this.alpha = -Infinity;
-            this.beta = Infinity;
             console.log("==================================================");
             console.log("Starting best move calculation for", game.playerTurn.colour.name, "at depth", depth);
             console.time(`iterativeDeepending at depth ${depth}`);
+            const alpha = -Infinity;
+            const beta = Infinity;
 
-            this.alphaBeta(game, depth, game.playerTurn.colour.isWhite, this.moves);
+            this.alphaBeta(game, alpha, beta, depth, game.playerTurn.colour.isWhite, this.moves);
 
             Cache.clearEvaluationCache();
 
