@@ -10,12 +10,12 @@ import Player from "../../Chess/Player/Player";
 
 import moveSound from "../../Media/Sounds/move.mp3";
 import takeSound from "../../Media/Sounds/take.mp3";
-import Information from "../Information/Information";
+// import Information from "../Information/Information";
 import Evaluation from "../Evaluation/Evaluation";
 import useModal from "../Modal/useModal";
 import Evaluate from "../../Chess/Evaluate/Evaluate";
 import { PIECES } from "../../Consts/Consts";
-import GameSettings from "../GameSettings/GameSettings";
+// import GameSettings from "../GameSettings/GameSettings";
 import FEN from "../../Chess/FEN/FEN";
 
 const white = new Player("W", true);
@@ -68,9 +68,9 @@ function Board() {
         [playMove, playTake]
     );
 
-    const changePlayer = useCallback(() => {
-        Chess.changePlayer();
-    }, [Chess]);
+    // const changePlayer = useCallback(() => {
+    //     Chess.changePlayer();
+    // }, [Chess]);
 
     const deselectSquare = useCallback(() => {
         setSelectedSquare(null);
@@ -265,17 +265,17 @@ function Board() {
     //     Search.searchForPlayer(Chess, black);
     // }
 
-    function undoLastMove(): void {
-        const move = Chess.moveHistory.pop();
-        if (!move) return;
-        move.undo();
-        changePlayer();
-        updateUI(Chess.board);
-    }
+    // function undoLastMove(): void {
+    //     const move = Chess.moveHistory.pop();
+    //     if (!move) return;
+    //     move.undo();
+    //     changePlayer();
+    //     updateUI(Chess.board);
+    // }
 
-    function flipView(): void {
-        setViewFlipped(() => !viewFlipped);
-    }
+    // function flipView(): void {
+    //     setViewFlipped(() => !viewFlipped);
+    // }
 
     // render
 
@@ -303,26 +303,26 @@ function Board() {
         setShowPromotion(false);
     }
 
-    function openSettings() {
-        setModal({
-            title: "Settings",
-            component: <GameSettings chess={Chess} />,
-            buttons: [
-                {
-                    onClick: () => {},
-                    text: "Close",
-                },
-            ],
-            modalOpen: true,
-        });
-    }
+    // function openSettings() {
+    //     setModal({
+    //         title: "Settings",
+    //         component: <GameSettings chess={Chess} />,
+    //         buttons: [
+    //             {
+    //                 onClick: () => {},
+    //                 text: "Close",
+    //             },
+    //         ],
+    //         modalOpen: true,
+    //     });
+    // }
 
     return (
         <>
             <div className="game-wrapper thick-border center">
                 <Evaluation evaluation={Evaluate.simple(Chess)} />
                 <div className="board-wrapper ">{boardComponent}</div>
-                <Information openSettings={openSettings} undoLastMove={undoLastMove} Chess={Chess} flipView={flipView}></Information>
+                {/* <Information openSettings={openSettings} undoLastMove={undoLastMove} Chess={Chess} flipView={flipView}></Information> */}
             </div>
             {modal}
         </>
