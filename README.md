@@ -23,3 +23,5 @@ Now you're ready to explore and play against the chess bot locally on your machi
 ### Planned updates
 
 While the current version of the chess bot provides a challenging opponent by looking four moves ahead, there are plans to further enhance its capabilities. One key improvement on the horizon is to increase the depth of moves that the bot searches. However, it's essential to balance this enhancement with performance considerations, as deeper searches may lead to longer wait times for the bot's move calculation. Nonetheless, by strategically optimizing the search algorithms, we aim to provide an even more formidable opponent for players seeking a challenge.
+
+Feel free to contribute to the project or provide feedback to help us continue improving the chess bot experience!
