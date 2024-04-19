@@ -17,6 +17,7 @@ import Evaluate from "../../Chess/Evaluate/Evaluate";
 import { PIECES } from "../../Consts/Consts";
 // import GameSettings from "../GameSettings/GameSettings";
 import FEN from "../../Chess/FEN/FEN";
+import PlayerInfo from "../PlayerInfo/PlayerInfo";
 
 const white = new Player("W", true);
 const black = new Player("B", false);
@@ -318,14 +319,17 @@ function Board() {
     // }
 
     return (
-        <>
-            <div className="game-wrapper thick-border center">
+        <div className="game-wrapper-outer thick-border center ">
+            <PlayerInfo isThinking={Chess.playerTurn.colour.isEqual(black.colour)} isHuman={Chess.blackPlayer.isHuman} />
+
+            <div className="game-wrapper ">
                 <Evaluation evaluation={Evaluate.simple(Chess)} />
                 <div className="board-wrapper ">{boardComponent}</div>
                 {/* <Information openSettings={openSettings} undoLastMove={undoLastMove} Chess={Chess} flipView={flipView}></Information> */}
             </div>
+            <PlayerInfo isThinking={Chess.playerTurn.colour.isEqual(white.colour)} isHuman={Chess.whitePlayer.isHuman} />
             {modal}
-        </>
+        </div>
     );
 }
 

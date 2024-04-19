@@ -1,0 +1,24 @@
+.player-info {
+    background-color: var(--information-background);
+    display: flex;
+    flex-direction: column;
+    height: 50px;
+    justify-content: center;
+    border-right: var(--board-border) 10px solid;
+}
+
+.player-info:last-child {
+    border-top: var(--board-border) 10px solid;
+}
+
+.player-info:first-child {
+    border-bottom: var(--board-border) 10px solid;
+}
+
+@media (max-width: 1100px) {
+    .player-info {
+        border-right: 0;
+
+        height: 30px;
+    }
+}
