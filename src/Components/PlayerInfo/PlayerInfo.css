@@ -1,10 +1,18 @@
 .player-info {
     background-color: var(--information-background);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 50px;
     justify-content: center;
+    align-items: center;
     border-right: var(--board-border) 10px solid;
+}
+
+.thinking-text {
+    font-size: 28px;
+    margin: 0;
+    margin-right: 10px;
+    padding: 0;
 }
 
 .player-info:last-child {
