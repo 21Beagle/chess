@@ -6,6 +6,9 @@ import Move from "../Move/Move";
 import Colour from "../Colour/Colour";
 import Player from "../Player/Player";
 import ChessGameState from "./ChessGameState";
+import Cache from "../Cache/Cache";
+import PieceFactory from "../Pieces/PieceFactory";
+import { ChessGameRequest } from "../../Api/Requests/ChessGameRequest";
 
 type chessFilter = {
     colour?: Colour;
@@ -38,6 +41,30 @@ export default class ChessGame {
 
         this.currentEvaluation = 0;
         this.moveHistory = [];
+    }
+
+    static BuildFromRequest(request: ChessGameRequest): ChessGame {
+        console.log(request);
+        const state = request.state;
+        const board = request.board;
+
+        // build board from composites
+        const newBoard = board.map((square) => {
+            let index = 0;
+            if (square._position !== null && square._position._index !== null) {
+                index = square._position._index || 0;
+            } else {
+                throw console.error("hello");
+            }
+
+            return PieceFactory.generate(index, square.type.id, new Colour(square.colour.id));
+        });
+
+        // build state from composites
+
+        const newState = new ChessGameState(state.castle, state.enPassant, state.colour, state.halfMoveClock, state.fullMoveClock);
+
+        return new ChessGame(newBoard, newState);
     }
 
     get playerTurn(): Player {
@@ -148,6 +175,12 @@ export default class ChessGame {
         }
     }
 
+    GetMovesForPiece(piece: Piece) {
+        const boardPiece = this.board[piece.position.index];
+
+        return boardPiece.generateMoves(this);
+    }
+
     getMoves(filter: chessFilter): Move[] {
         let allMoves: Move[] = [];
         this.board.forEach((piece) => {
@@ -204,6 +237,74 @@ export default class ChessGame {
         return pieces;
     }
 
+    doMove(move: Move, realMove: boolean = true) {
+        this.destroyPieceAtPosition(move.start);
+        this.placePieceAtPosition(move.piece, move.end);
+        this.state = move.stateAfter;
+        this.destroyPositionsOfMove(move);
+        this.handlePromotion(move);
+        this.doExtraMoves(move);
+        move.piece.hasMoved = true;
+        if (realMove) {
+            this.moveHistory.push(move);
+            Cache.clearCache();
+        }
+    }
+
+    private destroyPositionsOfMove(move: Move) {
+        move.willDestroy.forEach((position) => {
+            move.destoryedPieces.push(this.board[position.index as number]);
+            this.destroyPieceAtPosition(position);
+        });
+    }
+
+    private handlePromotion(move: Move): void {
+        if (move.isPromotion) {
+            const position = move.end.index;
+            this.destroyPieceAtIndex(position as number);
+            const colour = move.piece.colour;
+            const piece = PieceFactory.generate(position, move.promotionPiece, colour);
+            this.placePieceAtPosition(piece, move.end);
+        }
+    }
+
+    private doExtraMoves(move: Move, realMove = true): void {
+        move.extraMoves.forEach((extraMove) => {
+            this.doMove(extraMove, realMove);
+        });
+        return;
+    }
+
+    undoMove(move: Move): void {
+        this.placePieceAtPosition(move.piece, move.start);
+        this.placePieceAtPosition(move.endPiece, move.end);
+        this.state = move.stateBefore;
+        this.undoDestroyPositions(move);
+        this.undoPromotion(move);
+        this.undoExtraMoves(move);
+        move.piece.hasMoved = move.hasMovedBefore;
+    }
+
+    private undoPromotion(move: Move): void {
+        if (move.isPromotion) {
+            this.destroyPieceAtPosition(move.start);
+            this.placePieceAtPosition(move.piece, move.start);
+        }
+    }
+
+    private undoExtraMoves(move: Move): void {
+        move.extraMoves.forEach((extraMove) => {
+            this.undoMove(extraMove);
+        });
+    }
+
+    private undoDestroyPositions(move: Move) {
+        for (const piece of move.destoryedPieces) {
+            this.placePieceAtPosition(piece, piece.position);
+        }
+        move.destoryedPieces = [];
+    }
+
     _destroyPositions(positions: Position[]) {
         positions.forEach((position) => {
             if (position.index !== null) {
@@ -219,5 +320,13 @@ export default class ChessGame {
         }
 
         this.state.enPassant = null;
+    }
+
+    public static ParseFEN(input = ChessGame.initalBoardFEN) {
+        const gameComposite = FEN.ParseFEN(input);
+
+        const chess = new ChessGame(gameComposite.board, gameComposite.state);
+
+        return chess;
     }
 }
